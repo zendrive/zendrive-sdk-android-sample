@@ -39,6 +39,11 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/groups/public' }
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -53,5 +58,6 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.5.8'
     compile 'org.slf4j:slf4j-log4j12:1.5.8'
     compile 'org.apache.thrift:libthrift:0.9.1+'
+    compile 'com.github.kohanyirobert:ebson:0.4-SNAPSHOT'
 }
 

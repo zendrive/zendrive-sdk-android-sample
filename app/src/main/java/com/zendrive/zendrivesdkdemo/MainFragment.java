@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.zendrive.sdk.DriveInfo;
@@ -22,7 +21,6 @@ public class MainFragment extends Fragment {
 
     private TextView titleTextView, detailTextView;
     private Button startDriveButton, endDriveButton;
-    private ProgressBar loadingIndicator;
     private ViewGroup loadingIndicatorParent;
 
     public MainFragment() {
@@ -54,7 +52,6 @@ public class MainFragment extends Fragment {
             }
         });
 
-        loadingIndicator = (ProgressBar)rootView.findViewById(R.id.loadingIndicator);
         loadingIndicatorParent = (ViewGroup)rootView.findViewById(R.id.loadingIndicatorParent);
 
         // Initialize zendrive sdk
