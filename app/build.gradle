@@ -20,6 +20,7 @@ android {
         versionCode 1
         versionName "1.0"
 
+        // Enabling multidex support.
         multiDexEnabled true
     }
     buildTypes {
@@ -53,7 +54,6 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
 
     compile 'com.amazonaws:aws-android-sdk-core:2.1.3'
-    compile 'com.amazonaws:aws-android-sdk-s3:2.1.3'
     compile 'com.amazonaws:aws-android-sdk-sqs:2.1.3'
     compile 'org.slf4j:slf4j-api:1.5.8'
     compile 'org.slf4j:slf4j-log4j12:1.5.8'
