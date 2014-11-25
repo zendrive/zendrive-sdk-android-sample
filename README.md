@@ -1,8 +1,8 @@
 # Zendrive SDK demo for Android
-[Zendrive] is commited to improving driving and transportation for everyone through better data and analytics.
+[Zendrive][] is commited to improving driving and transportation for everyone through better data and analytics.
 <br/>
-You can integrate [Zendrive Android SDK] in your application to get Zendrive's driver centric analytics and insights for your fleet.
-<p>This is a sample project to demonstrate the [Zendrive Android SDK] integration</p>
+You can integrate [Zendrive Android SDK][] in your application to get Zendrive's driver centric analytics and insights for your fleet.
+<p>This is a sample project to demonstrate the [Zendrive Android SDK][] integration</p>
 
 <h4>Zendrive SDK performs four key functions.</h4>
 <ul style="list-style-position: inside">
@@ -15,7 +15,7 @@ You can integrate [Zendrive Android SDK] in your application to get Zendrive's d
 <p class="center">
 <img src="http://developers.zendrive.com/static/img/dev_intro_1.png" /> 
 
-<h5>Please go to [Zendrive Android SDK] documentation for further details.</h5>
+<h5>Please go to [Zendrive Android SDK][] documentation for further details.</h5>
 <br/>
 <br/>
 <br/>
