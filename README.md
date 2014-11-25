@@ -1,5 +1,5 @@
 # Zendrive SDK sample for Android
-<a href="htttp://www.zendrive.com">Zendrive</a> is commited to improving driving and transportation for everyone through better data and analytics.
+<a href="http://www.zendrive.com">Zendrive</a> is commited to improving driving and transportation for everyone through better data and analytics.
 <br/>
 You can integrate <a href="http://developers.zendrive.com/docs/android">Zendrive Android SDK</a> in your application to get Zendrive's driver centric analytics and insights for your fleet.
 <p>This is a sample project to demonstrate the <a href="http://developers.zendrive.com/docs/android">Zendrive Android SDK</a> integration</p>
