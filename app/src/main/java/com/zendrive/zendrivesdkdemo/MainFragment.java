@@ -55,7 +55,7 @@ public class MainFragment extends Fragment {
         loadingIndicatorParent = (ViewGroup)rootView.findViewById(R.id.loadingIndicatorParent);
 
         // Initialize zendrive sdk
-        String driverId = "someUserId";
+        String driverId = "someDriverId";
         this.initializeZendriveSDK(driverId);
 
         return rootView;
