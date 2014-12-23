@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ZendriveSDKDemo.iml" filepath="$PROJECT_DIR$/ZendriveSDKDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/zendrive-sdk-android-sample.iml" filepath="$PROJECT_DIR$/zendrive-sdk-android-sample.iml" />
     </modules>
   </component>
 </project>
