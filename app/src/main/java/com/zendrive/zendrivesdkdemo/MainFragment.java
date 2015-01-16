@@ -5,9 +5,11 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.zendrive.sdk.DriveInfo;
@@ -22,6 +24,8 @@ public class MainFragment extends Fragment {
     private TextView titleTextView, detailTextView;
     private Button startDriveButton, endDriveButton;
     private ViewGroup loadingIndicatorParent;
+    private EditText applicationKeyEditText;
+    private Button restartSDKButton;
 
     public MainFragment() {
     }
@@ -33,6 +37,11 @@ public class MainFragment extends Fragment {
 
         titleTextView = (TextView) rootView.findViewById(R.id.titleTextView);
         detailTextView = (TextView) rootView.findViewById(R.id.detailTextView);
+        applicationKeyEditText = (EditText) rootView.findViewById(R.id.applicationKeyEditText);
+
+        String applicationKey = PreferenceManager.getApplicationKeyFromPrefs(this.getActivity());
+        applicationKeyEditText.setText(applicationKey);
+        applicationKeyEditText.setHint("your_application_key");
 
         startDriveButton = (Button) rootView.findViewById(R.id.startDriveButton);
         startDriveButton.setOnClickListener(new View.OnClickListener() {
@@ -53,10 +62,25 @@ public class MainFragment extends Fragment {
         });
 
         loadingIndicatorParent = (ViewGroup)rootView.findViewById(R.id.loadingIndicatorParent);
+        loadingIndicatorParent.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
 
-        // Initialize zendrive sdk
-        String driverId = "someDriverId";
-        this.initializeZendriveSDK(driverId);
+        restartSDKButton = (Button) rootView.findViewById(R.id.restartSDKButton);
+        restartSDKButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Teardown Zendrive SDK if running
+                Zendrive.teardown();
+
+                // Initialize zendrive sdk
+                String driverId = "someDriverId";
+                MainFragment.this.initializeZendriveSDK(driverId);
+            }
+        });
 
         return rootView;
     }
@@ -68,10 +92,11 @@ public class MainFragment extends Fragment {
         userAttributes.setFirstName("FirstName");
         userAttributes.setLastName("LastName");
         userAttributes.setEmail("userEmail");
+        final String applicationKey = applicationKeyEditText.getText().toString();
 
         // Zendrive configuration
         ZendriveConfiguration configuration = new ZendriveConfiguration(
-                "your_application_key",
+                applicationKey,
                 driverId);
         configuration.setDriverAttributes(userAttributes);
 
@@ -102,9 +127,14 @@ public class MainFragment extends Fragment {
                                             initializeZendriveSDK(driverId);
                                         }
                                     })
-                                    .setCancelable(false)
+                                    .setNegativeButton("Cancel", null)
                                     .create();
                             ad.show();
+                        }
+                        else {
+                            detailTextView.setText("Zendrive SDK setup success!!");
+                            PreferenceManager.saveApplicationKeyToPrefs
+                                    (MainFragment.this.getActivity(), applicationKey);
                         }
                     }
                 }
