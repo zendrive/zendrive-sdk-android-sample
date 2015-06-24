@@ -7,8 +7,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
+            <option value="/private/tmp/zendrive-sdk-android-sample" />
+            <option value="/private/tmp/zendrive-sdk-android-sample/app" />
           </set>
         </option>
       </GradleProjectSettings>
