@@ -92,8 +92,8 @@
     <orderEntry type="library" exported="" name="slf4j-log4j12-1.5.8" level="project" />
     <orderEntry type="library" exported="" name="gson-2.2.4" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-6.5.87" level="project" />
+    <orderEntry type="library" exported="" name="ZendriveSDK-1.1.2" level="project" />
     <orderEntry type="library" exported="" name="httpcore-4.2.4" level="project" />
-    <orderEntry type="library" exported="" name="ZendriveSDK-1.1.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-6.5.87" level="project" />
     <orderEntry type="library" exported="" name="multidex-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="libthrift-0.9.1" level="project" />
