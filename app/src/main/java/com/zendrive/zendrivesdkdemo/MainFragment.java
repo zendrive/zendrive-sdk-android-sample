@@ -1,5 +1,12 @@
 package com.zendrive.zendrivesdkdemo;
 
+import com.zendrive.sdk.DriveInfo;
+import com.zendrive.sdk.DriveStartInfo;
+import com.zendrive.sdk.Zendrive;
+import com.zendrive.sdk.ZendriveConfiguration;
+import com.zendrive.sdk.ZendriveDriverAttributes;
+import com.zendrive.sdk.ZendriveListener;
+
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -11,13 +18,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.zendrive.sdk.DriveInfo;
-import com.zendrive.sdk.DriveStartInfo;
-import com.zendrive.sdk.Zendrive;
-import com.zendrive.sdk.ZendriveConfiguration;
-import com.zendrive.sdk.ZendriveDriverAttributes;
-import com.zendrive.sdk.ZendriveListener;
 
 public class MainFragment extends Fragment {
 
@@ -65,6 +65,7 @@ public class MainFragment extends Fragment {
         loadingIndicatorParent.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                v.performClick();
                 return true;
             }
         });
