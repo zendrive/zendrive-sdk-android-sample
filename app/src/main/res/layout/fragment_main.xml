@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/restartSDKButton"
             android:layout_above="@+id/startEndParent"
-            android:text="Restart Zendrive SDK" />
+            android:text="@string/restart_zen_sdk" />
 
         <LinearLayout
             android:layout_width="match_parent"
