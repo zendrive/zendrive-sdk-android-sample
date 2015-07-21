@@ -4,5 +4,12 @@
     <string name="app_name">ZendriveSDKDemo</string>
     <string name="start_drive">Start Drive</string>
     <string name="end_drive">End Drive</string>
-
+    <string name="start_zendrive_sdk">Start Zendrive SDK</string>
+    <string name="restart_zendrive_sdk">Restart Zendrive SDK</string>
+    <string name="zendrive_setup_success">Zendrive SDK setup!</string>
+    <string name="zendrive_setup_failure">Zendrive SDK setup failed</string>
+    <string name="default_sdk_key">Set in MainFragment.java</string>
+    <string name="default_driver_id">Set in MainFragment.java</string>
+    <string name="driving_title">Driving</string>
+    <string name="drive_ended_title">Drive ended</string>
 </resources>
