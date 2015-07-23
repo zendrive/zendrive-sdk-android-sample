@@ -32,21 +32,70 @@
             android:text=""
             android:textSize="18sp" />
 
-        <EditText
-            android:layout_width="match_parent"
+        <TableLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/applicationKeyEditText"
-            android:inputType="textShortMessage|textMultiLine"
             android:layout_below="@+id/detailTextView"
-            android:layout_marginTop="30dp"
-            android:layout_centerHorizontal="true" />
+            android:layout_marginTop="30dp">
+            android:marginTop ="30dp"
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                >
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="SDK Key:"
+                    android:id="@+id/sdkKeyTitleTextView"
+                    android:textSize="18sp"
+                />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/sdkKeyTextView"
+                    android:textSize="18sp"
+                    android:singleLine="false"
+                    android:paddingLeft="10dp"
+                    android:layout_weight="1"
+                    android:text="@string/default_sdk_key"
+                    />
+
+            </TableRow>
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                >
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:text="Driver Id:"
+                    android:id="@+id/driverIdTitleTextView"
+                    android:textSize="18sp"
+                />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/driverIdTextView"
+                    android:textSize="18sp"
+                    android:singleLine="false"
+                    android:paddingLeft="10dp"
+                    android:layout_weight="1"
+                    android:text="@string/default_driver_id" />
+            </TableRow>
+
+        </TableLayout>
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/restartSDKButton"
+            android:id="@+id/startSDKButton"
             android:layout_above="@+id/startEndParent"
-            android:text="Restart Zendrive SDK" />
+            android:text="@string/start_zendrive_sdk" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -70,6 +119,7 @@
                 android:text="@string/end_drive" />
 
         </LinearLayout>
+
     </RelativeLayout>
 
     <RelativeLayout
