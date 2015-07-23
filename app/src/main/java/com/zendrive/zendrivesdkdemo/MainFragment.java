@@ -27,9 +27,9 @@ public class MainFragment extends Fragment {
 
     // TODO: Set your Zendrive SDK key and driver id here.
     // The Zendrive SDK key is available in your account at https://developers.zendrive.com
-    private static final String zendriveSDKKey = "00AQfnSR9BRvDF8klUkf5NLHzvFagGrA";
+    private static final String zendriveSDKKey = "";
     // The driver id is a unique id for a driver using your app.
-    private static final String driverId = "chandan";
+    private static final String driverId = "";
 
     // TODO: Set these optional attributes of the driver here.
     private static final String driverFirstName = "";
