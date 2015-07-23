@@ -23,11 +23,13 @@ public class MainFragment extends Fragment {
     private Button startDriveButton, endDriveButton;
     private ViewGroup loadingIndicatorParent;
     private TextView sdkKeyTextView, driverIdTextView;
-    private Button restartSDKButton;
+    private Button startSDKButton;
 
-    // TODO: Set your sdk key and driver id here.
-    private static final String zendriveSDKKey = "";
-    private static final String driverId = "";
+    // TODO: Set your Zendrive SDK key and driver id here.
+    // The Zendrive SDK key is available in your account at https://developers.zendrive.com
+    private static final String zendriveSDKKey = "00AQfnSR9BRvDF8klUkf5NLHzvFagGrA";
+    // The driver id is a unique id for a driver using your app.
+    private static final String driverId = "chandan";
 
     // TODO: Set these optional attributes of the driver here.
     private static final String driverFirstName = "";
@@ -83,32 +85,43 @@ public class MainFragment extends Fragment {
             }
         });
 
-        restartSDKButton = (Button) rootView.findViewById(R.id.restartSDKButton);
-        restartSDKButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Teardown Zendrive SDK if running
-                Zendrive.teardown();
+        startSDKButton = (Button) rootView.findViewById(R.id.startSDKButton);
+        if (zendriveSDKKey.equals("") || driverId.equals("")) {
+            startSDKButton.setEnabled(false);
+            startDriveButton.setEnabled(false);
+            endDriveButton.setEnabled(false);
+        } else {
+            startSDKButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Teardown Zendrive SDK if running
+                    Zendrive.teardown();
 
-                // Initialize zendrive sdk
-                MainFragment.this.initializeZendriveSDK();
-            }
-        });
+                    // Initialize zendrive sdk
+                    MainFragment.this.initializeZendriveSDK();
+                }
+            });
+        }
 
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        Zendrive.teardown();
     }
 
     public void initializeZendriveSDK() {
 
         // Get user attributes (Optional)
         ZendriveDriverAttributes userAttributes = new ZendriveDriverAttributes();
-        if (!driverFirstName.equals("")) {
+        if (null != driverFirstName && !driverFirstName.equals("")) {
             userAttributes.setFirstName(driverFirstName);
         }
-        if (!driverLastName.equals("")) {
+        if (null != driverLastName && !driverLastName.equals("")) {
             userAttributes.setLastName(driverLastName);
         }
-        if (!driverEmail.equals("")) {
+        if (null != driverEmail && !driverEmail.equals("")) {
             userAttributes.setEmail(driverEmail);
         }
 
@@ -146,7 +159,6 @@ public class MainFragment extends Fragment {
                         }
                         else {
                             titleTextView.setText(R.string.zendrive_setup_success);
-                            restartSDKButton.setText(R.string.restart_zendrive_sdk);
                         }
                     }
                 }
