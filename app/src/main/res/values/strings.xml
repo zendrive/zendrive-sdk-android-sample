@@ -11,4 +11,5 @@
     <string name="default_driver_id">Set in MainFragment.java</string>
     <string name="driving_title">Driving</string>
     <string name="drive_ended_title">Drive ended</string>
+    <string name="accident_title">Accident Detected!!</string>
 </resources>
