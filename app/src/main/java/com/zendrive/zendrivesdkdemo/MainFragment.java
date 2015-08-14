@@ -115,6 +115,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onDestroyView() {
         Zendrive.teardown();
+        super.onDestroyView();
     }
 
     public void initializeZendriveSDK() {
