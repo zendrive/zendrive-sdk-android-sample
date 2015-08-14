@@ -21,7 +21,6 @@ import com.zendrive.sdk.ZendriveDriverAttributes;
 import com.zendrive.sdk.ZendriveListener;
 import com.zendrive.sdk.ZendriveOperationResult;
 
-import java.util.zip.Inflater;
 
 public class MainFragment extends Fragment {
 
