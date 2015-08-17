@@ -2,6 +2,7 @@ package com.zendrive.zendrivesdkdemo;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -9,13 +10,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.zendrive.sdk.AccidentInfo;
 import com.zendrive.sdk.DriveInfo;
 import com.zendrive.sdk.DriveStartInfo;
 import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriverAttributes;
 import com.zendrive.sdk.ZendriveListener;
+import com.zendrive.sdk.ZendriveOperationResult;
+
 
 public class MainFragment extends Fragment {
 
@@ -109,6 +114,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onDestroyView() {
         Zendrive.teardown();
+        super.onDestroyView();
     }
 
     public void initializeZendriveSDK() {
@@ -145,16 +151,20 @@ public class MainFragment extends Fragment {
                 listener,
                 new Zendrive.SetupCallback() {
                     @Override
-                    public void onSetup(boolean setupResult) {
+                    public void onSetup(ZendriveOperationResult setupResult) {
 
                         // hide loading indicator
                         hideLoadingIndicator();
 
-                        if (setupResult == false) {
+                        if (!setupResult.isSuccess()) {
                             AlertDialog ad = new AlertDialog.Builder(getActivity())
-                                    .setTitle(R.string.zendrive_setup_failure)
+                                    .setTitle(
+                                            getResources().getString(
+                                                    R.string.zendrive_setup_failure) + " " +
+                                            setupResult.getErrorCode().toString())
                                     .setNegativeButton("Close", null)
                                     .create();
+                            // TODO: Show error in toast.
                             ad.show();
                         }
                         else {
@@ -166,6 +176,7 @@ public class MainFragment extends Fragment {
     }
 
     private ZendriveListener getZendriveListener() {
+        final Context context = this.getActivity().getApplicationContext();
         ZendriveListener listener = new ZendriveListener() {
             @Override
             public void onDriveStart(DriveStartInfo startInfo) {
@@ -182,6 +193,20 @@ public class MainFragment extends Fragment {
                     Double distanceInMiles = tripInfo.distanceMeters*0.000621371;
                     detailTextView.setText("Distance :" + String.format("%.3f", distanceInMiles) + " miles");
                 }
+            }
+
+            @Override
+            public void onAccident(AccidentInfo accidentInfo) {
+                if(titleTextView != null){
+                    titleTextView.setText(R.string.accident_title);
+                    detailTextView.setText("Confidence :" + accidentInfo.confidence.toString());
+                }
+            }
+
+            @Override
+            public void onLocationDisabled() {
+                Toast.makeText(context, "High Accuracy Location Disabled", Toast.LENGTH_SHORT)
+                        .show();
             }
         };
 
