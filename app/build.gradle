@@ -43,9 +43,8 @@ repositories {
 
 dependencies {
     compile 'com.google.android.gms:play-services-location:7.8.0'
-    compile ('com.zendrive.sdk.android:ZendriveSDK:2.0.2@aar') {
+    compile ('com.zendrive.sdk.android:ZendriveSDK:2.0.3@aar') {
         transitive = true
-        exclude group: 'com.google.android.gms'
     }
 }
 
