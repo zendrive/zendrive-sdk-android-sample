@@ -7,8 +7,8 @@
     <string name="start_zendrive_sdk">Start Zendrive SDK</string>
     <string name="zendrive_setup_success">Zendrive SDK setup!</string>
     <string name="zendrive_setup_failure">Zendrive SDK setup failed</string>
-    <string name="default_sdk_key">Set in MainFragment.java</string>
-    <string name="default_driver_id">Set in MainFragment.java</string>
+    <string name="default_sdk_key">Set in Constants.java</string>
+    <string name="default_driver_id">Set in Constants.java</string>
     <string name="driving_title">Driving</string>
     <string name="drive_ended_title">Drive ended</string>
     <string name="accident_title">Accident Detected!!</string>

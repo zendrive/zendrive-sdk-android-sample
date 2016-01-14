@@ -1,21 +1,3 @@
-# Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in /Applications/adt-bundle-mac-x86_64-20140702/sdk/tools/proguard/proguard-android.txt
-# You can edit the include path and order by changing the proguardFiles
-# directive in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
-
-# Add any project specific keep options here:
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
 # Google play services rules - from https://developer.android.com/google/play-services/setup.html
 -keep class * extends java.util.ListResourceBundle {
     protected Object[][] getContents();
@@ -43,13 +25,11 @@
 -keep class org.apache.commons.** { *; }
 -keep class org.apache.thrift.** { *; }
 -keep class org.slf4j.** { *; }
--keep class com.fasterxml.jackson.** { *; }
 -keep class com.google.gson.** { *; }
 -keep class org.apache.http.** { *; }
 -keep enum org.apache.commons.** { *; }
 -keep enum org.apache.thrift.** { *; }
 -keep enum org.slf4j.** { *; }
--keep enum com.fasterxml.jackson.** { *; }
 -keep enum com.google.gson.** { *; }
 
 -dontwarn org.apache.http.**
@@ -67,21 +47,25 @@
 -keep class com.amazonaws.internal.** { *; }
 -keep class com.amazonaws.services.** { *; }
 -keep enum com.amazonaws.services.** { *; }
+-keep class com.amazonaws.regions.** { *; }
+-keep enum com.amazonaws.regions.** { *; }
 -keep class org.codehaus.** { *; }
 -keep class org.joda.convert.* { *; }
 -keep class com.amazonaws.org.joda.convert.* { *; }
 -keepattributes Signature,*Annotation*,EnclosingMethod
--keepnames class com.fasterxml.jackson.** { *; }
 -keepnames class com.amazonaws.** { *; }
 
 -dontwarn com.amazonaws.auth.**
 -dontwarn com.amazonaws.auth.policy.conditions.S3ConditionFactory
+-dontwarn com.amazonaws.metrics.MetricInputStreamEntity
+-dontwarn com.amazonaws.http.**
 -dontwarn org.joda.time.**
 -dontwarn com.amazonaws.org.joda.time.**
--dontwarn com.fasterxml.jackson.databind.**
+-dontwarn com.fasterxml.jackson.**
 -dontwarn javax.xml.stream.events.**
 -dontwarn org.codehaus.jackson.**
 -dontwarn org.apache.commons.logging.impl.**
+-dontwarn org.apache.commons.logging.**
 -dontwarn org.apache.http.conn.scheme.**
 -dontwarn org.apache.http.annotation.**
 -dontwarn org.ietf.jgss.**
