@@ -17,10 +17,10 @@
             android:id="@+id/titleTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:gravity="center"
             android:text="@string/app_name"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:layout_alignParentTop="true"/>
 
         <TextView
             android:id="@+id/detailTextView"
