@@ -2,14 +2,39 @@
 <resources>
 
     <string name="app_name">ZendriveSDKDemo</string>
+    <string name="drive_progress_title">drive in progress...</string>
+
+
+    <string name="location_permission">Location permission</string>
+    <string name="location_permission_denied">Location Permission Denied</string>
+    <string name="grant_location_permission">Grant location permission to Zendrive App</string>
+
+    <string name="location_disabled">Location Disabled</string>
+    <string name="enable_location">Enable High Accuracy location.</string>
+
+    <string name="accident_feedback_title">Accident Detected!</string>
+    <string name="no_accdient">Nothing happened</string>
+    <string name="accident">Need help</string>
+
+    <string name="invalid_sdk_key">Invalid Zendrive SDK key</string>
+    <string name="default_sdk_key">Set Zendrive SDK key in Constants.java</string>
+
+
     <string name="start_drive">Start Drive</string>
     <string name="end_drive">End Drive</string>
-    <string name="start_zendrive_sdk">Start Zendrive SDK</string>
+    <string name="login_zendrive_sdk">Login</string>
+    <string name="trigger_accident">Trigger Accident</string>
     <string name="zendrive_setup_success">Zendrive SDK setup!</string>
     <string name="zendrive_setup_failure">Zendrive SDK setup failed</string>
-    <string name="default_sdk_key">Set in Constants.java</string>
-    <string name="default_driver_id">Set in Constants.java</string>
     <string name="driving_title">Driving</string>
     <string name="drive_ended_title">Drive ended</string>
     <string name="accident_title">Accident Detected!!</string>
+
+    <string name="setting_button">settings</string>
+    <string name="logout_button">logout</string>
+    <string name="apply_setting_button">Apply</string>
+
+    <string name="auto_on">AUTO_ON</string>
+    <string name="auto_off">AUTO_OFF</string>'
+
 </resources>
