@@ -7,8 +7,6 @@ import java.util.List;
 
 /**
  * This class maintains all the trip information.
- *
- * Created by girishkadli on 12/24/15.
  */
 public class TripListDetails {
 

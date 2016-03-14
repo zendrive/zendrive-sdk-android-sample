@@ -13,8 +13,8 @@ import com.zendrive.sdk.ZendriveIntentService;
 /**
  * Service which listen to zendrive sdk notifications and passes it to ZendriveManager.
  */
-public class ZendriveSdkNotificationService extends ZendriveIntentService {
-    public ZendriveSdkNotificationService() {
+public class ZendriveSdkIntentService extends ZendriveIntentService {
+    public ZendriveSdkIntentService() {
         super("ZDService");
     }
 

@@ -34,9 +34,11 @@
             android:value="@integer/google_play_services_version" />
         <service android:name="com.zendrive.sdk.services.UserActivityService" />
         <service android:name="com.zendrive.sdk.services.ZendriveService" />
-        <service android:name=".ZendriveSdkNotificationService" />
+        <service android:name=".ZendriveSdkIntentService" />
         <receiver android:name="com.zendrive.sdk.receiver.WakeupReceiver"
                   android:label="WakeupReceiver"></receiver>
+        <receiver android:name="com.zendrive.zendrivesdkdemo.AppWakeupReciever"
+                  android:label="AppWakeupRecieve"></receiver>
     </application>
 
 </manifest>
