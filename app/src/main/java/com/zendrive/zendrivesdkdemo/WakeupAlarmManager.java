@@ -13,10 +13,9 @@ import com.zendrive.sdk.ZendriveOperationResult;
 import com.zendrive.sdk.ZendriveSetupCallback;
 
 /**
- * A manager to set or remove system alarms to wakeup the ZendriveSDKDemo app.
+ * Manager for a periodic alarm that the application creates to restart Zendrive SDK when it
+ * is unable to run in background because the OS killed it.
  *
- * The OS may shutdown the ZendriveSDKDemo app when needed. This alarm ensures that
- * the ZendriveSDKDemo is restarted periodically.
  */
 public class WakeupAlarmManager {
     /**

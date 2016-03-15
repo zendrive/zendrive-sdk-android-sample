@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 /**
- * A placeholder fragment containing a simple view.
+ * Login UI
  */
 public class LoginFragment extends BaseFragment {
 

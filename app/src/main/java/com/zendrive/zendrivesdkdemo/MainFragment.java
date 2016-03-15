@@ -30,10 +30,7 @@ import com.zendrive.sdk.AccidentFeedback;
 import com.zendrive.sdk.DriveInfo;
 import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveAccidentConfidence;
-import com.zendrive.sdk.ZendriveAccidentDetectionMode;
 import com.zendrive.sdk.ZendriveConfiguration;
-import com.zendrive.sdk.ZendriveDriveDetectionMode;
-import com.zendrive.sdk.ZendriveDriverAttributes;
 import com.zendrive.sdk.ZendriveOperationResult;
 import com.zendrive.sdk.ZendriveSetupCallback;
 
@@ -42,8 +39,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Application UI Class.
- * Shows details about drive activity.
+ * Main UI.
+ * Shows current state and details about drive activity.
  */
 public class MainFragment extends BaseFragment {
 
@@ -236,8 +233,6 @@ public class MainFragment extends BaseFragment {
             if (titleTextView != null) {
                 // show accident info on UI.
                 titleTextView.setText(R.string.accident_title);
-                double confidence = intent.getDoubleExtra(Constants.ACCIDENT_CONFIDENCE, 0.0);
-                detailTextView.setText("Confidence :" + confidence);
                 this.accidentId = intent.getStringExtra(Constants.ACCIDENT_ID);
                 AlertDialog alert = getAccidentFeedBackAlertDialog();
                 alert.show();
@@ -280,7 +275,7 @@ public class MainFragment extends BaseFragment {
     public void initializeZendriveSDK() {
 
         ZendriveManager zendriveManager = ZendriveManager.getSharedInstance(getActivity().getApplicationContext());
-        if (zendriveManager.isSDKSetup()) {
+        if (zendriveManager.isSdkInitialized()) {
             return;
         }
         // check for valid sdk key.
@@ -403,7 +398,7 @@ public class MainFragment extends BaseFragment {
 
         SharedPreferences sharedPreferences = PreferenceManager.
                 getDefaultSharedPreferences(this.getActivity().getApplicationContext());
-        String tripDetailsJsonString = sharedPreferences.getString(Constants.TRIP_DETAILS_KEY, null);
+        String tripDetailsJsonString = sharedPreferences.getString(SharedPreferenceManager.TRIP_DETAILS_KEY, null);
         if (null == tripDetailsJsonString) {
             return new TripListDetails();
         }
@@ -426,7 +421,7 @@ public class MainFragment extends BaseFragment {
             activity.loadSettingScreen();
         } else {
             Zendrive.teardown();
-            ZendriveManager.getSharedInstance(getContext()).clearSettings();
+            SharedPreferenceManager.clear(getContext());
             activity.setOrUnsetWakeupAlarm(false);
             activity.loadLoginScreen();
         }
