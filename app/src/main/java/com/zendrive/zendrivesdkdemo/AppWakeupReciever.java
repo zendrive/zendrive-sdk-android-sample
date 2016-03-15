@@ -16,12 +16,11 @@ public class AppWakeupReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         ZendriveManager zendriveManager = ZendriveManager.getSharedInstance(context.getApplicationContext());
-        if (!zendriveManager.isSDKSetup()) {
+        if (!zendriveManager.isSdkInitialized()) {
             ZendriveConfiguration configuration = zendriveManager.getSavedConfiguration();
-            if(null == configuration){
+            if (null == configuration) {
                 return;
             }
-            // silent setup in the background.
             zendriveManager.initializeZendriveSDK(configuration, new ZendriveSetupCallback() {
                 @Override
                 public void onSetup(ZendriveOperationResult zendriveOperationResult) {

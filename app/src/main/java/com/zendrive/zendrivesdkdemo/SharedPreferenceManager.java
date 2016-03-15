@@ -6,7 +6,15 @@ import android.preference.PreferenceManager;
 
 import com.zendrive.sdk.ZendriveDriveDetectionMode;
 
+/**
+ * Shared Preferences saved by the application.
+ */
 public class SharedPreferenceManager {
+
+    // Keys
+    public static final String USER_TYPE = "user_type";
+    public static final String DRIVER_ID_KEY = "driver_id";
+    public static final String TRIP_DETAILS_KEY = "trip_details";
 
     public static void setPreference(Context context, String key, String value){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -25,6 +33,13 @@ public class SharedPreferenceManager {
     public static String getStringPreference(Context context, String key, String defaultValue){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         return sharedPreferences.getString(key, defaultValue);
+    }
+
+    public static void clear(Context context){
+        removePreference(context, DRIVER_ID_KEY);
+        removeZendriveAutoDetectionMode(context);
+        removePreference(context, USER_TYPE);
+        removePreference(context, TRIP_DETAILS_KEY);
     }
 
     public static ZendriveDriveDetectionMode getZendriveAutoDetectionMode(Context context){
@@ -60,7 +75,7 @@ public class SharedPreferenceManager {
     }
 
     public static void setDriverId(Context context, String driverId){
-        setPreference(context, Constants.DRIVER_ID_KEY, driverId);
+        setPreference(context, DRIVER_ID_KEY, driverId);
     }
 
     private static String kKeyDetectionModePreference = "kKeyDetctionModePreference";

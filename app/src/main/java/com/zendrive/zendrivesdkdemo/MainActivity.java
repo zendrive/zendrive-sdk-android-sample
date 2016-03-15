@@ -44,7 +44,7 @@ public class MainActivity extends FragmentActivity {
 
     private boolean isUserLoggedIn(){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-        String savedDriverId = sharedPreferences.getString(Constants.DRIVER_ID_KEY, null);
+        String savedDriverId = sharedPreferences.getString(SharedPreferenceManager.DRIVER_ID_KEY, null);
         return savedDriverId!=null && !savedDriverId.equalsIgnoreCase("");
     }
 

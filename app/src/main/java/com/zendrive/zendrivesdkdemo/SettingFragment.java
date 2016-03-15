@@ -20,7 +20,7 @@ public class SettingFragment extends BaseFragment {
     private Button applySettingsButton;
 
     private ZendriveDriveDetectionMode trackingMode = ZendriveDriveDetectionMode.AUTO_ON;
-    private String userType = ZendriveManager.UserType.FREE.toString();
+    private String userType = UserType.FREE.name();
 
     public SettingFragment() {
     }
@@ -48,9 +48,9 @@ public class SettingFragment extends BaseFragment {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 if (i == R.id.freeUser) {
-                    userType = ZendriveManager.UserType.FREE.toString();
+                    userType = UserType.FREE.name();
                 } else if (i == R.id.paidUser) {
-                    userType = ZendriveManager.UserType.PAID.toString();
+                    userType = UserType.PAID.name();
                 }
             }
         });
@@ -59,7 +59,7 @@ public class SettingFragment extends BaseFragment {
             @Override
             public void onClick(View view) {
                 SharedPreferenceManager.setZendriveAutoDetectionMode(getContext(), trackingMode);
-                SharedPreferenceManager.setPreference(getContext(), Constants.USER_TYPE, userType);
+                SharedPreferenceManager.setPreference(getContext(), SharedPreferenceManager.USER_TYPE, userType);
                 final MainActivity activity = (MainActivity) getActivity();
                 if (activity != null) {
                     // call teardown.

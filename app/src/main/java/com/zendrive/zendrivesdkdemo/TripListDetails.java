@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class maintains all the trip information.
+ * Trips detected by the Zendrive SDK.
  */
 public class TripListDetails {
 

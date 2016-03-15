@@ -10,16 +10,21 @@ import android.support.v4.app.NotificationCompat;
 
 
 /**
- * This class creates zendrive notifications.
+ * Utility to create notifications to show to the user when the Zendrive SDK has something
+ * interesting to report.
  */
-
 public class NotificationUtility {
     // Notification related constants
     public static final int kForegroundModeNotificationId = 98;
     public static final int kLocationDisabledNotificationId = 99;
     public static final int kLocationPermissionDeniedNotificationId = 100;
 
-    public static Notification getZendriveServiceNotification(Context context) {
+    /**
+     * Create a notification that is used when we run Zendrive as a foreground service.
+     * @param context application context.
+     * @return the created notification
+     */
+    public static Notification createZendriveForegroundServiceNotification(Context context) {
         PendingIntent notificationIntent = getNotificationClickIntent(context);
 
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
@@ -37,17 +42,16 @@ public class NotificationUtility {
         return notification;
     }
 
-    private static PendingIntent getNotificationClickIntent(Context context) {
-        Intent notificationIntent = new Intent(context.getApplicationContext(), MainActivity.class);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0,
-                notificationIntent, 0);
-        return pendingIntent;
-    }
-
-    // Location permission denied notification
-    public static Notification getLocationPermissionDeniedNotification(Context context) {
-        Intent callGPSSettingIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+    /**
+     * Create a notification when location permission is denied to the application.
+     * @param context App context
+     * @return the created notifcation.
+     */
+    public static Notification createLocationPermissionDeniedNotification(Context context) {
+        // TODO: The click intent should not point to location settings. Perhaps we can load
+        // the app permissions tab.
+        Intent callGPSSettingIntent = new Intent(
+                android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0,
                 callGPSSettingIntent, 0);
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
@@ -65,9 +69,14 @@ public class NotificationUtility {
         return notification;
     }
 
-    // Location disabled notification
-    public static Notification getLocationDisabledNotification(Context context) {
-        Intent callGPSSettingIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+    /**
+     * Create a notification when high accuracy location is disabled on the device.
+     * @param context App context
+     * @return the created notifcation.
+     */
+    public static Notification createLocationSettingDisabledNotification(Context context) {
+        Intent callGPSSettingIntent = new Intent(
+                android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0,
                 callGPSSettingIntent, 0);
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
@@ -83,6 +92,14 @@ public class NotificationUtility {
                 .setContentIntent(pendingIntent)
                 .build();
         return notification;
+    }
+
+    private static PendingIntent getNotificationClickIntent(Context context) {
+        Intent notificationIntent = new Intent(context.getApplicationContext(), MainActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0,
+                notificationIntent, 0);
+        return pendingIntent;
     }
 
 }
