@@ -176,7 +176,7 @@ public class MainFragment extends BaseFragment {
         builder.setPositiveButton(getResources().getString(R.string.accident),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        addAccidentFeedback(false);
+                        addAccidentFeedback(true);
                         dialog.cancel();
                     }
                 });
@@ -195,6 +195,7 @@ public class MainFragment extends BaseFragment {
                 Log.d(Constants.LOG_TAG_DEBUG, "Accident feedback failed: " +
                         result.getErrorMessage());
             }
+            accidentId = null;
         } else {
             Log.d(Constants.LOG_TAG_DEBUG, "AccidentId is null");
         }
