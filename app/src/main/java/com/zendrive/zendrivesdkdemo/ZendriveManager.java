@@ -96,6 +96,7 @@ public class ZendriveManager {
      */
     public void onAccident(AccidentInfo accidentInfo) {
         Intent intent = new Intent(Constants.ACCIDENT);
+        intent.putExtra(Constants.ACCIDENT_ID, accidentInfo.accidentId);
         LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
     }
 

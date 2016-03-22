@@ -176,7 +176,7 @@ public class MainFragment extends BaseFragment {
         builder.setPositiveButton(getResources().getString(R.string.accident),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        addAccidentFeedback(false);
+                        addAccidentFeedback(true);
                         dialog.cancel();
                     }
                 });
