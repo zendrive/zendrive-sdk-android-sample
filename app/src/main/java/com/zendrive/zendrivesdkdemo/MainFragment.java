@@ -195,6 +195,7 @@ public class MainFragment extends BaseFragment {
                 Log.d(Constants.LOG_TAG_DEBUG, "Accident feedback failed: " +
                         result.getErrorMessage());
             }
+            accidentId = null;
         } else {
             Log.d(Constants.LOG_TAG_DEBUG, "AccidentId is null");
         }
