@@ -26,6 +26,25 @@ import com.zendrive.sdk.ZendriveSetupCallback;
  */
 public class ZendriveManager {
 
+    public enum UserType {
+        /**
+         * Default user type.
+         */
+        FREE,
+
+        /**
+         * Paid users.
+         */
+        PAID;
+
+        public String toString() {
+            if(this == FREE){
+                return "Free";
+            }
+            return "Paid";
+        }
+    }
+
     private static ZendriveManager sharedInstance;
 
     public static ZendriveManager getSharedInstance(Context context) {
