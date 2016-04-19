@@ -20,7 +20,7 @@ public class SettingFragment extends BaseFragment {
     private Button applySettingsButton;
 
     private ZendriveDriveDetectionMode trackingMode = ZendriveDriveDetectionMode.AUTO_ON;
-    private String userType = UserType.FREE.name();
+    private String userType = ZendriveManager.UserType.FREE.name();
 
     public SettingFragment() {
     }
@@ -48,9 +48,9 @@ public class SettingFragment extends BaseFragment {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 if (i == R.id.freeUser) {
-                    userType = UserType.FREE.name();
+                    userType = ZendriveManager.UserType.FREE.name();
                 } else if (i == R.id.paidUser) {
-                    userType = UserType.PAID.name();
+                    userType = ZendriveManager.UserType.PAID.name();
                 }
             }
         });
