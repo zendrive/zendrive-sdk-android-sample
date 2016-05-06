@@ -31,8 +31,9 @@ import com.zendrive.sdk.DriveInfo;
 import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveAccidentConfidence;
 import com.zendrive.sdk.ZendriveConfiguration;
+import com.zendrive.sdk.ZendriveEvent;
+import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
-import com.zendrive.sdk.ZendriveSetupCallback;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -295,9 +296,9 @@ public class MainFragment extends BaseFragment {
         showLoadingIndicator();
 
         zendriveManager.initializeZendriveSDK(configuration,
-                new ZendriveSetupCallback() {
+                new ZendriveOperationCallback() {
                     @Override
-                    public void onSetup(ZendriveOperationResult setupResult) {
+                    public void onCompletion(ZendriveOperationResult setupResult) {
                         hideLoadingIndicator();
                         MainActivity activity = (MainActivity) getActivity();
                         if (activity == null) {
@@ -379,9 +380,18 @@ public class MainFragment extends BaseFragment {
             String startTime = getDateString(info.startTimeMillis);
             String endTime = getDateString(info.endTimeMillis);
             double distanceValue = (info.distanceMeters * 0.000621371);
-            String distance = String.format("%.2f", distanceValue);
-            String value = "Trip Start: " + startTime + "\nTrip End: " + endTime + "\nDistance: " + distance + "miles";
-            values[j] = value;
+            double maxSpeed = (info.maxSpeed > 0 ? info.maxSpeed * 3600/1609.0 : info.maxSpeed);
+            int numEvents = info.events.size();
+            StringBuilder value = new StringBuilder(String.format(
+                    "Trip Start: %s\nTrip End: %s\nDistance: %.2f miles\nMax Speed: %.2f mph\n" +
+                            "Events: %d\n", startTime, endTime, distanceValue, maxSpeed,
+                    numEvents));
+            for (ZendriveEvent event : info.events) {
+                value.append(String.format("\t%s - %s %d secs\n", event.eventType.name(),
+                        event.severity.name(),
+                        event.endTimestampMillis - event.startTimestampMillis));
+            }
+            values[j] = value.toString();
             j++;
         }
         ArrayAdapter adapter = new ArrayAdapter<String>(this.getActivity().getApplicationContext(),
@@ -421,7 +431,7 @@ public class MainFragment extends BaseFragment {
         if(item.getItemId() == 0) {
             activity.loadSettingScreen();
         } else {
-            Zendrive.teardown();
+            Zendrive.teardown(null);
             SharedPreferenceManager.clear(getContext());
             activity.setOrUnsetWakeupAlarm(false);
             activity.loadLoginScreen();
