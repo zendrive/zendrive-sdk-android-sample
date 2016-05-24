@@ -16,6 +16,7 @@ import com.zendrive.sdk.ZendriveAccidentDetectionMode;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveDetectionMode;
 import com.zendrive.sdk.ZendriveDriverAttributes;
+import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
 import com.zendrive.sdk.ZendriveSetupCallback;
 
@@ -64,11 +65,11 @@ public class ZendriveManager {
      * @param setupCallback callback that is invoked after initialization.
      */
     public void initializeZendriveSDK(ZendriveConfiguration configuration,
-                                      final ZendriveSetupCallback setupCallback) {
+                                      final ZendriveOperationCallback setupCallback) {
         if (Zendrive.isSDKSetup()) {
             ZendriveOperationResult result = ZendriveOperationResult.createSuccess();
             if (setupCallback != null) {
-                setupCallback.onSetup(result);
+                setupCallback.onCompletion(result);
             }
             return;
         }

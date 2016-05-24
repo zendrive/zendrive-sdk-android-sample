@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -31,8 +32,8 @@ import com.zendrive.sdk.DriveInfo;
 import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveAccidentConfidence;
 import com.zendrive.sdk.ZendriveConfiguration;
+import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
-import com.zendrive.sdk.ZendriveSetupCallback;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -103,7 +104,21 @@ public class MainFragment extends BaseFragment {
         detailTextView = (TextView) rootView.findViewById(R.id.detailTextView);
         driverIdTextView = (TextView) rootView.findViewById(R.id.driverIdTextView);
         this.tripListView = (ListView) rootView.findViewById(R.id.tripListView);
-
+        mapFragment = new TripMapFragment();
+        tripListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                TripListDetails tripDetails = loadTripDetails();
+                if(null == tripDetails || null == tripDetails.tripList || tripDetails.tripList.size() == 0){
+                    return;
+                }
+                int size = tripDetails.tripList.size();
+                // fetch corresponding drive info (trip details).
+                DriveInfo driveInfo = tripDetails.tripList.get(size - (i + 1));
+                displayMap();
+                mapFragment.drawTripOnMap(driveInfo);
+            }
+        });
         // trigger mock accident button.
         triggerAccidentButton = (Button) rootView.findViewById(R.id.triggerAccidentButton);
         triggerAccidentButton.setOnClickListener(new View.OnClickListener() {
@@ -161,6 +176,12 @@ public class MainFragment extends BaseFragment {
         return rootView;
     }
 
+    private void displayMap() {
+        if (mapFragment != null) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.displayFragment(mapFragment);
+        }
+    }
 
     private AlertDialog getAccidentFeedBackAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -295,9 +316,9 @@ public class MainFragment extends BaseFragment {
         showLoadingIndicator();
 
         zendriveManager.initializeZendriveSDK(configuration,
-                new ZendriveSetupCallback() {
+                new ZendriveOperationCallback() {
                     @Override
-                    public void onSetup(ZendriveOperationResult setupResult) {
+                    public void onCompletion(ZendriveOperationResult setupResult) {
                         hideLoadingIndicator();
                         MainActivity activity = (MainActivity) getActivity();
                         if (activity == null) {
@@ -421,7 +442,7 @@ public class MainFragment extends BaseFragment {
         if(item.getItemId() == 0) {
             activity.loadSettingScreen();
         } else {
-            Zendrive.teardown();
+            Zendrive.teardown(null);
             SharedPreferenceManager.clear(getContext());
             activity.setOrUnsetWakeupAlarm(false);
             activity.loadLoginScreen();
@@ -433,5 +454,5 @@ public class MainFragment extends BaseFragment {
     private BroadcastReceiver receiver;
     private ListView tripListView;
     private String accidentId = null;
-
+    private TripMapFragment mapFragment;
 }

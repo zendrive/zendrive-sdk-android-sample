@@ -2,11 +2,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zendrive.zendrivesdkdemo" >
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
 
+    <permission android:name="com.example.mapdemo.permission.MAPS_RECEIVE" android:protectionLevel="signature"/>
+    <permission android:name="android.permission.ACCESS_FINE_LOCATION" android:protectionLevel="dangerous"/>
+    <permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:protectionLevel="dangerous"/>
+
+    <uses-permission android:name="com.example.mapdemo.permission.MAPS_RECEIVE"/>
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.example.mapdemo.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <!-- This permission is needed for automatic drive detection by Zendrive. -->
     <uses-permission android:name= "com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
@@ -28,6 +38,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <uses-library android:required="true" android:name="com.google.android.maps" />
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyCJQK37FSmeJIBaNeNcFLWBwqVYYOdS6wc" />
 
         <!-- Ignore this tag if already added as part of Play Services setup  -->
         <meta-data android:name="com.google.android.gms.version"

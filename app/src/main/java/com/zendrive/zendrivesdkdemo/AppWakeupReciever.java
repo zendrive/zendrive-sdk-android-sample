@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.zendrive.sdk.ZendriveConfiguration;
+import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
 import com.zendrive.sdk.ZendriveSetupCallback;
 
@@ -21,9 +22,9 @@ public class AppWakeupReciever extends BroadcastReceiver {
             if (null == configuration) {
                 return;
             }
-            zendriveManager.initializeZendriveSDK(configuration, new ZendriveSetupCallback() {
+            zendriveManager.initializeZendriveSDK(configuration, new ZendriveOperationCallback() {
                 @Override
-                public void onSetup(ZendriveOperationResult zendriveOperationResult) {
+                public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
 
                 }
             });

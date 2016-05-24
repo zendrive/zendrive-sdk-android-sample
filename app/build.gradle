@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.android.tools.build:gradle:2.1.0'
     }
 }
 
@@ -43,7 +43,7 @@ repositories {
 
 dependencies {
     compile 'com.google.android.gms:play-services-location:8.4.0'
-    compile ('com.zendrive.sdk.android:ZendriveSDK:2.2.3@aar') {
+    compile ('com.zendrive.sdk.android:ZendriveSDK:3.0.2@aar') {
         transitive = true
     }
 }

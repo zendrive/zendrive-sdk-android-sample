@@ -63,7 +63,7 @@ public class SettingFragment extends BaseFragment {
                 final MainActivity activity = (MainActivity) getActivity();
                 if (activity != null) {
                     // call teardown.
-                    Zendrive.teardown();
+                    Zendrive.teardown(null);
                     // do fresh sdk start with new settings.
                     activity.loadMainScreen();
                 }
@@ -72,5 +72,4 @@ public class SettingFragment extends BaseFragment {
         });
         return view;
     }
-
 }
