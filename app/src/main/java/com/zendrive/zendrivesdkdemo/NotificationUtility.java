@@ -15,9 +15,9 @@ import android.support.v4.app.NotificationCompat;
  */
 public class NotificationUtility {
     // Notification related constants
-    public static final int kForegroundModeNotificationId = 98;
-    public static final int kLocationDisabledNotificationId = 99;
-    public static final int kLocationPermissionDeniedNotificationId = 100;
+    public static final int FOREGROUND_MODE_NOTIFICATION_ID = 98;
+    public static final int LOCATION_DISABLED_NOTIFICATION_ID = 99;
+    public static final int LOCATION_PERMISSION_DENIED_NOTIFICATION_ID = 100;
 
     /**
      * Create a notification that is used when we run Zendrive as a foreground service.
@@ -57,7 +57,7 @@ public class NotificationUtility {
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
                 R.drawable.ic_launcher);
 
-        Notification notification = new NotificationCompat.Builder(context.getApplicationContext())
+        return new NotificationCompat.Builder(context.getApplicationContext())
                 .setContentTitle(context.getResources().getString(R.string.location_permission_denied))
                 .setTicker(context.getResources().getString(R.string.location_permission_denied))
                 .setContentText(context.getResources().getString(R.string.grant_location_permission))
@@ -66,7 +66,6 @@ public class NotificationUtility {
                 .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
                 .setContentIntent(pendingIntent)
                 .build();
-        return notification;
     }
 
     /**
@@ -82,7 +81,7 @@ public class NotificationUtility {
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
                 R.drawable.ic_launcher);
 
-        Notification notification = new NotificationCompat.Builder(context.getApplicationContext())
+        return new NotificationCompat.Builder(context.getApplicationContext())
                 .setContentTitle(context.getResources().getString(R.string.location_disabled))
                 .setTicker(context.getResources().getString(R.string.location_disabled))
                 .setContentText(context.getResources().getString(R.string.enable_location))
@@ -91,15 +90,13 @@ public class NotificationUtility {
                 .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
                 .setContentIntent(pendingIntent)
                 .build();
-        return notification;
     }
 
     private static PendingIntent getNotificationClickIntent(Context context) {
-        Intent notificationIntent = new Intent(context.getApplicationContext(), MainActivity.class);
+        Intent notificationIntent = new Intent(context.getApplicationContext(), SplashActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0,
-                notificationIntent, 0);
-        return pendingIntent;
+        return PendingIntent.getActivity(context.getApplicationContext(), 0,
+                                         notificationIntent, 0);
     }
 
 }

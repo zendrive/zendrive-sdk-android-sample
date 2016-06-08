@@ -1,6 +1,11 @@
 package com.zendrive.zendrivesdkdemo;
 
+import android.app.AlertDialog;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,16 +25,38 @@ import com.zendrive.sdk.ZendriveEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by girishkadli on 5/24/16.
- */
-public class TripMapFragment extends SupportMapFragment {
+public class MapActivity extends FragmentActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_map);
+        try {
+            ApplicationInfo applicationInfo = getPackageManager()
+                    .getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+            if (applicationInfo.metaData.getString("com.google.android.maps.v2.API_KEY", "").equals("")) {
+                new AlertDialog.Builder(this)
+                        .setTitle(getResources().getString(R.string.invalid_maps_key))
+                        .setMessage(getResources().getString(R.string.default_maps_key))
+                        .create().show();
+                return;
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            // can't be
+        }
+        supportmapfragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        drawTripOnMap(((MyApplication) getApplication()).driveInfo);
+    }
+
+    @Override
+    public void finish() {
+        ((MyApplication) getApplication()).driveInfo = null;
+        super.finish();
+    }
 
     public void drawTripOnMap(final DriveInfo driveInfo) {
         // draw trip details on map.
         final List<LatLng> points = new ArrayList<LatLng>();
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        int i = 0;
+        final LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (LocationPoint pt : driveInfo.waypoints) {
             LatLng latLng = new LatLng(pt.latitude, pt.longitude);
             // Adding the taped point to the ArrayList
@@ -37,7 +64,7 @@ public class TripMapFragment extends SupportMapFragment {
             builder.include(latLng);
         }
         final LatLngBounds bounds = builder.build();
-        this.getMapAsync(new OnMapReadyCallback() {
+        supportmapfragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap gMap) {
                 PolylineOptions polylineOptions = new PolylineOptions();
@@ -87,4 +114,6 @@ public class TripMapFragment extends SupportMapFragment {
             }
         });
     }
+
+    private SupportMapFragment supportmapfragment;
 }

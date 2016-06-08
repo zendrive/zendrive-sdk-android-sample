@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.zendrive.sdk.AccidentInfo;
 import com.zendrive.sdk.DriveInfo;
+import com.zendrive.sdk.DriveResumeInfo;
 import com.zendrive.sdk.DriveStartInfo;
 import com.zendrive.sdk.ZendriveIntentService;
 
@@ -31,6 +32,12 @@ public class ZendriveSdkIntentService extends ZendriveIntentService {
     public void onDriveEnd(DriveInfo driveInfo) {
         Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Drive End");
         ZendriveManager.getSharedInstance(getApplicationContext()).onDriveEnd(driveInfo);
+    }
+
+    @Override
+    public void onDriveResume(DriveResumeInfo driveResumeInfo) {
+        Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Drive End");
+        ZendriveManager.getSharedInstance(getApplicationContext()).onDriveResume(driveResumeInfo);
     }
 
     @Override
