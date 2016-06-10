@@ -10,14 +10,15 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.google.gson.Gson;
 import com.zendrive.sdk.AccidentInfo;
 import com.zendrive.sdk.DriveInfo;
+import com.zendrive.sdk.DriveResumeInfo;
 import com.zendrive.sdk.DriveStartInfo;
 import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveAccidentDetectionMode;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveDetectionMode;
 import com.zendrive.sdk.ZendriveDriverAttributes;
+import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
-import com.zendrive.sdk.ZendriveSetupCallback;
 
 /**
  * Wrapper class for the Zendrive SDK.
@@ -64,11 +65,11 @@ public class ZendriveManager {
      * @param setupCallback callback that is invoked after initialization.
      */
     public void initializeZendriveSDK(ZendriveConfiguration configuration,
-                                      final ZendriveSetupCallback setupCallback) {
+                                      final ZendriveOperationCallback setupCallback) {
         if (Zendrive.isSDKSetup()) {
             ZendriveOperationResult result = ZendriveOperationResult.createSuccess();
             if (setupCallback != null) {
-                setupCallback.onSetup(result);
+                setupCallback.onCompletion(result);
             }
             return;
         }
@@ -90,24 +91,28 @@ public class ZendriveManager {
      */
     public void onDriveStart(DriveStartInfo driveStartInfo) {
         driveInProgress = true;
-        Zendrive.startForeground(NotificationUtility.kForegroundModeNotificationId,
-                NotificationUtility.createZendriveForegroundServiceNotification(this.context));
+        Zendrive.startForeground(NotificationUtility.FOREGROUND_MODE_NOTIFICATION_ID,
+                NotificationUtility.createZendriveForegroundServiceNotification(context));
 
-        Intent intent = new Intent(Constants.DRIVE_START);
-        LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Constants.REFRESH_UI));
     }
 
     /**
      * An ongoing drive ended. Save this drive into the trip list.
      */
     public void onDriveEnd(DriveInfo driveInfo) {
+        driveInProgress = false;
         TripListDetails tripListDetails = loadTripDetails();
         tripListDetails.addTrip(driveInfo);
         saveTripDetails(tripListDetails);
-        Intent intent = new Intent(Constants.DRIVE_END);
+        Intent intent = new Intent(Constants.REFRESH_UI);
         intent.putExtra(Constants.DRIVE_DISTANCE, driveInfo.distanceMeters);
         LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
         Zendrive.stopForeground(true);
+    }
+
+    public void onDriveResume(DriveResumeInfo driveInfo) {
+        driveInProgress = true;
     }
 
     /**
@@ -132,7 +137,6 @@ public class ZendriveManager {
         } else {
             throw new RuntimeException("Callback on non marshmallow sdk");
         }
-
     }
 
     /**
@@ -178,11 +182,11 @@ public class ZendriveManager {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (isLocationSettingsEnabled) {
             // Remove the displayed notification if any
-            mNotificationManager.cancel(NotificationUtility.kLocationDisabledNotificationId);
+            mNotificationManager.cancel(NotificationUtility.LOCATION_DISABLED_NOTIFICATION_ID);
         } else {
             // Notify user
             Notification notification = NotificationUtility.createLocationSettingDisabledNotification(context);
-            mNotificationManager.notify(NotificationUtility.kLocationDisabledNotificationId, notification);
+            mNotificationManager.notify(NotificationUtility.LOCATION_DISABLED_NOTIFICATION_ID, notification);
         }
     }
 
@@ -192,11 +196,11 @@ public class ZendriveManager {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (isLocationPermissionGranted) {
             // Remove the displayed notification if any
-            mNotificationManager.cancel(NotificationUtility.kLocationPermissionDeniedNotificationId);
+            mNotificationManager.cancel(NotificationUtility.LOCATION_PERMISSION_DENIED_NOTIFICATION_ID);
         } else {
             // Notify user
             Notification notification = NotificationUtility.createLocationPermissionDeniedNotification(context);
-            mNotificationManager.notify(NotificationUtility.kLocationPermissionDeniedNotificationId, notification);
+            mNotificationManager.notify(NotificationUtility.LOCATION_PERMISSION_DENIED_NOTIFICATION_ID, notification);
         }
     }
 

@@ -19,22 +19,30 @@
     <string name="invalid_sdk_key">Invalid Zendrive SDK key</string>
     <string name="default_sdk_key">Set Zendrive SDK key in Constants.java</string>
 
+    <string name="invalid_maps_key">Invalid Google Maps APIkey</string>
+    <string name="default_maps_key">Set Google Maps API in AndroidManifest.xml</string>
 
     <string name="start_drive">Start Drive</string>
     <string name="end_drive">End Drive</string>
     <string name="login_zendrive_sdk">Login</string>
     <string name="trigger_accident">Trigger Accident</string>
-    <string name="zendrive_setup_success">Zendrive SDK setup!</string>
-    <string name="zendrive_setup_failure">Zendrive SDK setup failed</string>
     <string name="driving_title">Driving</string>
-    <string name="drive_ended_title">Drive ended</string>
+    <string name="zendrive_setup_success">Ready to drive</string>
+    <string name="zendrive_setup_failure">Zendrive SDK setup failed</string>
+    <string name="zendrive_not_setup">Zendrive SDK not setup</string>
     <string name="accident_title">Accident Detected!!</string>
 
-    <string name="setting_button">settings</string>
-    <string name="logout_button">logout</string>
-    <string name="apply_setting_button">Apply</string>
+    <string name="setting_button">Settings</string>
+    <string name="logout_button">Logout</string>
 
     <string name="auto_on">AUTO_ON</string>
-    <string name="auto_off">AUTO_OFF</string>'
+    <string name="auto_off">AUTO_OFF</string>
+    <string name="drive_tracking_key">drive_tracking</string>
+    <string name="user_type_key">user_type_key</string>
+
+    <string-array name="list_preference_entry_values">
+        <item>Free</item>
+        <item>Paid</item>
+    </string-array>
 
 </resources>

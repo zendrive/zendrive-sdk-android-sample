@@ -3,19 +3,15 @@ package com.zendrive.zendrivesdkdemo;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 
-import com.zendrive.sdk.ZendriveConfiguration;
-import com.zendrive.sdk.ZendriveOperationResult;
-import com.zendrive.sdk.ZendriveSetupCallback;
+import com.android.annotations.NonNull;
 
 /**
  * Manager for a periodic alarm that the application creates to restart Zendrive SDK when it
  * is unable to run in background because the OS killed it.
- *
  */
 public class WakeupAlarmManager {
     /**
@@ -27,25 +23,18 @@ public class WakeupAlarmManager {
 
     public void setAlarm() {
         if (kAppWakeupIntervalMillisecs > 0) {
-            AlarmManager alarmManager = getAlarmManager();
-            if (alarmManager == null) {
-                return;
-            }
             PendingIntent alarmIntent = getAlarmIntent();
-            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + kAppWakeupIntervalMillisecs,
-                    alarmIntent);
+            getAlarmManager().set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                                  SystemClock.elapsedRealtime() + kAppWakeupIntervalMillisecs,
+                                  alarmIntent);
         }
     }
 
     public void unsetAlarm() {
-        AlarmManager alarmManager = getAlarmManager();
-        if (alarmManager == null) {
-            return;
-        }
-        alarmManager.cancel(getAlarmIntent());
+        getAlarmManager().cancel(getAlarmIntent());
     }
 
+    @NonNull
     private AlarmManager getAlarmManager() {
         return (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     }
@@ -58,7 +47,7 @@ public class WakeupAlarmManager {
     /**
      * The interval at which to wake up the SDK. If <= 0, then an alarm won't be setup.
      */
-    static private long kAppWakeupIntervalMillisecs = 6 * AlarmManager.INTERVAL_HOUR;
+    private static final long kAppWakeupIntervalMillisecs = 6 * AlarmManager.INTERVAL_HOUR;
 
     private Context context;
 }
