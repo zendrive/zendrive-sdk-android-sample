@@ -1,60 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.zendrive.zendrivesdkdemo" >
+          package="com.zendrive.zendrivesdkdemo"
+    >
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
-    <permission android:name="com.example.mapdemo.permission.MAPS_RECEIVE" android:protectionLevel="signature"/>
-    <permission android:name="android.permission.ACCESS_FINE_LOCATION" android:protectionLevel="dangerous"/>
-    <permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:protectionLevel="dangerous"/>
-
-    <uses-permission android:name="com.example.mapdemo.permission.MAPS_RECEIVE"/>
-
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="com.example.mapdemo.permission.MAPS_RECEIVE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <!-- This permission is needed for automatic drive detection by Zendrive. -->
-    <uses-permission android:name= "com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
-
-    <!-- This permission is needed so that Zendrive can track drives completely. This prevents Android from shutting down phone CPU in the middle of a drive. -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name=".MyApplication"
+        >
         <activity
-            android:name="com.zendrive.zendrivesdkdemo.MainActivity"
+            android:name="com.zendrive.zendrivesdkdemo.SplashActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".MainActivity" />
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".MapActivity" />
 
-        <uses-library android:required="true" android:name="com.google.android.maps" />
+        <uses-library
+            android:name="com.google.android.maps"
+            android:required="true"
+            />
 
+    <!-- TODO: Add your maps api key here -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCJQK37FSmeJIBaNeNcFLWBwqVYYOdS6wc" />
+            android:value=""
+            />
 
-        <!-- Ignore this tag if already added as part of Play Services setup  -->
-        <meta-data android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
         <service android:name="com.zendrive.sdk.services.UserActivityService" />
         <service android:name="com.zendrive.sdk.services.ZendriveService" />
         <service android:name=".ZendriveSdkIntentService" />
-        <receiver android:name="com.zendrive.sdk.receiver.WakeupReceiver"
-                  android:label="WakeupReceiver"></receiver>
-        <receiver android:name="com.zendrive.zendrivesdkdemo.AppWakeupReciever"
-                  android:label="AppWakeupRecieve"></receiver>
+
+        <receiver
+            android:name="com.zendrive.sdk.receiver.WakeupReceiver"
+            android:label="WakeupReceiver"
+            />
+        <receiver
+            android:name="com.zendrive.zendrivesdkdemo.AppWakeupReciever"
+            android:label="AppWakeupRecieve"
+            />
     </application>
 
 </manifest>

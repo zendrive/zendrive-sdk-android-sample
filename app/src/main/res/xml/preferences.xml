@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:defaultValue="false"
+        android:title="Drive Tracking"
+        android:key="@string/drive_tracking_key"
+        android:persistent="false"
+        />
+    <ListPreference
+        android:defaultValue="Free"
+        android:entries="@array/list_preference_entry_values"
+        android:entryValues="@array/list_preference_entry_values"
+        android:title="User Type"
+        android:key="@string/user_type_key"
+        android:summary="%s"
+        android:persistent="false"
+        />
+    <com.zendrive.zendrivesdkdemo.SaveButtonPreference android:layout="@layout/buttons"/>
+</PreferenceScreen>

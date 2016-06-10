@@ -15,6 +15,7 @@ public class SharedPreferenceManager {
     public static final String USER_TYPE = "user_type";
     public static final String DRIVER_ID_KEY = "driver_id";
     public static final String TRIP_DETAILS_KEY = "trip_details";
+    public static final String KEY_DETECTION_MODE_PREFERENCE = "kKeyDetctionModePreference";
 
     public static void setPreference(Context context, String key, String value){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -53,12 +54,12 @@ public class SharedPreferenceManager {
     }
 
     public static String getZendriveAutoDetectionModeString(Context context) {
-        return getStringPreference(context, kKeyDetectionModePreference,
-                context.getResources().getString(R.string.auto_on));
+        return getStringPreference(context, KEY_DETECTION_MODE_PREFERENCE,
+                                   context.getResources().getString(R.string.auto_on));
     }
 
     public static void setZendriveAutoDetectionModeString(Context context, String modeString) {
-        setPreference(context, kKeyDetectionModePreference, modeString);
+        setPreference(context, KEY_DETECTION_MODE_PREFERENCE, modeString);
     }
 
     public static void setZendriveAutoDetectionMode(
@@ -71,12 +72,10 @@ public class SharedPreferenceManager {
     }
 
     public static void removeZendriveAutoDetectionMode(Context context){
-        removePreference(context, kKeyDetectionModePreference);
+        removePreference(context, KEY_DETECTION_MODE_PREFERENCE);
     }
 
     public static void setDriverId(Context context, String driverId){
         setPreference(context, DRIVER_ID_KEY, driverId);
     }
-
-    private static String kKeyDetectionModePreference = "kKeyDetctionModePreference";
 }

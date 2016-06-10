@@ -1,12 +1,112 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+    >
+
+    <data>
+
+        <variable
+            name="clickHandler"
+            type="android.view.View.OnClickListener"
+            />
+
+        <variable
+            name="state"
+            type="com.zendrive.zendrivesdkdemo.SdkState"
+            />
+
+        <import type="android.view.View" />
+    </data>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        tools:context=".MainActivity"
+        >
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@{state.isSetup ? (state.isDriving ? @string/driving_title : @string/zendrive_setup_success) : @string/zendrive_not_setup}"
+            android:textSize="20sp"
+            tools:text="@string/app_name"
+            />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="5dp"
+            >
+
+            <ListView
+                android:id="@+id/tripListView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context=".MainActivity">
+                android:visibility="@{state.isSetup ? View.VISIBLE : View.GONE}"
+                tools:visibility="visible"
+                />
 
-    <FrameLayout
-        android:id="@+id/mainFrameLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+            <RelativeLayout
+                android:id="@+id/loadingIndicatorParent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="@{state.isSetup ? View.GONE : View.VISIBLE}"
+                >
 
-</RelativeLayout>
+                <ProgressBar
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerInParent="true"
+                    />
+            </RelativeLayout>
+        </FrameLayout>
+
+        <Button
+            android:id="@+id/triggerAccidentButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="@{state.isDriving}"
+            android:onClick="@{clickHandler::onClick}"
+            android:text="@string/trigger_accident"
+            />
+
+        <LinearLayout
+            android:id="@+id/startEndParent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+            <Button
+                android:id="@+id/startDriveButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="@{state.isSetup &amp;&amp; !state.isDriving}"
+                android:onClick="@{clickHandler::onClick}"
+                android:text="@string/start_drive"
+                />
+
+            <Button
+                android:id="@+id/endDriveButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="@{state.isDriving}"
+                android:onClick="@{clickHandler::onClick}"
+                android:text="@string/end_drive"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>
+
