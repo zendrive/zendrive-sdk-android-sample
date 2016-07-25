@@ -6,8 +6,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 
-import com.android.annotations.NonNull;
 
 /**
  * Manager for a periodic alarm that the application creates to restart Zendrive SDK when it
