@@ -7,6 +7,7 @@ import com.zendrive.sdk.DriveInfo;
 import com.zendrive.sdk.DriveResumeInfo;
 import com.zendrive.sdk.DriveStartInfo;
 import com.zendrive.sdk.ZendriveIntentService;
+import com.zendrive.sdk.ZendriveLocationSettingsResult;
 
 /**
  * Intent service which receives Zendrive SDK callbacks and passes it to the ZendriveManager.
@@ -54,8 +55,15 @@ public class ZendriveSdkIntentService extends ZendriveIntentService {
     }
 
     @Override
-    public void onLocationSettingsChange(boolean enabled) {
-        Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Location Setting : " + enabled);
-        ZendriveManager.getSharedInstance(getApplicationContext()).onLocationSettingsChange(enabled);
+    public void onLocationSettingsChange(ZendriveLocationSettingsResult locationSettingsResult) {
+        Log.d(Constants.LOG_TAG_DEBUG,
+                "CallBack From SDK: Location Setting : " + locationSettingsResult.isSuccess());
+        String errors = "";
+        for (ZendriveLocationSettingsResult.Error err : locationSettingsResult.errors) {
+            errors = errors + err.name() + " ";
+        }
+        Log.d(Constants.LOG_TAG_DEBUG,
+                "LocationSettingsResult errors: " + (errors.isEmpty() ? "None" : errors));
+        ZendriveManager.getSharedInstance(getApplicationContext()).onLocationSettingsChange(locationSettingsResult);
     }
 }
