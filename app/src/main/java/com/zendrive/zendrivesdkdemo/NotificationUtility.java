@@ -36,7 +36,7 @@ public class NotificationUtility {
                 .setContentTitle(context.getResources().getString(R.string.app_name))
                 .setContentText(context.getResources().getString(R.string.drive_progress_title))
                 .setSmallIcon(R.drawable.ic_launcher)
-                .setPriority(Notification.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
                 .setContentIntent(notificationIntent)
                 .build();
@@ -64,7 +64,7 @@ public class NotificationUtility {
                 .setTicker(context.getResources().getString(R.string.location_permission_denied))
                 .setContentText(context.getResources().getString(R.string.grant_location_permission))
                 .setSmallIcon(R.drawable.ic_launcher)
-                .setPriority(Notification.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
                 .setContentIntent(pendingIntent)
                 .build();
@@ -94,7 +94,7 @@ public class NotificationUtility {
                 .setTicker(context.getResources().getString(R.string.location_disabled))
                 .setContentText(context.getResources().getString(R.string.enable_location))
                 .setSmallIcon(R.drawable.ic_launcher)
-                .setPriority(Notification.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
                 .setContentIntent(pendingIntent)
                 .build();

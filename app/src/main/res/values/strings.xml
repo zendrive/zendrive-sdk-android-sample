@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">ZendriveSDKDemo</string>
-    <string name="drive_progress_title">drive in progress...</string>
+    <string name="drive_progress_title">drive in progress</string>
 
 
     <string name="location_permission">Location permission</string>

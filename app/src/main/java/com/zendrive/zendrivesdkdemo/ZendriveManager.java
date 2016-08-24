@@ -1,5 +1,6 @@
 package com.zendrive.zendrivesdkdemo;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -46,6 +47,7 @@ public class ZendriveManager {
         }
     }
 
+    @SuppressLint("StaticFieldLeak")
     private static ZendriveManager sharedInstance;
 
     public static ZendriveManager getSharedInstance(Context context) {

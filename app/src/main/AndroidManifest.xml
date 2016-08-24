@@ -54,7 +54,7 @@
             android:label="WakeupReceiver"
             />
         <receiver
-            android:name="com.zendrive.zendrivesdkdemo.AppWakeupReciever"
+            android:name="com.zendrive.zendrivesdkdemo.AppWakeupReceiver"
             android:label="AppWakeupRecieve"
             />
         <receiver android:name=".BootReceiver" >

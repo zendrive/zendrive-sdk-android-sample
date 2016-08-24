@@ -12,10 +12,12 @@ import com.zendrive.sdk.ZendriveOperationResult;
 /**
  * This wakes up application.
  */
-public class AppWakeupReciever extends BroadcastReceiver {
+public class AppWakeupReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        // Set the next alarm as this is a periodic alarm.
+        WakeupAlarmManager.getInstance().setAlarm(context);
         ZendriveManager zendriveManager = ZendriveManager.getSharedInstance(context.getApplicationContext());
         if (!zendriveManager.isSdkInitialized()) {
             ZendriveConfiguration configuration = zendriveManager.getSavedConfiguration();

@@ -31,7 +31,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             return;
         }
         SharedPreferenceManager.setDriverId(LoginActivity.this, driverId);
-        new WakeupAlarmManager(this).setAlarm();
+        WakeupAlarmManager.getInstance().setAlarm(getApplicationContext());
         startActivity(new Intent(this, MainActivity.class));
         finish();
     }

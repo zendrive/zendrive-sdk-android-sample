@@ -37,6 +37,7 @@
 -dontwarn org.apache.log4j.**
 -dontwarn org.slf4j.LoggerFactory
 -dontwarn org.slf4j.impl.**
+-dontwarn javax.annotation.**
 
 # Zendrive depends on AWS SDK. Proguard rules for AWS SDK.
 -keep class org.apache.commons.logging.** { *; }

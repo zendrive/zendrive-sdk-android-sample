@@ -58,6 +58,5 @@ public class ZendriveSdkIntentService extends ZendriveIntentService {
     public void onLocationSettingsChange(ZendriveLocationSettingsResult settingsResult) {
         Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Location Setting : " + settingsResult.isSuccess());
         ZendriveManager.getSharedInstance(getApplicationContext()).onLocationSettingsChange(settingsResult);
-
     }
 }

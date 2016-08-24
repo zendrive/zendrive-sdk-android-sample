@@ -1,9 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".SplashActivity">
     <item android:title="@string/setting_button" android:icon="@android:drawable/btn_minus"
-          android:showAsAction="never" android:id="@+id/settings"
+        app:showAsAction="never" android:id="@+id/settings"
         />
     <item android:title="@string/logout_button" android:icon="@android:drawable/btn_minus"
-          android:showAsAction="never" android:id="@+id/logout"
+          app:showAsAction="never" android:id="@+id/logout"
         />
 </menu>

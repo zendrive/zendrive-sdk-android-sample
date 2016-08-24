@@ -32,6 +32,7 @@ import com.zendrive.sdk.DriveInfo;
 import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveAccidentConfidence;
 import com.zendrive.sdk.ZendriveConfiguration;
+import com.zendrive.sdk.ZendriveLocationSettingsResult;
 import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
 import com.zendrive.zendrivesdkdemo.databinding.ActivityMainBinding;
@@ -39,6 +40,9 @@ import com.zendrive.zendrivesdkdemo.databinding.ActivityMainBinding;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+
+import static com.zendrive.zendrivesdkdemo.Constants.*;
 
 /**
  * Main UI.
@@ -49,7 +53,6 @@ public class MainActivity extends Activity implements View.OnClickListener,
 
     private TextView titleTextView;
     private Button startDriveButton, endDriveButton;
-    private Button triggerAccidentButton;
     private ActivityMainBinding binding;
     private static final int kLocationPermissionRequest = 42;
     private final SdkState sdkState = new SdkState();
@@ -61,7 +64,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
         this.receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                processIntent(context, intent);
+                processIntent(intent);
             }
         };
         localBroadcastManager.registerReceiver(receiver, getIntentFilterForLocalBroadcast());
@@ -74,7 +77,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 @Override
                 public void onCompletion(ZendriveOperationResult setupResult) {
                     if (setupResult.isSuccess()) {
-                        Log.d(Constants.LOG_TAG_DEBUG, "Setup Success");
+                        Log.d(LOG_TAG_DEBUG, "Setup Success");
                         refreshUI();
                     } else {
                         Log.d(Constants.LOG_TAG_DEBUG, "Setup Failed: " + setupResult.getErrorMessage());
@@ -110,7 +113,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
         tripListView.setOnItemClickListener(this);
         // trigger mock accident button.
 
-        triggerAccidentButton = binding.triggerAccidentButton;
+        Button triggerAccidentButton = binding.triggerAccidentButton;
         // by default accident trigger button is disabled.
         triggerAccidentButton.setEnabled(false);
         // start drive button.
@@ -126,9 +129,9 @@ public class MainActivity extends Activity implements View.OnClickListener,
             ZendriveOperationResult result = Zendrive.triggerMockAccident(getApplicationContext(),
                                                                           ZendriveAccidentConfidence.HIGH);
             if (result.isSuccess()) {
-                Log.d(Constants.LOG_TAG_DEBUG, "Accident trigger success");
+                Log.d(LOG_TAG_DEBUG, "Accident trigger success");
             } else {
-                Log.d(Constants.LOG_TAG_DEBUG, "Accident trigger failed: " +
+                Log.d(LOG_TAG_DEBUG, "Accident trigger failed: " +
                         result.getErrorMessage());
             }
         } else if (view == binding.startDriveButton) {
@@ -192,14 +195,14 @@ public class MainActivity extends Activity implements View.OnClickListener,
             ZendriveOperationResult result = Zendrive.addAccidentFeedback(accidentId,
                     builder.build());
             if (result.isSuccess()) {
-                Log.d(Constants.LOG_TAG_DEBUG, "Accident feedback successful.");
+                Log.d(LOG_TAG_DEBUG, "Accident feedback successful.");
             } else {
-                Log.d(Constants.LOG_TAG_DEBUG, "Accident feedback failed: " +
+                Log.d(LOG_TAG_DEBUG, "Accident feedback failed: " +
                         result.getErrorMessage());
             }
             accidentId = null;
         } else {
-            Log.d(Constants.LOG_TAG_DEBUG, "AccidentId is null");
+            Log.d(LOG_TAG_DEBUG, "AccidentId is null");
         }
     }
 
@@ -208,37 +211,46 @@ public class MainActivity extends Activity implements View.OnClickListener,
      */
     private static IntentFilter getIntentFilterForLocalBroadcast() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Constants.ACCIDENT);
-        intentFilter.addAction(Constants.EVENT_LOCATION_PERMISSION_CHANGE);
-        intentFilter.addAction(Constants.EVENT_LOCATION_SETTING_CHANGE);
-        intentFilter.addAction(Constants.REFRESH_UI);
+        intentFilter.addAction(ACCIDENT);
+        intentFilter.addAction(EVENT_LOCATION_PERMISSION_CHANGE);
+        intentFilter.addAction(EVENT_LOCATION_SETTING_CHANGE);
+        intentFilter.addAction(REFRESH_UI);
         return intentFilter;
     }
 
     /**
      * Processes intents and update application UI.
      */
-    private void processIntent(Context context, Intent intent) {
+    private void processIntent(Intent intent) {
         String action = intent.getAction();
-        if (action.equals(Constants.ACCIDENT)) {
-            if (titleTextView != null) {
-                // show accident info on UI.
-                titleTextView.setText(R.string.accident_title);
-                this.accidentId = intent.getStringExtra(Constants.ACCIDENT_ID);
-                AlertDialog alert = getAccidentFeedBackAlertDialog();
-                alert.show();
-            }
-        } else if (action.equals(Constants.EVENT_LOCATION_SETTING_CHANGE)) {
-            // Maybe ask user to re-enable the location settings.
-        } else if (action.equals(Constants.EVENT_LOCATION_PERMISSION_CHANGE)) {
-            boolean granted =
-                    intent.getBooleanExtra(Constants.EVENT_LOCATION_PERMISSION_CHANGE, false);
-            requestLocationPermission(granted);
-        } else if (action.equals(Constants.REFRESH_UI)) {
-            refreshUI();
-            if (intent.hasExtra(Constants.ERROR)) {
-                titleTextView.setText(intent.getStringExtra(Constants.ERROR));
-            }
+        switch (action) {
+            case ACCIDENT:
+                if (titleTextView != null) {
+                    // show accident info on UI.
+                    titleTextView.setText(R.string.accident_title);
+                    this.accidentId = intent.getStringExtra(ACCIDENT_ID);
+                    AlertDialog alert = getAccidentFeedBackAlertDialog();
+                    alert.show();
+                }
+                break;
+            case EVENT_LOCATION_SETTING_CHANGE:
+                ZendriveLocationSettingsResult result = intent.getParcelableExtra(EVENT_LOCATION_SETTING_CHANGE);
+                if (result != null && !result.isSuccess()) {
+                    LocationSettingsHelper.resolveLocationSettings(this, result);
+                }
+                // Maybe ask user to re-enable the location settings.
+                break;
+            case EVENT_LOCATION_PERMISSION_CHANGE:
+                boolean granted =
+                        intent.getBooleanExtra(EVENT_LOCATION_PERMISSION_CHANGE, false);
+                requestLocationPermission(granted);
+                break;
+            case REFRESH_UI:
+                refreshUI();
+                if (intent.hasExtra(ERROR)) {
+                    titleTextView.setText(intent.getStringExtra(ERROR));
+                }
+                break;
         }
     }
 
@@ -306,7 +318,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                                            @NonNull int[] grants) {
         if (requestCode == kLocationPermissionRequest) {
             if (grants[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(Constants.LOG_TAG_DEBUG, "Permission granted for fine location");
+                Log.d(LOG_TAG_DEBUG, "Permission granted for fine location");
             } else {
                 new AlertDialog.Builder(this)
                         .setTitle(getResources().getString(R.string.location_permission))
@@ -314,7 +326,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                         .setPositiveButton("Ok", null)
                         .create()
                         .show();
-                Log.d(Constants.LOG_TAG_DEBUG, "Permission denied for fine location");
+                Log.d(LOG_TAG_DEBUG, "Permission denied for fine location");
             }
         }
     }
@@ -329,7 +341,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
             String startTime = getDateString(info.startTimeMillis);
             String endTime = getDateString(info.endTimeMillis);
             double distanceValue = (info.distanceMeters * 0.000621371);
-            String distance = String.format("%.2f", distanceValue);
+            String distance = String.format(Locale.US, "%.2f", distanceValue);
             String value = String.format(
                     "Trip Start: %s\n" +
                     "Trip End: %s\n" +
@@ -345,7 +357,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
 
     private String getDateString(long timestamp) {
         Date d = new Date(timestamp);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm z");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm z", Locale.US);
         return dateFormat.format(d);
     }
 
@@ -375,11 +387,28 @@ public class MainActivity extends Activity implements View.OnClickListener,
         } else if (item.getItemId() == R.id.logout){
             Zendrive.teardown(null);
             SharedPreferenceManager.clear(this);
-            new WakeupAlarmManager(this.getApplicationContext()).unsetAlarm();
+            WakeupAlarmManager.getInstance().unsetAlarm(getApplicationContext());
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         }
         return false;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == LocationSettingsHelper.REQUEST_CHECK_SETTINGS) {
+            switch (resultCode) {
+                case Activity.RESULT_OK:
+                    // All required changes were successfully made
+                    break;
+                case Activity.RESULT_CANCELED:
+                    // The user was asked to change settings, but chose not to
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     private LocalBroadcastManager localBroadcastManager;
