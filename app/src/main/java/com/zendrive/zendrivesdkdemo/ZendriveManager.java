@@ -13,10 +13,10 @@ import com.zendrive.sdk.DriveInfo;
 import com.zendrive.sdk.DriveResumeInfo;
 import com.zendrive.sdk.DriveStartInfo;
 import com.zendrive.sdk.Zendrive;
-import com.zendrive.sdk.ZendriveAccidentDetectionMode;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveDetectionMode;
 import com.zendrive.sdk.ZendriveDriverAttributes;
+import com.zendrive.sdk.ZendriveLocationSettingsResult;
 import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
 
@@ -142,10 +142,10 @@ public class ZendriveManager {
     /**
      * Location settings on the device changed.
      */
-    public void onLocationSettingsChange(boolean locationEnabled) {
-        displayOrHideLocationSettingNotification(locationEnabled);
+    public void onLocationSettingsChange(ZendriveLocationSettingsResult settingsResult) {
+        displayOrHideLocationSettingNotification(settingsResult);
         Intent intent = new Intent(Constants.EVENT_LOCATION_SETTING_CHANGE);
-        intent.putExtra(Constants.EVENT_LOCATION_SETTING_CHANGE, locationEnabled);
+        intent.putExtra(Constants.EVENT_LOCATION_SETTING_CHANGE, settingsResult);
         LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
     }
 
@@ -168,7 +168,7 @@ public class ZendriveManager {
         ZendriveDriveDetectionMode driveDetectionMode =
                 SharedPreferenceManager.getZendriveAutoDetectionMode(this.context);
         final ZendriveConfiguration configuration = new ZendriveConfiguration(Constants.zendriveSDKKey,
-                driverId, driveDetectionMode, ZendriveAccidentDetectionMode.ENABLED);
+                driverId, driveDetectionMode);
         configuration.setDriverAttributes(userAttributes);
         return configuration;
     }
@@ -177,15 +177,15 @@ public class ZendriveManager {
         return driveInProgress;
     }
 
-    private void displayOrHideLocationSettingNotification(boolean isLocationSettingsEnabled) {
+    private void displayOrHideLocationSettingNotification(ZendriveLocationSettingsResult settingsResult) {
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (isLocationSettingsEnabled) {
+        if (settingsResult.isSuccess()) {
             // Remove the displayed notification if any
             mNotificationManager.cancel(NotificationUtility.LOCATION_DISABLED_NOTIFICATION_ID);
         } else {
             // Notify user
-            Notification notification = NotificationUtility.createLocationSettingDisabledNotification(context);
+            Notification notification = NotificationUtility.createLocationSettingDisabledNotification(context, settingsResult);
             mNotificationManager.notify(NotificationUtility.LOCATION_DISABLED_NOTIFICATION_ID, notification);
         }
     }

@@ -8,6 +8,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 
+import com.zendrive.sdk.ZendriveLocationSettingsResult;
+
 
 /**
  * Utility to create notifications to show to the user when the Zendrive SDK has something
@@ -71,9 +73,15 @@ public class NotificationUtility {
     /**
      * Create a notification when high accuracy location is disabled on the device.
      * @param context App context
+     * @param settingsResult to get potential resolution from play services
      * @return the created notifcation.
      */
-    public static Notification createLocationSettingDisabledNotification(Context context) {
+    public static Notification createLocationSettingDisabledNotification(Context context,
+                                                                         ZendriveLocationSettingsResult settingsResult) {
+        if (BuildConfig.DEBUG && settingsResult.isSuccess()) {
+            throw new AssertionError("Only expected failed settings result");
+        }
+        // TODO: use the result from the callback and show appropriate message and intent
         Intent callGPSSettingIntent = new Intent(
                 android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0,
