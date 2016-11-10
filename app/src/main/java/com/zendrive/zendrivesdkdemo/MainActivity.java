@@ -77,7 +77,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                         Log.d(Constants.LOG_TAG_DEBUG, "Setup Success");
                         refreshUI();
                     } else {
-                        Log.d(Constants.LOG_TAG_DEBUG, "Setup Failed" + setupResult.getErrorMessage());
+                        Log.d(Constants.LOG_TAG_DEBUG, "Setup Failed: " + setupResult.getErrorMessage());
                         AlertDialog ad = new AlertDialog.Builder(MainActivity.this).setTitle(
                                 getResources().getString(R.string.zendrive_setup_failure) + " " +
                                         setupResult.getErrorCode().toString())
@@ -85,7 +85,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                         ad.show();
                     }
                 }
-            });
+            }, true);
         }
     }
 
@@ -256,16 +256,21 @@ public class MainActivity extends Activity implements View.OnClickListener,
         super.onDestroy();
     }
 
-    public static void initializeZendriveSDK(Context mainActivity,
-                                             ZendriveOperationCallback setupCallback) {
-        ZendriveManager zendriveManager = ZendriveManager.getSharedInstance(mainActivity.getApplicationContext());
+    public static void initializeZendriveSDK(Context context,
+            ZendriveOperationCallback setupCallback, boolean showAlertDialog) {
+        ZendriveManager zendriveManager = ZendriveManager.getSharedInstance(context.getApplicationContext());
         if (zendriveManager.isSdkInitialized()) {
             return;
         }
         // check for valid sdk key.
         if(null == Constants.zendriveSDKKey || Constants.zendriveSDKKey.equals("")){
-            AlertDialog alertDialog = getSdkKeyAlertDialog(mainActivity);
-            alertDialog.show();
+            if (showAlertDialog) {
+                AlertDialog alertDialog = getSdkKeyAlertDialog(context);
+                alertDialog.show();
+            } else {
+                Log.e(Constants.LOG_TAG_DEBUG,
+                        context.getResources().getString(R.string.default_sdk_key));
+            }
             return;
         }
 

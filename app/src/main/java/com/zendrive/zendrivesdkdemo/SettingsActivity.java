@@ -1,6 +1,5 @@
 package com.zendrive.zendrivesdkdemo;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -79,7 +78,7 @@ public class SettingsActivity extends PreferenceActivity {
                                     .sendBroadcast(refresh_ui);
                         }
                     };
-                    MainActivity.initializeZendriveSDK(SettingsActivity.this, callback);
+                    MainActivity.initializeZendriveSDK(SettingsActivity.this, callback, true);
                 }
                 finish();
             }
