@@ -27,7 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.zendrive.sdk.AccidentFeedback;
 import com.zendrive.sdk.DriveInfo;
 import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveAccidentConfidence;
@@ -126,22 +125,38 @@ public class MainActivity extends Activity implements View.OnClickListener,
     public void onClick(View view) {
         if (view == binding.triggerAccidentButton) {
             // Generate a mock accident.
-            ZendriveOperationResult result = Zendrive.triggerMockAccident(getApplicationContext(),
-                                                                          ZendriveAccidentConfidence.HIGH);
-            if (result.isSuccess()) {
-                Log.d(LOG_TAG_DEBUG, "Accident trigger success");
-            } else {
-                Log.d(LOG_TAG_DEBUG, "Accident trigger failed: " +
-                        result.getErrorMessage());
-            }
+            Zendrive.triggerMockAccident(getApplicationContext(),
+                    ZendriveAccidentConfidence.HIGH, new ZendriveOperationCallback() {
+                        @Override
+                        public void onCompletion(ZendriveOperationResult result) {
+                            if (result.isSuccess()) {
+                                Log.d(LOG_TAG_DEBUG, "Accident trigger success");
+                            } else {
+                                Log.d(LOG_TAG_DEBUG, "Accident trigger failed: " +
+                                        result.getErrorMessage());
+                            }
+                        }
+                    });
         } else if (view == binding.startDriveButton) {
-            // Generate a random tracking id
-            String trackingId = "" + System.currentTimeMillis();
             // Zendrive start Drive API.
-            Zendrive.startDrive(trackingId);
+            Zendrive.startDrive(TRIP_TRACKING_ID, new ZendriveOperationCallback() {
+                @Override
+                public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
+                    if (!zendriveOperationResult.isSuccess()) {
+                        startDriveButton.setEnabled(true);
+                    }
+                }
+            });
             startDriveButton.setEnabled(false);
         } else if (view == binding.endDriveButton) {
-            Zendrive.stopDrive();
+            Zendrive.stopDrive(TRIP_TRACKING_ID, new ZendriveOperationCallback() {
+                @Override
+                public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
+                    if (!zendriveOperationResult.isSuccess()) {
+                        endDriveButton.setEnabled(true);
+                    }
+                }
+            });
             endDriveButton.setEnabled(false);
         }
     }
@@ -174,7 +189,6 @@ public class MainActivity extends Activity implements View.OnClickListener,
         builder.setNegativeButton(getResources().getString(R.string.no_accdient),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        addAccidentFeedback(false);
                         dialog.cancel();
                     }
                 });
@@ -182,28 +196,10 @@ public class MainActivity extends Activity implements View.OnClickListener,
         builder.setPositiveButton(getResources().getString(R.string.accident),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        addAccidentFeedback(true);
                         dialog.cancel();
                     }
                 });
         return builder.create();
-    }
-
-    private void addAccidentFeedback(boolean isAccident) {
-        if (accidentId != null) {
-            AccidentFeedback.Builder builder = new AccidentFeedback.Builder(accidentId, isAccident);
-            ZendriveOperationResult result = Zendrive.addAccidentFeedback(accidentId,
-                    builder.build());
-            if (result.isSuccess()) {
-                Log.d(LOG_TAG_DEBUG, "Accident feedback successful.");
-            } else {
-                Log.d(LOG_TAG_DEBUG, "Accident feedback failed: " +
-                        result.getErrorMessage());
-            }
-            accidentId = null;
-        } else {
-            Log.d(LOG_TAG_DEBUG, "AccidentId is null");
-        }
     }
 
     /**
@@ -415,4 +411,5 @@ public class MainActivity extends Activity implements View.OnClickListener,
     private BroadcastReceiver receiver;
     private ListView tripListView;
     private String accidentId = null;
+    private String trackingId;
 }

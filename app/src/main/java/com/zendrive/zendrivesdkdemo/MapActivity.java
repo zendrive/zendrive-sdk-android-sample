@@ -19,7 +19,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.zendrive.sdk.DriveInfo;
-import com.zendrive.sdk.LocationPoint;
+import com.zendrive.sdk.LocationPointWithTimestamp;
 import com.zendrive.sdk.ZendriveEvent;
 
 import java.util.ArrayList;
@@ -57,8 +57,8 @@ public class MapActivity extends FragmentActivity {
         // draw trip details on map.
         final List<LatLng> points = new ArrayList<LatLng>();
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (LocationPoint pt : driveInfo.waypoints) {
-            LatLng latLng = new LatLng(pt.latitude, pt.longitude);
+        for (LocationPointWithTimestamp pt : driveInfo.waypoints) {
+            LatLng latLng = new LatLng(pt.location.latitude, pt.location.longitude);
             // Adding the taped point to the ArrayList
             points.add(latLng);
             builder.include(latLng);
