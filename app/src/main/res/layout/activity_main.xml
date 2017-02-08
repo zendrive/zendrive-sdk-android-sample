@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:enabled="@{state.isDriving}"
             android:onClick="@{clickHandler::onClick}"
-            android:text="@string/trigger_accident"
+            android:text="@string/trigger_collision"
             />
 
         <LinearLayout

@@ -123,6 +123,8 @@ public class ZendriveManager {
     public void onAccident(AccidentInfo accidentInfo) {
         Intent intent = new Intent(Constants.ACCIDENT);
         intent.putExtra(Constants.ACCIDENT_ID, accidentInfo.accidentId);
+        intent.putExtra(Constants.DRIVE_ID, accidentInfo.driveId);
+        intent.putExtra(Constants.ACCIDENT_TIMESTAMP, accidentInfo.timestampMillis);
         LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
     }
 

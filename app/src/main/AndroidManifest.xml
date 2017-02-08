@@ -55,12 +55,15 @@
             />
         <receiver
             android:name="com.zendrive.zendrivesdkdemo.AppWakeupReceiver"
-            android:label="AppWakeupRecieve"
+            android:label="AppWakeupReciever"
             />
         <receiver android:name=".BootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
     </application>

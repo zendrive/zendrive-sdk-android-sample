@@ -21,6 +21,8 @@ public interface Constants {
     // data field names used in local broadcast messages.
     String DRIVE_DISTANCE = "drive_distance";
     String ACCIDENT_ID = "accident_id";
+    String DRIVE_ID = "drive_id";
+    String ACCIDENT_TIMESTAMP = "accident_timestamp";
 
     String TRIP_TRACKING_ID = "tracking_id";
 }

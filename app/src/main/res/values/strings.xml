@@ -12,9 +12,9 @@
     <string name="location_disabled">Location Disabled</string>
     <string name="enable_location">Enable High Accuracy location.</string>
 
-    <string name="accident_feedback_title">Accident Detected!</string>
-    <string name="no_accdient">Nothing happened</string>
-    <string name="accident">Need help</string>
+    <string name="collision_feedback_title">Collision Detected!</string>
+    <string name="no_collision">Nothing happened</string>
+    <string name="collision">Need help</string>
 
     <string name="invalid_sdk_key">Invalid Zendrive SDK key</string>
     <string name="default_sdk_key">Set Zendrive SDK key in Constants.java</string>
@@ -25,12 +25,12 @@
     <string name="start_drive">Start Drive</string>
     <string name="end_drive">End Drive</string>
     <string name="login_zendrive_sdk">Login</string>
-    <string name="trigger_accident">Trigger Accident</string>
+    <string name="trigger_collision">Trigger Collision</string>
     <string name="driving_title">Driving</string>
     <string name="zendrive_setup_success">Ready to drive</string>
     <string name="zendrive_setup_failure">Zendrive SDK setup failed</string>
     <string name="zendrive_not_setup">Zendrive SDK not setup</string>
-    <string name="accident_title">Accident Detected!!</string>
+    <string name="collision_title">Collision Detected!!</string>
 
     <string name="setting_button">Settings</string>
     <string name="logout_button">Logout</string>
