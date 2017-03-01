@@ -393,7 +393,6 @@ public class MainActivity extends Activity implements View.OnClickListener,
         } else if (item.getItemId() == R.id.logout){
             Zendrive.teardown(null);
             SharedPreferenceManager.clear(this);
-            WakeupAlarmManager.getInstance().unsetAlarm(getApplicationContext());
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         }

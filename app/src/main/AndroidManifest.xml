@@ -45,18 +45,8 @@
             android:value=""
             />
 
-        <service android:name="com.zendrive.sdk.services.UserActivityService" />
-        <service android:name="com.zendrive.sdk.services.ZendriveService" />
         <service android:name=".ZendriveSdkIntentService" />
 
-        <receiver
-            android:name="com.zendrive.sdk.receiver.WakeupReceiver"
-            android:label="WakeupReceiver"
-            />
-        <receiver
-            android:name="com.zendrive.zendrivesdkdemo.AppWakeupReceiver"
-            android:label="AppWakeupReciever"
-            />
         <receiver android:name=".BootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
