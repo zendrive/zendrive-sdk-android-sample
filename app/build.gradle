@@ -33,7 +33,7 @@ android {
 }
 
 dependencies {
-    compile 'com.zendrive.sdk.android:ZendriveSDK:3.7.0'
+    compile 'com.zendrive.sdk.android:ZendriveSDK:3.8.0-b-1'
     compile 'com.google.android.gms:play-services-location:10.0.1'
     compile 'com.google.android.gms:play-services-maps:10.0.1'
     compile 'com.android.support:support-v4:25.1.1'

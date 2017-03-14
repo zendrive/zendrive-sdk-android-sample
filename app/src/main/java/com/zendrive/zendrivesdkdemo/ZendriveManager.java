@@ -113,6 +113,17 @@ public class ZendriveManager {
         Zendrive.stopForeground(true);
     }
 
+    /**
+     * A previously ended drive is analyzed. Update this in the trip list.
+     */
+    public void onDriveAnalyzed(DriveInfo driveInfo) {
+        TripListDetails tripListDetails = loadTripDetails();
+        tripListDetails.updateTrip(driveInfo);
+        saveTripDetails(tripListDetails);
+        Intent intent = new Intent(Constants.REFRESH_UI);
+        LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
+    }
+
     public void onDriveResume(DriveResumeInfo driveInfo) {
         driveInProgress = true;
     }

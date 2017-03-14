@@ -3,9 +3,10 @@ package com.zendrive.zendrivesdkdemo;
 import android.util.Log;
 
 import com.zendrive.sdk.AccidentInfo;
-import com.zendrive.sdk.DriveInfo;
+import com.zendrive.sdk.AnalyzedDriveInfo;
 import com.zendrive.sdk.DriveResumeInfo;
 import com.zendrive.sdk.DriveStartInfo;
+import com.zendrive.sdk.EstimatedDriveInfo;
 import com.zendrive.sdk.ZendriveIntentService;
 import com.zendrive.sdk.ZendriveLocationSettingsResult;
 
@@ -30,15 +31,21 @@ public class ZendriveSdkIntentService extends ZendriveIntentService {
     }
 
     @Override
-    public void onDriveEnd(DriveInfo driveInfo) {
-        Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Drive End");
-        ZendriveManager.getSharedInstance(getApplicationContext()).onDriveEnd(driveInfo);
+    public void onDriveResume(DriveResumeInfo driveResumeInfo) {
+        Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Drive Resumed");
+        ZendriveManager.getSharedInstance(getApplicationContext()).onDriveResume(driveResumeInfo);
     }
 
     @Override
-    public void onDriveResume(DriveResumeInfo driveResumeInfo) {
+    public void onDriveEnd(EstimatedDriveInfo estimatedDriveInfo) {
         Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Drive End");
-        ZendriveManager.getSharedInstance(getApplicationContext()).onDriveResume(driveResumeInfo);
+        ZendriveManager.getSharedInstance(getApplicationContext()).onDriveEnd(estimatedDriveInfo);
+    }
+
+    @Override
+    public void onDriveAnalyzed(AnalyzedDriveInfo analyzedDriveInfo) {
+        Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Drive Analyzed");
+        ZendriveManager.getSharedInstance(getApplicationContext()).onDriveAnalyzed(analyzedDriveInfo);
     }
 
     @Override
