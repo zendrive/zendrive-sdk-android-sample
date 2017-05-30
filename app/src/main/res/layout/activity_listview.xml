@@ -5,7 +5,7 @@
           android:id="@+id/label"
           android:layout_width="fill_parent"
           android:layout_height="fill_parent"
-          android:padding="10dip"
-          android:textSize="12dip"
+          android:padding="10dp"
+          android:textSize="12sp"
           android:textStyle="bold"
           android:textColor="@android:color/darker_gray"/>

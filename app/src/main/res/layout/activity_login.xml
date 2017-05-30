@@ -4,7 +4,6 @@
     >
 
     <data>
-
         <variable
             name="clickHandler"
             type="android.view.View.OnClickListener"/>
@@ -22,7 +21,8 @@
         <EditText
             android:id="@+id/editText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:hint="Driver Id"/>
 
         <Button
             android:id="@+id/loginButton"

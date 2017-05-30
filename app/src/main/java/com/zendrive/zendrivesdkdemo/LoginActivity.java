@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.zendrive.sdk.Zendrive;
 import com.zendrive.zendrivesdkdemo.databinding.ActivityLoginBinding;
 
 /**
@@ -26,8 +27,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         // Display DashboardFragment
         String driverId = binding.editText.getText().toString();
-        if (driverId.isEmpty()) {
-            Toast.makeText(this, "Enter email", Toast.LENGTH_SHORT).show();
+        if (!Zendrive.isValidInputParameter(driverId)) {
+            Toast.makeText(this, "Enter valid driver id", Toast.LENGTH_SHORT).show();
             return;
         }
         SharedPreferenceManager.setDriverId(LoginActivity.this, driverId);
