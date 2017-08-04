@@ -77,7 +77,8 @@ public class ZendriveManager {
         }
 
         // setup zendrive sdk
-        Zendrive.setup(this.context, configuration, ZendriveSdkIntentService.class,
+        Zendrive.setup(this.context, configuration, ZendriveSdkBroadcastReceiver.class,
+                ZendriveSdkNotificationProvider.class,
                 setupCallback);
     }
 
@@ -93,9 +94,6 @@ public class ZendriveManager {
      */
     public void onDriveStart(DriveStartInfo driveStartInfo) {
         driveInProgress = true;
-        Zendrive.startForeground(NotificationUtility.FOREGROUND_MODE_NOTIFICATION_ID,
-                NotificationUtility.createZendriveForegroundServiceNotification(context));
-
         LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Constants.REFRESH_UI));
     }
 
@@ -110,7 +108,6 @@ public class ZendriveManager {
         Intent intent = new Intent(Constants.REFRESH_UI);
         intent.putExtra(Constants.DRIVE_DISTANCE, driveInfo.distanceMeters);
         LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
-        Zendrive.stopForeground(true);
     }
 
     /**
