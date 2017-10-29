@@ -68,7 +68,7 @@ public class ZendriveManager {
      */
     public void initializeZendriveSDK(ZendriveConfiguration configuration,
                                       final ZendriveOperationCallback setupCallback) {
-        if (Zendrive.isSDKSetup()) {
+        if (Zendrive.isSDKSetup(context)) {
             ZendriveOperationResult result = ZendriveOperationResult.createSuccess();
             if (setupCallback != null) {
                 setupCallback.onCompletion(result);
@@ -86,7 +86,7 @@ public class ZendriveManager {
      * @return Is zendrive sdk initialized.
      */
     public boolean isSdkInitialized() {
-        return Zendrive.isSDKSetup();
+        return Zendrive.isSDKSetup(context);
     }
 
     /**

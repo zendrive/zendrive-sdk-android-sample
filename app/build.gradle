@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.zendrive.zendrivesdkdemo"
         minSdkVersion 14
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
     }
@@ -34,10 +34,10 @@ android {
 }
 
 dependencies {
-    compile 'com.zendrive.sdk.android:ZendriveSDK:5.0.1'
+    compile 'com.zendrive.sdk.android:ZendriveSDK:5.1.0'
     compile 'com.google.android.gms:play-services-location:11.0.4'
     compile 'com.google.android.gms:play-services-maps:11.0.4'
-    compile 'com.android.support:support-v4:26.0.0'
-    compile 'com.android.support:support-vector-drawable:26.0.0'
-    compile 'com.android.support:appcompat-v7:26.0.0'
+    compile 'com.android.support:support-v4:26.0.1'
+    compile 'com.android.support:support-vector-drawable:26.0.1'
+    compile 'com.android.support:appcompat-v7:26.0.1'
 }

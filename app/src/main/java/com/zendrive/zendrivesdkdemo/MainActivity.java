@@ -57,11 +57,12 @@ public class MainActivity extends Activity implements View.OnClickListener,
     private Button startDriveButton, endDriveButton;
     private ActivityMainBinding binding;
     private static final int kLocationPermissionRequest = 42;
-    private final SdkState sdkState = new SdkState();
+    private SdkState sdkState;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sdkState = new SdkState(this);
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
         this.receiver = new BroadcastReceiver() {
             @Override
@@ -73,7 +74,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         setupUI();
         // setup zendrive sdk if not already setup.
-        if(!Zendrive.isSDKSetup()) {
+        if(!Zendrive.isSDKSetup(this)) {
             // setting UI components.
             initializeZendriveSDK(this, new ZendriveOperationCallback() {
                 @Override
@@ -142,7 +143,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
                     });
         } else if (view == binding.startDriveButton) {
             // Zendrive start Drive API.
-            Zendrive.startDrive(TRIP_TRACKING_ID, new ZendriveOperationCallback() {
+            Zendrive.startDrive(this, TRIP_TRACKING_ID, new ZendriveOperationCallback() {
                 @Override
                 public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
                     if (!zendriveOperationResult.isSuccess()) {
@@ -152,7 +153,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
             });
             startDriveButton.setEnabled(false);
         } else if (view == binding.endDriveButton) {
-            Zendrive.stopDrive(TRIP_TRACKING_ID, new ZendriveOperationCallback() {
+            Zendrive.stopDrive(this, TRIP_TRACKING_ID, new ZendriveOperationCallback() {
                 @Override
                 public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
                     if (!zendriveOperationResult.isSuccess()) {
@@ -190,10 +191,11 @@ public class MainActivity extends Activity implements View.OnClickListener,
                                                        final long collisionTimestamp) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getResources().getString(R.string.collision_feedback_title));
+        final Context context = this;
         builder.setNegativeButton(getResources().getString(R.string.no_collision),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        ZendriveFeedback.addEventOccurrence(driveId, collisionTimestamp,
+                        ZendriveFeedback.addEventOccurrence(context, driveId, collisionTimestamp,
                                 ZendriveEventType.COLLISION, false);
                     }
                 });
@@ -201,7 +203,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
         builder.setPositiveButton(getResources().getString(R.string.collision),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        ZendriveFeedback.addEventOccurrence(driveId, collisionTimestamp,
+                        ZendriveFeedback.addEventOccurrence(context, driveId, collisionTimestamp,
                                 ZendriveEventType.COLLISION, true);
                     }
                 });
@@ -225,35 +227,37 @@ public class MainActivity extends Activity implements View.OnClickListener,
      */
     private void processIntent(Intent intent) {
         String action = intent.getAction();
-        switch (action) {
-            case ACCIDENT:
-                if (titleTextView != null) {
-                    // show accident info on UI.
-                    titleTextView.setText(R.string.collision_title);
-                    AlertDialog alert = getAccidentFeedBackAlertDialog(
-                            intent.getStringExtra(DRIVE_ID),
-                            intent.getLongExtra(ACCIDENT_TIMESTAMP, -1));
-                    alert.show();
-                }
-                break;
-            case EVENT_LOCATION_SETTING_CHANGE:
-                ZendriveLocationSettingsResult result = intent.getParcelableExtra(EVENT_LOCATION_SETTING_CHANGE);
-                if (result != null && !result.isSuccess()) {
-                    LocationSettingsHelper.resolveLocationSettings(this, result);
-                }
-                // Maybe ask user to re-enable the location settings.
-                break;
-            case EVENT_LOCATION_PERMISSION_CHANGE:
-                boolean granted =
-                        intent.getBooleanExtra(EVENT_LOCATION_PERMISSION_CHANGE, false);
-                requestLocationPermission(granted);
-                break;
-            case REFRESH_UI:
-                refreshUI();
-                if (intent.hasExtra(ERROR)) {
-                    titleTextView.setText(intent.getStringExtra(ERROR));
-                }
-                break;
+        if (action != null) {
+            switch (action) {
+                case ACCIDENT:
+                    if (titleTextView != null) {
+                        // show accident info on UI.
+                        titleTextView.setText(R.string.collision_title);
+                        AlertDialog alert = getAccidentFeedBackAlertDialog(
+                                intent.getStringExtra(DRIVE_ID),
+                                intent.getLongExtra(ACCIDENT_TIMESTAMP, -1));
+                        alert.show();
+                    }
+                    break;
+                case EVENT_LOCATION_SETTING_CHANGE:
+                    ZendriveLocationSettingsResult result = intent.getParcelableExtra(EVENT_LOCATION_SETTING_CHANGE);
+                    if (result != null && !result.isSuccess()) {
+                        LocationSettingsHelper.resolveLocationSettings(this, result);
+                    }
+                    // Maybe ask user to re-enable the location settings.
+                    break;
+                case EVENT_LOCATION_PERMISSION_CHANGE:
+                    boolean granted =
+                            intent.getBooleanExtra(EVENT_LOCATION_PERMISSION_CHANGE, false);
+                    requestLocationPermission(granted);
+                    break;
+                case REFRESH_UI:
+                    refreshUI();
+                    if (intent.hasExtra(ERROR)) {
+                        titleTextView.setText(intent.getStringExtra(ERROR));
+                    }
+                    break;
+            }
         }
     }
 
@@ -356,8 +360,8 @@ public class MainActivity extends Activity implements View.OnClickListener,
             values[j] = value;
             j++;
         }
-        ArrayAdapter adapter = new ArrayAdapter<String>(this.getApplicationContext(),
-                                                        R.layout.activity_listview, values);
+        ArrayAdapter adapter = new ArrayAdapter<>(this.getApplicationContext(),
+                R.layout.activity_listview, values);
         tripListView.setAdapter(adapter);
     }
 
@@ -391,7 +395,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             return true;
         } else if (item.getItemId() == R.id.logout){
-            Zendrive.teardown(null);
+            Zendrive.teardown(this, null);
             SharedPreferenceManager.clear(this);
             startActivity(new Intent(this, LoginActivity.class));
             finish();
@@ -419,6 +423,4 @@ public class MainActivity extends Activity implements View.OnClickListener,
     private LocalBroadcastManager localBroadcastManager;
     private BroadcastReceiver receiver;
     private ListView tripListView;
-    private String accidentId = null;
-    private String trackingId;
 }

@@ -59,7 +59,7 @@ public class SettingsActivity extends PreferenceActivity {
                                               SharedPreferenceManager.USER_TYPE,
                                               userTypePreference.getValue());
         // restart sdk with new settings.
-        Zendrive.teardown(new ZendriveOperationCallback() {
+        Zendrive.teardown(this, new ZendriveOperationCallback() {
             @Override
             public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
                 if (zendriveOperationResult.isSuccess()) {
