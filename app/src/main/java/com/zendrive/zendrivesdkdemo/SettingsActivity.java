@@ -52,8 +52,8 @@ public class SettingsActivity extends PreferenceActivity {
 
     void save() {
         ZendriveDriveDetectionMode mode =
-                driveTrackingPreference.isChecked() ? ZendriveDriveDetectionMode.AUTO_OFF :
-                        ZendriveDriveDetectionMode.AUTO_ON;
+                driveTrackingPreference.isChecked() ? ZendriveDriveDetectionMode.AUTO_ON :
+                        ZendriveDriveDetectionMode.AUTO_OFF;
         SharedPreferenceManager.setZendriveAutoDetectionMode(this, mode);
         SharedPreferenceManager.setPreference(this,
                                               SharedPreferenceManager.USER_TYPE,
