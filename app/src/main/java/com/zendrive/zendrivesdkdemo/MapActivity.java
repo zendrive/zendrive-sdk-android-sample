@@ -55,7 +55,7 @@ public class MapActivity extends FragmentActivity {
 
     public void drawTripOnMap(final DriveInfo driveInfo) {
         // draw trip details on map.
-        final List<LatLng> points = new ArrayList<LatLng>();
+        final List<LatLng> points = new ArrayList<>();
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (LocationPointWithTimestamp pt : driveInfo.waypoints) {
             LatLng latLng = new LatLng(pt.location.latitude, pt.location.longitude);

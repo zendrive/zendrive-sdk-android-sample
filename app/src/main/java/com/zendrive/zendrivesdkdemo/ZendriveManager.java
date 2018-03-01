@@ -231,6 +231,6 @@ public class ZendriveManager {
                 tripListDetailsJsonString);
     }
 
-    private Context context;
+    private final Context context;
     private boolean driveInProgress = false;
 }

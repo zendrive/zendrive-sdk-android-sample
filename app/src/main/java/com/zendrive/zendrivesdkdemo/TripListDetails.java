@@ -13,7 +13,7 @@ import java.util.List;
 class TripListDetails {
 
     TripListDetails() {
-        this.tripList = new ArrayList<DriveInfo>();
+        this.tripList = new ArrayList<>();
     }
 
     void addTrip(DriveInfo driveInfo) {
@@ -35,5 +35,5 @@ class TripListDetails {
         tripList.set(matchingInfo, driveInfo);
     }
 
-    List<DriveInfo> tripList;
+    final List<DriveInfo> tripList;
 }

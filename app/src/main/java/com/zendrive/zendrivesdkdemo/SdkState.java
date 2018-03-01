@@ -7,9 +7,6 @@ import android.databinding.Bindable;
 import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveState;
 
-/**
- * Created by deepanshu on 6/8/16.
- */
 public class SdkState extends BaseObservable {
 
     private final Context context;

@@ -5,9 +5,6 @@ import android.preference.Preference;
 import android.util.AttributeSet;
 import android.view.View;
 
-/**
- * Created by deepanshu on 6/8/16.
- */
 public class SaveButtonPreference extends Preference {
 
     public SaveButtonPreference(Context context, AttributeSet attrs) {

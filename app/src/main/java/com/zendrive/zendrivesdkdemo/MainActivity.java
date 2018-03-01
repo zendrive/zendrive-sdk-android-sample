@@ -168,8 +168,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         TripListDetails tripDetails = loadTripDetails();
-        if (null == tripDetails || null == tripDetails.tripList ||
-                tripDetails.tripList.size() == 0) {
+        if (null == tripDetails || tripDetails.tripList.size() == 0) {
             return;
         }
         int size = tripDetails.tripList.size();
@@ -324,7 +323,7 @@ public class MainActivity extends Activity implements View.OnClickListener,
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grants) {
         if (requestCode == kLocationPermissionRequest) {
-            if (grants[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grants.length > 0 && grants[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(LOG_TAG_DEBUG, "Permission granted for fine location");
             } else {
                 new AlertDialog.Builder(this)

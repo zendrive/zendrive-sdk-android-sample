@@ -15,9 +15,6 @@ import com.zendrive.sdk.ZendriveDriveDetectionMode;
 import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
 
-/**
- * Created by deepanshu on 6/8/16.
- */
 public class SettingsActivity extends PreferenceActivity {
     SwitchPreference driveTrackingPreference;
     ListPreference userTypePreference;

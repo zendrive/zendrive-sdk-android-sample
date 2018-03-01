@@ -6,8 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
@@ -33,7 +31,7 @@ public class NotificationUtility {
     /**
      * Create a notification when location permission is denied to the application.
      * @param context App context
-     * @return the created notifcation.
+     * @return the created notification.
      */
     public static Notification createLocationPermissionDeniedNotification(Context context) {
         createNotificationChannels(context);
@@ -43,17 +41,14 @@ public class NotificationUtility {
                 android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0,
                 callGPSSettingIntent, 0);
-        Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.ic_launcher);
 
         return new NotificationCompat.Builder(context.getApplicationContext(), LOCATION_CHANNEL_KEY)
                 .setContentTitle(context.getResources().getString(R.string.location_permission_denied))
                 .setTicker(context.getResources().getString(R.string.location_permission_denied))
                 .setContentText(context.getResources().getString(R.string.grant_location_permission))
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
-                .setCategory(Notification.CATEGORY_ERROR)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
                 .setContentIntent(pendingIntent)
                 .build();
     }
@@ -62,7 +57,7 @@ public class NotificationUtility {
      * Create a notification when high accuracy location is disabled on the device.
      * @param context App context
      * @param settingsResult to get potential resolution from play services
-     * @return the created notifcation.
+     * @return the created notification.
      */
     public static Notification createLocationSettingDisabledNotification(Context context,
                                                                          ZendriveLocationSettingsResult settingsResult) {
@@ -75,18 +70,15 @@ public class NotificationUtility {
                 android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0,
                 callGPSSettingIntent, 0);
-        Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.ic_launcher);
 
         return new NotificationCompat.Builder(context.getApplicationContext(), LOCATION_CHANNEL_KEY)
                 .setContentTitle(context.getResources().getString(R.string.location_disabled))
                 .setTicker(context.getResources().getString(R.string.location_disabled))
                 .setContentText(context.getResources().getString(R.string.enable_location))
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
                 .setContentIntent(pendingIntent)
-                .setCategory(Notification.CATEGORY_ERROR)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
                 .build();
     }
 
@@ -95,7 +87,7 @@ public class NotificationUtility {
      * detects a possible drive.
      *
      * @param context App context
-     * @return the created notifcation.
+     * @return the created notification.
      */
     public static Notification createMaybeInDriveNotification(Context context) {
         createNotificationChannels(context);
@@ -103,12 +95,14 @@ public class NotificationUtility {
         // suppresses deprecated warning for setPriority(PRIORITY_MIN)
         //noinspection deprecation
         return new NotificationCompat.Builder(context, FOREGROUND_CHANNEL_KEY)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Zendrive")
                 .setDefaults(0)
-                .setPriority(Notification.PRIORITY_MIN)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .setContentText("Detecting possible drive.").build();
+                .setPriority(NotificationCompat.PRIORITY_MIN)
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .setContentText("Detecting possible drive.")
+                .setContentIntent(getNotificationClickIntent(context))
+                .build();
     }
 
     /**
@@ -116,16 +110,17 @@ public class NotificationUtility {
      * determines that the user is driving.
      *
      * @param context App context
-     * @return the created notifcation.
+     * @return the created notification.
      */
     public static Notification createInDriveNotification(Context context) {
         createNotificationChannels(context);
-
         return new NotificationCompat.Builder(context, FOREGROUND_CHANNEL_KEY)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Zendrive")
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .setContentText("Drive started.").build();
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .setContentText("Drive started.")
+                .setContentIntent(getNotificationClickIntent(context))
+                .build();
     }
 
     private static void createNotificationChannels(Context context) {
@@ -151,5 +146,4 @@ public class NotificationUtility {
         return PendingIntent.getActivity(context.getApplicationContext(), 0,
                                          notificationIntent, 0);
     }
-
 }

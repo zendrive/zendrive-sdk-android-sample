@@ -15,7 +15,7 @@ public class SharedPreferenceManager {
     public static final String USER_TYPE = "user_type";
     public static final String DRIVER_ID_KEY = "driver_id";
     public static final String TRIP_DETAILS_KEY = "trip_details";
-    public static final String KEY_DETECTION_MODE_PREFERENCE = "kKeyDetctionModePreference";
+    public static final String KEY_DETECTION_MODE_PREFERENCE = "kKeyDetectionModePreference";
 
     public static void setPreference(Context context, String key, String value){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
