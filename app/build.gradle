@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.zendrive.sdk.android:ZendriveSDK:5.2.2'
+    implementation 'com.zendrive.sdk.android:ZendriveSDK:5.2.4'
     implementation 'com.google.android.gms:play-services-location:11.8.0'
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
     implementation 'com.android.support:support-v4:27.0.2'
