@@ -36,6 +36,12 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".MapActivity" />
+        <activity
+            android:name=".CollisionDetectedActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:showOnLockScreen="true"
+            android:theme="@style/AppTheme.Collision" />
 
         <uses-library
             android:name="com.google.android.maps"
@@ -48,7 +54,7 @@
             android:value=""
             />
 
-        <receiver android:name=".BootReceiver" >
+        <receiver android:name=".BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <category android:name="android.intent.category.HOME" />

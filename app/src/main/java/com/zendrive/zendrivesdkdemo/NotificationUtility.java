@@ -1,6 +1,5 @@
 package com.zendrive.zendrivesdkdemo;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -12,6 +11,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 
 import com.google.android.gms.location.LocationSettingsResult;
 
@@ -30,6 +30,7 @@ public class NotificationUtility {
 
     public static final int PSM_ENABLED_NOTIFICATION_ID = 101;
     public static final int BACKGROUND_RESTRICTION_NOTIFICATION_ID = 102;
+    public static final int COLLISION_DETECTED_NOTIFICATION_ID = 103;
     public static final int WIFI_SCANNING_NOTIFICATION_ID = 104;
     public static final int GOOGLE_PLAY_SETTINGS_NOTIFICATION_ID = 105;
 
@@ -39,12 +40,15 @@ public class NotificationUtility {
     private static final int wifiScanningRequestCode = 203;
     private static final int googlePlaySettingsRequestCode = 204;
     private static final int locationPermissionRequestCode = 205;
+    private static final int collisionActivityRequestCode = 206;
 
     // channel keys (id) are used to sort the channels in the notification
     // settings page. Meaningful ids and descriptions tell the user
     // about which notifications are safe to toggle on/off for the application.
     private static final String FOREGROUND_CHANNEL_KEY = "Foreground";
     private static final String SETTINGS_CHANNEL_KEY = "Settings";
+    private static final String COLLISION_CHANNEL_KEY = "Collision";
+    private static NotificationManagerCompat notificationManager;
 
     /**
      * Create a notification when location permission is denied to the application.
@@ -257,10 +261,32 @@ public class NotificationUtility {
         manager.cancel(WIFI_SCANNING_NOTIFICATION_ID);
         manager.cancel(GOOGLE_PLAY_SETTINGS_NOTIFICATION_ID);
     }
+    /**
+     * Create and show a notification when Zendrive SDK detects a collision.
+     * @param context App context
+     */
+    public static void showCollisionNotification(Context context) {
+        createNotificationChannels(context);
+        Notification notification = new NotificationCompat.Builder(context, COLLISION_CHANNEL_KEY)
+                .setContentTitle("Zendrive")
+                .setContentText("Collision Detected.")
+                .setSmallIcon(R.drawable.ic_notification)
+                .setPriority(NotificationManagerCompat.IMPORTANCE_HIGH)
+                .setContentIntent(getActivityPendingIntentForCollision(context))
+                .setAutoCancel(true)
+                .build();
+
+        getNotificationManager(context).notify(COLLISION_DETECTED_NOTIFICATION_ID, notification);
+    }
+
+    public static void removeCollisionNotification(Context context) {
+       getNotificationManager(context).cancel(COLLISION_DETECTED_NOTIFICATION_ID);
+    }
 
     private static void createNotificationChannels(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager manager = context.getSystemService(NotificationManager.class);
+            NotificationManager manager = (NotificationManager)
+                    context.getSystemService(Context.NOTIFICATION_SERVICE);
             NotificationChannel lowPriorityNotificationChannel = new NotificationChannel(FOREGROUND_CHANNEL_KEY,
                     "Zendrive trip tracking",
                     NotificationManager.IMPORTANCE_MIN);
@@ -272,6 +298,12 @@ public class NotificationUtility {
                             NotificationManager.IMPORTANCE_HIGH);
             defaultNotificationChannel.setShowBadge(true);
             manager.createNotificationChannel(defaultNotificationChannel);
+
+            NotificationChannel collisionDetectedNotificationChannel
+                    = new NotificationChannel(COLLISION_CHANNEL_KEY, "Collision Detected",
+                    NotificationManager.IMPORTANCE_HIGH);
+            collisionDetectedNotificationChannel.setShowBadge(false);
+            manager.createNotificationChannel(collisionDetectedNotificationChannel);
         }
     }
 
@@ -280,5 +312,17 @@ public class NotificationUtility {
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return PendingIntent.getActivity(context.getApplicationContext(), 0,
                 notificationIntent, 0);
+    }
+
+    private static PendingIntent getActivityPendingIntentForCollision(Context context) {
+        return PendingIntent.getActivity(context, collisionActivityRequestCode,
+                new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private static NotificationManagerCompat getNotificationManager(Context context) {
+        if (notificationManager == null) {
+            notificationManager = NotificationManagerCompat.from(context);
+        }
+        return notificationManager;
     }
 }

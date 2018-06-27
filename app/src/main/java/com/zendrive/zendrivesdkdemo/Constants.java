@@ -14,16 +14,13 @@ public interface Constants {
     String ERROR = "Error";
 
     // keys used for local broadcast to update UI.
-    String ACCIDENT = "accident";
     String REFRESH_UI = "refresh_ui";
     String EVENT_LOCATION_PERMISSION_ERROR = "location_permission_denied";
     String EVENT_LOCATION_SETTING_ERROR = "location_setting_error";
     // data field names used in local broadcast messages.
     String DRIVE_DISTANCE = "drive_distance";
-    String ACCIDENT_ID = "accident_id";
-    String DRIVE_ID = "drive_id";
-    String ACCIDENT_TIMESTAMP = "accident_timestamp";
 
+    String ACCIDENT_INFO = "accident_info";
     String TRIP_TRACKING_ID = "tracking_id";
 
     String EVENT_GOOGLE_PLAY_SETTING_ERROR = "google_play_settings_error";

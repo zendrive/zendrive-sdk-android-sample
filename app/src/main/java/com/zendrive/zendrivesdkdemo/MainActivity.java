@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -32,10 +31,8 @@ import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveAccidentConfidence;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveType;
-import com.zendrive.sdk.ZendriveEventType;
 import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
-import com.zendrive.sdk.feedback.ZendriveFeedback;
 import com.zendrive.zendrivesdkdemo.databinding.ActivityMainBinding;
 
 import java.text.DateFormat;
@@ -219,35 +216,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         startActivity(new Intent(this, MapActivity.class));
     }
 
-    private AlertDialog getAccidentFeedBackAlertDialog(final String driveId,
-                                                       final long collisionTimestamp) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getResources().getString(R.string.collision_feedback_title));
-        final Context context = this;
-        builder.setNegativeButton(getResources().getString(R.string.no_collision),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        ZendriveFeedback.addEventOccurrence(context, driveId, collisionTimestamp,
-                                ZendriveEventType.COLLISION, false);
-                    }
-                });
-
-        builder.setPositiveButton(getResources().getString(R.string.collision),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        ZendriveFeedback.addEventOccurrence(context, driveId, collisionTimestamp,
-                                ZendriveEventType.COLLISION, true);
-                    }
-                });
-        return builder.create();
-    }
-
     /**
      * returns intent filters, which application is interested in.
      */
     private static IntentFilter getIntentFilterForLocalBroadcast() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACCIDENT);
         intentFilter.addAction(REFRESH_UI);
         return intentFilter;
     }
@@ -258,23 +231,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     private void processIntent(Intent intent) {
         String action = intent.getAction();
         if (action != null) {
-            switch (action) {
-                case ACCIDENT:
-                    if (titleTextView != null) {
-                        // show accident info on UI.
-                        titleTextView.setText(R.string.collision_title);
-                        AlertDialog alert = getAccidentFeedBackAlertDialog(
-                                intent.getStringExtra(DRIVE_ID),
-                                intent.getLongExtra(ACCIDENT_TIMESTAMP, -1));
-                        alert.show();
-                    }
-                    break;
-                case REFRESH_UI:
-                    refreshUI();
-                    if (intent.hasExtra(ERROR)) {
-                        titleTextView.setText(intent.getStringExtra(ERROR));
-                    }
-                    break;
+            if (REFRESH_UI.equals(action)) {
+                refreshUI();
+                if (intent.hasExtra(ERROR)) {
+                    titleTextView.setText(intent.getStringExtra(ERROR));
+                }
             }
         }
     }

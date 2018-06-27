@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.gson.Gson;
@@ -138,11 +137,11 @@ public class ZendriveManager {
      * An accident was detected by the Zendrive SDK.
      */
     public void onAccident(AccidentInfo accidentInfo) {
-        Intent intent = new Intent(Constants.ACCIDENT);
-        intent.putExtra(Constants.ACCIDENT_ID, accidentInfo.accidentId);
-        intent.putExtra(Constants.DRIVE_ID, accidentInfo.driveId);
-        intent.putExtra(Constants.ACCIDENT_TIMESTAMP, accidentInfo.timestampMillis);
-        LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
+        NotificationUtility.showCollisionNotification(context.getApplicationContext());
+        Intent intent = new Intent(context, CollisionDetectedActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(Constants.ACCIDENT_INFO, accidentInfo);
+        context.getApplicationContext().startActivity(intent);
     }
 
     /**

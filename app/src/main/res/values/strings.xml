@@ -5,12 +5,10 @@
 
     <string name="location_permission">Location permission</string>
     <string name="location_permission_denied">Location Permission Denied</string>
-    <string name="grant_location_permission">Grant location permission to Zendrive App</string>
 
     <string name="location_disabled">Location Disabled</string>
     <string name="enable_location">Enable High Accuracy location.</string>
 
-    <string name="collision_feedback_title">Collision Detected!</string>
     <string name="no_collision">Nothing happened</string>
     <string name="collision">Need help</string>
 
@@ -28,7 +26,6 @@
     <string name="zendrive_setup_success">Ready to drive</string>
     <string name="zendrive_setup_failure">Zendrive SDK setup failed</string>
     <string name="zendrive_not_setup">Zendrive SDK not setup</string>
-    <string name="collision_title">Collision Detected!!</string>
 
     <string name="setting_button">Settings</string>
     <string name="logout_button">Logout</string>
@@ -42,5 +39,7 @@
         <item>Free</item>
         <item>Paid</item>
     </string-array>
+
+    <string name="collision_detected">Collision Detected</string>
 
 </resources>
