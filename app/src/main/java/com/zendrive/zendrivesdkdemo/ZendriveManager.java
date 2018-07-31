@@ -5,7 +5,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.gson.Gson;
@@ -13,13 +17,17 @@ import com.zendrive.sdk.AccidentInfo;
 import com.zendrive.sdk.DriveInfo;
 import com.zendrive.sdk.DriveResumeInfo;
 import com.zendrive.sdk.DriveStartInfo;
+import com.zendrive.sdk.GooglePlaySettingsError;
 import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveDetectionMode;
 import com.zendrive.sdk.ZendriveDriverAttributes;
-import com.zendrive.sdk.ZendriveLocationSettingsResult;
 import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
+import com.zendrive.sdk.ZendriveSettingError;
+import com.zendrive.sdk.ZendriveSettingWarning;
+import com.zendrive.sdk.ZendriveSettings;
+import com.zendrive.sdk.ZendriveSettingsCallback;
 
 /**
  * Wrapper class for the Zendrive SDK.
@@ -40,7 +48,7 @@ public class ZendriveManager {
         PAID;
 
         public String toString() {
-            if(this == FREE){
+            if (this == FREE) {
                 return "Free";
             }
             return "Paid";
@@ -63,6 +71,7 @@ public class ZendriveManager {
 
     /**
      * Initialize Zendrive with the given configuration.
+     *
      * @param configuration Config for initialization.
      * @param setupCallback callback that is invoked after initialization.
      */
@@ -137,31 +146,121 @@ public class ZendriveManager {
     }
 
     /**
-     * Location permission of the app changed.
+     * Fetches Zendrive setting errors and warnings if an error or warning was reported by the SDK.
      */
-    public void onLocationPermissionsChange(boolean granted) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            displayOrHideLocationPermissionNotification(granted);
-            Intent intent = new Intent(Constants.EVENT_LOCATION_PERMISSION_CHANGE);
-            intent.putExtra(Constants.EVENT_LOCATION_PERMISSION_CHANGE, granted);
-            LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
-
-        } else {
-            throw new RuntimeException("Callback on non marshmallow sdk");
+    public void maybeCheckZendriveSettings(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if (prefs.getBoolean(Constants.SETTING_ERRORS, false) ||
+                prefs.getBoolean(Constants.SETTING_WARNINGS, false)) {
+            checkZendriveSettings(context);
         }
     }
 
     /**
-     * Location settings on the device changed.
+     * Query the Zendrive SDK for errors and warnings that affect its normal operation.
      */
-    public void onLocationSettingsChange(ZendriveLocationSettingsResult settingsResult) {
-        displayOrHideLocationSettingNotification(settingsResult);
-        Intent intent = new Intent(Constants.EVENT_LOCATION_SETTING_CHANGE);
-        intent.putExtra(Constants.EVENT_LOCATION_SETTING_CHANGE, settingsResult);
-        LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
+    @SuppressLint("newApi") // needed for background restriction. The wrap with
+    // Build.VERSION.SDK_INT >= Build.VERSION_CODES.P still spuriously fails lint.
+    public void checkZendriveSettings(final Context context) {
+        NotificationUtility.cancelErrorAndWarningNotifications(context);
+        Zendrive.getZendriveSettings(context, new ZendriveSettingsCallback() {
+            @Override
+            public void onComplete(@Nullable ZendriveSettings zendriveSettings) {
+                if (zendriveSettings == null) {
+                    // The callback returns NULL if SDK is not setup.
+                    return;
+                }
+
+                NotificationManager notificationManager =
+                        (NotificationManager) context.
+                                getSystemService(Context.NOTIFICATION_SERVICE);
+
+                if (notificationManager == null) {
+                    return;
+                }
+
+                for (ZendriveSettingError error : zendriveSettings.errors) {
+                    switch (error.type) {
+                        case POWER_SAVER_MODE_ENABLED: {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                                notificationManager.notify(NotificationUtility.
+                                                PSM_ENABLED_NOTIFICATION_ID,
+                                        NotificationUtility.
+                                                createPSMEnabledNotification(context, true));
+                            } else {
+                                throw new RuntimeException("Power saver mode " +
+                                        "error on OS version < Lollipop.");
+                            }
+                            break;
+                        }
+                        case BACKGROUND_RESTRICTION_ENABLED: {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                notificationManager.notify(NotificationUtility.
+                                                BACKGROUND_RESTRICTION_NOTIFICATION_ID,
+                                        NotificationUtility.
+                                                createBackgroundRestrictedNotification(context));
+                            } else {
+                                throw new RuntimeException("Background restricted " +
+                                        "callback on OS version < P.");
+                            }
+                            break;
+                        }
+                        case GOOGLE_PLAY_SETTINGS_ERROR: {
+                            GooglePlaySettingsError e = (GooglePlaySettingsError) error;
+                            Notification notification =
+                                    NotificationUtility.
+                                            createGooglePlaySettingsNotification(context,
+                                                    e.googlePlaySettingsResult);
+                            if (notification != null) {
+                                notificationManager.
+                                        notify(NotificationUtility.
+                                                GOOGLE_PLAY_SETTINGS_NOTIFICATION_ID, notification);
+                            }
+                            break;
+                        }
+                        case LOCATION_PERMISSION_DENIED: {
+                            notificationManager.notify(NotificationUtility.
+                                            LOCATION_PERMISSION_DENIED_NOTIFICATION_ID,
+                                    NotificationUtility.
+                                            createLocationPermissionDeniedNotification(context));
+
+                            break;
+                        }
+                        case LOCATION_SETTINGS_ERROR: {
+                            notificationManager.notify(NotificationUtility.
+                                    LOCATION_DISABLED_NOTIFICATION_ID, NotificationUtility.
+                                    createLocationSettingDisabledNotification(context));
+                            break;
+                        }
+                        case WIFI_SCANNING_DISABLED: {
+                            notificationManager.notify(NotificationUtility.
+                                    WIFI_SCANNING_NOTIFICATION_ID, NotificationUtility.
+                                    createWifiScanningDisabledNotification(context));
+                            break;
+                        }
+                    }
+                }
+
+                for (ZendriveSettingWarning warning : zendriveSettings.warnings) {
+                    switch (warning.type) {
+                        case POWER_SAVER_MODE_ENABLED: {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                                notificationManager.notify(NotificationUtility.
+                                                PSM_ENABLED_NOTIFICATION_ID,
+                                        NotificationUtility.createPSMEnabledNotification(context, false));
+                            } else {
+                                throw new RuntimeException("Power saver mode " +
+                                        "warning on OS version < Lollipop.");
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        });
     }
 
-    public ZendriveConfiguration getSavedConfiguration(){
+    public ZendriveConfiguration getSavedConfiguration() {
         final String driverId = SharedPreferenceManager.getStringPreference(this.context,
                 SharedPreferenceManager.DRIVER_ID_KEY, null);
         if (null == driverId || driverId.equalsIgnoreCase("")) {
@@ -172,7 +271,7 @@ public class ZendriveManager {
         String userType = SharedPreferenceManager.getStringPreference(context.getApplicationContext(),
                 SharedPreferenceManager.USER_TYPE, UserType.FREE.name());
         // for paid users zendrive provides special services, which is set here.
-        if(userType.equals(UserType.PAID.name())) {
+        if (userType.equals(UserType.PAID.name())) {
             userAttributes.setServiceLevel(ZendriveDriverAttributes.ServiceLevel.LEVEL_1);
         } else {
             userAttributes.setServiceLevel(ZendriveDriverAttributes.ServiceLevel.LEVEL_DEFAULT);
@@ -185,35 +284,8 @@ public class ZendriveManager {
         return configuration;
     }
 
-    public boolean isDriveInProgress(){
+    public boolean isDriveInProgress() {
         return driveInProgress;
-    }
-
-    private void displayOrHideLocationSettingNotification(ZendriveLocationSettingsResult settingsResult) {
-        NotificationManager mNotificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (settingsResult.isSuccess()) {
-            // Remove the displayed notification if any
-            mNotificationManager.cancel(NotificationUtility.LOCATION_DISABLED_NOTIFICATION_ID);
-        } else {
-            // Notify user
-            Notification notification = NotificationUtility.createLocationSettingDisabledNotification(context, settingsResult);
-            mNotificationManager.notify(NotificationUtility.LOCATION_DISABLED_NOTIFICATION_ID, notification);
-        }
-    }
-
-
-    private void displayOrHideLocationPermissionNotification(boolean isLocationPermissionGranted) {
-        NotificationManager mNotificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (isLocationPermissionGranted) {
-            // Remove the displayed notification if any
-            mNotificationManager.cancel(NotificationUtility.LOCATION_PERMISSION_DENIED_NOTIFICATION_ID);
-        } else {
-            // Notify user
-            Notification notification = NotificationUtility.createLocationPermissionDeniedNotification(context);
-            mNotificationManager.notify(NotificationUtility.LOCATION_PERMISSION_DENIED_NOTIFICATION_ID, notification);
-        }
     }
 
     private TripListDetails loadTripDetails() {

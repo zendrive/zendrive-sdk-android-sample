@@ -1,6 +1,7 @@
 package com.zendrive.zendrivesdkdemo;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.zendrive.sdk.AccidentInfo;
@@ -9,7 +10,6 @@ import com.zendrive.sdk.DriveResumeInfo;
 import com.zendrive.sdk.DriveStartInfo;
 import com.zendrive.sdk.EstimatedDriveInfo;
 import com.zendrive.sdk.ZendriveBroadcastReceiver;
-import com.zendrive.sdk.ZendriveLocationSettingsResult;
 
 /**
  * Broadcast receiver which receives Zendrive SDK callbacks and passes it to the ZendriveManager.
@@ -47,15 +47,17 @@ public class ZendriveSdkBroadcastReceiver extends ZendriveBroadcastReceiver {
     }
 
     @Override
-    public void onLocationPermissionsChange(Context context, boolean granted) {
-        Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Location Permission : " +
-                granted);
-        ZendriveManager.getSharedInstance(context).onLocationPermissionsChange(granted);
-    }
-
-    @Override
-    public void onLocationSettingsChange(Context context, ZendriveLocationSettingsResult settingsResult) {
-        Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Location Setting : " + settingsResult.isSuccess());
-        ZendriveManager.getSharedInstance(context).onLocationSettingsChange(settingsResult);
+    public void onZendriveSettingsConfigChanged(Context context, boolean errorsFound,
+                                                boolean warningsFound) {
+        Log.d(Constants.LOG_TAG_DEBUG,
+                "CallBack From SDK: ZendriveSettingsChanged: " +
+                        errorsFound + ": " + warningsFound);
+        // Persist whether the Zendrive SDK has detected errors or warnings.
+        // Use these flags as a basis to determine whether Zendrive settings should be fetched
+        // on app resume.
+        PreferenceManager.getDefaultSharedPreferences(context).edit().
+                putBoolean(Constants.SETTING_ERRORS, errorsFound).
+                putBoolean(Constants.SETTING_WARNINGS, warningsFound).apply();
+        ZendriveManager.getSharedInstance(context).checkZendriveSettings(context);
     }
 }

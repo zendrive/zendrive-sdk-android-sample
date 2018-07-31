@@ -1,15 +1,21 @@
 package com.zendrive.zendrivesdkdemo;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 
-import com.zendrive.sdk.ZendriveLocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsResult;
+
+import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
 
 
 /**
@@ -22,56 +28,66 @@ public class NotificationUtility {
     public static final int LOCATION_DISABLED_NOTIFICATION_ID = 99;
     public static final int LOCATION_PERMISSION_DENIED_NOTIFICATION_ID = 100;
 
+    public static final int PSM_ENABLED_NOTIFICATION_ID = 101;
+    public static final int BACKGROUND_RESTRICTION_NOTIFICATION_ID = 102;
+    public static final int WIFI_SCANNING_NOTIFICATION_ID = 104;
+    public static final int GOOGLE_PLAY_SETTINGS_NOTIFICATION_ID = 105;
+
+    private static final int psmEnabledRequestCode = 200;
+    private static final int locationDisabledRequestCode = 201;
+    private static final int backgroundRestrictedRequestCode = 202;
+    private static final int wifiScanningRequestCode = 203;
+    private static final int googlePlaySettingsRequestCode = 204;
+    private static final int locationPermissionRequestCode = 205;
+
     // channel keys (id) are used to sort the channels in the notification
     // settings page. Meaningful ids and descriptions tell the user
     // about which notifications are safe to toggle on/off for the application.
     private static final String FOREGROUND_CHANNEL_KEY = "Foreground";
-    private static final String LOCATION_CHANNEL_KEY = "Location";
+    private static final String SETTINGS_CHANNEL_KEY = "Settings";
 
     /**
      * Create a notification when location permission is denied to the application.
+     *
      * @param context App context
      * @return the created notification.
      */
     public static Notification createLocationPermissionDeniedNotification(Context context) {
         createNotificationChannels(context);
-        // TODO: The click intent should not point to location settings. Perhaps we can load
-        // the app permissions tab.
-        Intent callGPSSettingIntent = new Intent(
-                android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0,
-                callGPSSettingIntent, 0);
+        Intent actionIntent = new Intent(context, MainActivity.class);
+        actionIntent.setAction(Constants.EVENT_LOCATION_PERMISSION_ERROR);
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, locationPermissionRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT);
 
-        return new NotificationCompat.Builder(context.getApplicationContext(), LOCATION_CHANNEL_KEY)
-                .setContentTitle(context.getResources().getString(R.string.location_permission_denied))
-                .setTicker(context.getResources().getString(R.string.location_permission_denied))
-                .setContentText(context.getResources().getString(R.string.grant_location_permission))
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Location Permission Denied")
+                .setTicker("Location Permission Denied")
+                .setContentText("Grant location permission to Zendrive app.")
                 .setSmallIcon(R.drawable.ic_notification)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setCategory(NotificationCompat.CATEGORY_ERROR)
-                .setContentIntent(pendingIntent)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
                 .build();
     }
 
     /**
      * Create a notification when high accuracy location is disabled on the device.
+     *
      * @param context App context
-     * @param settingsResult to get potential resolution from play services
      * @return the created notification.
      */
-    public static Notification createLocationSettingDisabledNotification(Context context,
-                                                                         ZendriveLocationSettingsResult settingsResult) {
+    public static Notification createLocationSettingDisabledNotification(Context context) {
         createNotificationChannels(context);
-        if (BuildConfig.DEBUG && settingsResult.isSuccess()) {
-            throw new AssertionError("Only expected failed settings result");
-        }
         // TODO: use the result from the callback and show appropriate message and intent
         Intent callGPSSettingIntent = new Intent(
                 android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0,
+        callGPSSettingIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), locationDisabledRequestCode,
                 callGPSSettingIntent, 0);
 
-        return new NotificationCompat.Builder(context.getApplicationContext(), LOCATION_CHANNEL_KEY)
+        return new NotificationCompat.Builder(context.getApplicationContext(), SETTINGS_CHANNEL_KEY)
                 .setContentTitle(context.getResources().getString(R.string.location_disabled))
                 .setTicker(context.getResources().getString(R.string.location_disabled))
                 .setContentText(context.getResources().getString(R.string.enable_location))
@@ -79,6 +95,114 @@ public class NotificationUtility {
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setContentIntent(pendingIntent)
                 .setCategory(NotificationCompat.CATEGORY_ERROR)
+                .build();
+    }
+
+    /**
+     * Create a notification when there was a settings error reported by Google Play Services.
+     * @param context App context
+     * @param result The {@link LocationSettingsResult} object from Play Services
+     * @return created notification
+     */
+    public static Notification createGooglePlaySettingsNotification(Context context,
+                                                                    LocationSettingsResult result) {
+        if (result.getStatus().isSuccess()) {
+            return null;
+        }
+        createNotificationChannels(context);
+        Intent actionIntent = new Intent(context, MainActivity.class);
+        actionIntent.setAction(Constants.EVENT_GOOGLE_PLAY_SETTING_ERROR);
+        actionIntent.putExtra(Constants.EVENT_GOOGLE_PLAY_SETTING_ERROR, result);
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, googlePlaySettingsRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT);
+
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Location Settings Error")
+                .setTicker("Location Settings Error")
+                .setContentText("Tap here to resolve.")
+                .setSmallIcon(R.drawable.ic_notification)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+                .build();
+    }
+
+    /**
+     * Create a notification when Power Saver Mode is enabled on the device.
+     * @param context App context
+     * @return created notification
+     */
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    public static Notification createPSMEnabledNotification(Context context, boolean isError) {
+        createNotificationChannels(context);
+        Intent actionIntent = new Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS);
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, psmEnabledRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT);
+
+        String errorWarningPrefix = isError ? "Error: " : "Warning: ";
+
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle(errorWarningPrefix + "Power Saver Mode Enabled")
+                .setTicker(errorWarningPrefix + "power Saver Mode Enabled")
+                .setContentText("Disable power saver mode.")
+                .setOnlyAlertOnce(true)
+                .setAutoCancel(true)
+                .setContentIntent(pi)
+                .setSmallIcon(R.drawable.ic_notification)
+                .build();
+    }
+
+
+    /**
+     * Create a notification when Wifi scanning is disabled on device.
+     *
+     * @param context App Context
+     * @return created notification
+     */
+    public static Notification createWifiScanningDisabledNotification(Context context) {
+        createNotificationChannels(context);
+        Intent actionIntent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, wifiScanningRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT);
+
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Wifi Scanning Disabled")
+                .setTicker("Wifi Scanning Disabled")
+                .setContentText("Tap to enable wifi radio.")
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_notification)
+                .build();
+    }
+
+    /**
+     * Create a notification when background restriction is enabled on the device.
+     *
+     * @param context App context
+     * @return created notification
+     */
+    @RequiresApi(Build.VERSION_CODES.P)
+    public static Notification createBackgroundRestrictedNotification(Context context) {
+        createNotificationChannels(context);
+        Intent actionIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:" + context.getPackageName()));
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, backgroundRestrictedRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT);
+
+        return new Notification.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Background Restricted")
+                .setTicker("Background Restricted")
+                .setContentText("Disable Background Restriction")
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_notification)
                 .build();
     }
 
@@ -123,6 +247,17 @@ public class NotificationUtility {
                 .build();
     }
 
+    public static void cancelErrorAndWarningNotifications(Context context) {
+        NotificationManager manager = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(LOCATION_DISABLED_NOTIFICATION_ID);
+        manager.cancel(LOCATION_PERMISSION_DENIED_NOTIFICATION_ID);
+        manager.cancel(PSM_ENABLED_NOTIFICATION_ID);
+        manager.cancel(BACKGROUND_RESTRICTION_NOTIFICATION_ID);
+        manager.cancel(WIFI_SCANNING_NOTIFICATION_ID);
+        manager.cancel(GOOGLE_PLAY_SETTINGS_NOTIFICATION_ID);
+    }
+
     private static void createNotificationChannels(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager manager = context.getSystemService(NotificationManager.class);
@@ -133,8 +268,8 @@ public class NotificationUtility {
             manager.createNotificationChannel(lowPriorityNotificationChannel);
 
             NotificationChannel defaultNotificationChannel = new NotificationChannel
-                    (LOCATION_CHANNEL_KEY, "Problems",
-                            NotificationManager.IMPORTANCE_DEFAULT);
+                    (SETTINGS_CHANNEL_KEY, "Problems",
+                            NotificationManager.IMPORTANCE_HIGH);
             defaultNotificationChannel.setShowBadge(true);
             manager.createNotificationChannel(defaultNotificationChannel);
         }
@@ -144,6 +279,6 @@ public class NotificationUtility {
         Intent notificationIntent = new Intent(context.getApplicationContext(), SplashActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return PendingIntent.getActivity(context.getApplicationContext(), 0,
-                                         notificationIntent, 0);
+                notificationIntent, 0);
     }
 }

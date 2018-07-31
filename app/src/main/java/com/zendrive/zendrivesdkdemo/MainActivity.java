@@ -26,6 +26,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.LocationSettingsResult;
 import com.google.gson.Gson;
 import com.zendrive.sdk.DriveInfo;
 import com.zendrive.sdk.Zendrive;
@@ -33,7 +34,6 @@ import com.zendrive.sdk.ZendriveAccidentConfidence;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveType;
 import com.zendrive.sdk.ZendriveEventType;
-import com.zendrive.sdk.ZendriveLocationSettingsResult;
 import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
 import com.zendrive.sdk.feedback.ZendriveFeedback;
@@ -80,7 +80,6 @@ public class MainActivity extends Activity implements View.OnClickListener,
                 @Override
                 public void onCompletion(ZendriveOperationResult setupResult) {
                     if (setupResult.isSuccess()) {
-                        Log.d(LOG_TAG_DEBUG, "Setup Success");
                         refreshUI();
                     } else {
                         Log.d(Constants.LOG_TAG_DEBUG, "Setup Failed: " + setupResult.getErrorMessage());
@@ -99,6 +98,45 @@ public class MainActivity extends Activity implements View.OnClickListener,
     protected void onResume() {
         super.onResume();
         refreshUI();
+        maybeResolveErrors();
+        if(isZendriveSettingsCheckNeeded()) {
+            ZendriveManager.getSharedInstance(this).maybeCheckZendriveSettings(this);
+        }
+    }
+
+    private void maybeResolveErrors() {
+        // The activity may have been launched by tapping on a notification
+        // for a google play settings or location permission error.
+        // Check and start resolution if that's the case.
+        Intent intent = getIntent();
+        if (intent == null || intent.getAction() == null) {
+            return;
+        }
+        String action = intent.getAction();
+        if (action.equals(Constants.EVENT_GOOGLE_PLAY_SETTING_ERROR)) {
+            LocationSettingsResult result = intent.getParcelableExtra(EVENT_GOOGLE_PLAY_SETTING_ERROR);
+            if (result != null && !result.getStatus().isSuccess()) {
+                LocationSettingsHelper.resolveLocationSettings(this, result);
+            }
+            setIntent(null);
+        } else if (action.equals(Constants.EVENT_LOCATION_PERMISSION_ERROR)) {
+            requestLocationPermission(false);
+            setIntent(null);
+        }
+    }
+
+    private boolean isZendriveSettingsCheckNeeded() {
+        // If the activity is started for an error resolution, skip the error check.
+        Intent intent = getIntent();
+        if (intent == null || intent.getAction() == null) {
+            return true;
+        }
+        String action = intent.getAction();
+        if (action.equals(Constants.EVENT_GOOGLE_PLAY_SETTING_ERROR) ||
+                action.equals(Constants.EVENT_LOCATION_PERMISSION_ERROR)) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -215,8 +253,6 @@ public class MainActivity extends Activity implements View.OnClickListener,
     private static IntentFilter getIntentFilterForLocalBroadcast() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACCIDENT);
-        intentFilter.addAction(EVENT_LOCATION_PERMISSION_CHANGE);
-        intentFilter.addAction(EVENT_LOCATION_SETTING_CHANGE);
         intentFilter.addAction(REFRESH_UI);
         return intentFilter;
     }
@@ -237,18 +273,6 @@ public class MainActivity extends Activity implements View.OnClickListener,
                                 intent.getLongExtra(ACCIDENT_TIMESTAMP, -1));
                         alert.show();
                     }
-                    break;
-                case EVENT_LOCATION_SETTING_CHANGE:
-                    ZendriveLocationSettingsResult result = intent.getParcelableExtra(EVENT_LOCATION_SETTING_CHANGE);
-                    if (result != null && !result.isSuccess()) {
-                        LocationSettingsHelper.resolveLocationSettings(this, result);
-                    }
-                    // Maybe ask user to re-enable the location settings.
-                    break;
-                case EVENT_LOCATION_PERMISSION_CHANGE:
-                    boolean granted =
-                            intent.getBooleanExtra(EVENT_LOCATION_PERMISSION_CHANGE, false);
-                    requestLocationPermission(granted);
                     break;
                 case REFRESH_UI:
                     refreshUI();
