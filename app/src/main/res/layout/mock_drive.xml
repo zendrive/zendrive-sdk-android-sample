@@ -1,0 +1,19 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="clickHandler"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="state"
+            type="com.zendrive.zendrivesdkdemo.SdkState" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+</layout>

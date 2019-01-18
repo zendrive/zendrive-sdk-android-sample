@@ -24,4 +24,9 @@ integration.
  - Assign your own driver id to `driverId` in Constants.java
  - Run!
 
+#### How to use ZendriveSDK-testing in the sample app
+ - Complete the steps above to initialize Zendrive SDK
+ - Build the zendrivesdktesting variant of the sample app
+ - Simulate!
+
 ###### Please go to [Zendrive Android SDK](https://www.zendrive.com/developers/docs/android) documentation for further details.

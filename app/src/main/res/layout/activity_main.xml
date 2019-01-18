@@ -70,43 +70,51 @@
             </RelativeLayout>
         </FrameLayout>
 
-        <Button
-            android:id="@+id/triggerAccidentButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:enabled="@{state.isDriving}"
-            android:onClick="@{clickHandler::onClick}"
-            android:text="@string/trigger_collision"
-            />
-
         <LinearLayout
-            android:id="@+id/startEndParent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
+            android:visibility="@{@bool/isTestingMode ? View.GONE : View.VISIBLE}"
+            android:orientation="vertical">
 
             <Button
-                android:id="@+id/startDriveButton"
-                android:layout_width="0dp"
+                android:id="@+id/triggerAccidentButton"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:enabled="@{state.isSetup &amp;&amp; !state.isDriving}"
-                android:onClick="@{clickHandler::onClick}"
-                android:text="@string/start_drive"
-                />
-
-            <Button
-                android:id="@+id/endDriveButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:enabled="@{state.isDriving}"
                 android:onClick="@{clickHandler::onClick}"
-                android:text="@string/end_drive"
-                />
+                android:text="@string/trigger_collision" />
+
+            <LinearLayout
+                android:id="@+id/startEndParent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/startDriveButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="@{state.isSetup &amp;&amp; !state.isDriving}"
+                    android:onClick="@{clickHandler::onClick}"
+                    android:text="@string/start_drive" />
+
+                <Button
+                    android:id="@+id/endDriveButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="@{state.isDriving}"
+                    android:onClick="@{clickHandler::onClick}"
+                    android:text="@string/end_drive" />
+
+            </LinearLayout>
+
         </LinearLayout>
+
+        <include
+            layout="@layout/mock_drive"
+            android:id="@+id/mockDriveLayout" />
 
     </LinearLayout>
 </layout>
-

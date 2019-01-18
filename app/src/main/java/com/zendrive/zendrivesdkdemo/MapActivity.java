@@ -74,8 +74,10 @@ public class MapActivity extends FragmentActivity {
                 polylineOptions.width(10);
                 polylineOptions.addAll(points);
                 gMap.addPolyline(polylineOptions);
-                int padding = 100; // offset from edges of the map in pixels
-                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                int width = getResources().getDisplayMetrics().widthPixels;
+                int height = getResources().getDisplayMetrics().heightPixels;
+                int padding = (int) (0.13 * width); // offset from edges of the map 13% of screen
+                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
                 gMap.animateCamera(cu);
                 // mark trip start and trip end.
                 if (!points.isEmpty()) {

@@ -21,7 +21,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,11 +49,10 @@ import static com.zendrive.zendrivesdkdemo.Constants.*;
  * Main UI.
  * Shows current state and details about drive activity.
  */
-public class MainActivity extends Activity implements View.OnClickListener,
-        AdapterView.OnItemClickListener {
+public class MainActivity extends Activity implements AdapterView.OnItemClickListener,
+        View.OnClickListener {
 
     private TextView titleTextView;
-    private Button startDriveButton, endDriveButton;
     private ActivityMainBinding binding;
     private static final int kLocationPermissionRequest = 42;
     private SdkState sdkState;
@@ -141,33 +139,31 @@ public class MainActivity extends Activity implements View.OnClickListener,
 
     /**
      * - setup UI components.
-     * - drive start button.
-     * - drive end button.
-     * - trigger mock accident button.
      * - trip details list.
      */
     private void setupUI() {
+        LayoutHandler layoutHandler;
+        try {
+            layoutHandler = BuildConfig.layoutHandler.newInstance();
+        } catch (IllegalAccessException | InstantiationException e) {
+            // Incorrectly configured build?
+            throw new RuntimeException("Unable to create tripActionLayout handler", e);
+        }
+        layoutHandler.setup(this, binding);
         binding.setClickHandler(this);
+        binding.mockDriveLayout.setClickHandler(layoutHandler);
         binding.setState(sdkState);
         titleTextView = binding.titleTextView;
         tripListView = binding.tripListView;
         tripListView.setOnItemClickListener(this);
-        // trigger mock accident button.
-
-        Button triggerAccidentButton = binding.triggerAccidentButton;
-        // by default accident trigger button is disabled.
-        triggerAccidentButton.setEnabled(false);
-        // start drive button.
-        startDriveButton = binding.startDriveButton;
-
-        // end drive button.
-        endDriveButton = binding.endDriveButton;
     }
 
-    public void onClick(View view) {
+    @Override
+    public void onClick(final View view) {
+        Context context = this;
         if (view == binding.triggerAccidentButton) {
             // Generate a mock accident.
-            Zendrive.triggerMockAccident(getApplicationContext(),
+            Zendrive.triggerMockAccident(context,
                     ZendriveAccidentConfidence.HIGH, new ZendriveOperationCallback() {
                         @Override
                         public void onCompletion(ZendriveOperationResult result) {
@@ -180,26 +176,25 @@ public class MainActivity extends Activity implements View.OnClickListener,
                         }
                     });
         } else if (view == binding.startDriveButton) {
-            // Zendrive start Drive API.
-            Zendrive.startDrive(this, TRIP_TRACKING_ID, new ZendriveOperationCallback() {
+            Zendrive.startDrive(context, TRIP_TRACKING_ID, new ZendriveOperationCallback() {
                 @Override
                 public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
                     if (!zendriveOperationResult.isSuccess()) {
-                        startDriveButton.setEnabled(true);
+                        view.setEnabled(true);
                     }
                 }
             });
-            startDriveButton.setEnabled(false);
+            view.setEnabled(false);
         } else if (view == binding.endDriveButton) {
-            Zendrive.stopDrive(this, TRIP_TRACKING_ID, new ZendriveOperationCallback() {
+            Zendrive.stopManualDrive(context, new ZendriveOperationCallback() {
                 @Override
                 public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
                     if (!zendriveOperationResult.isSuccess()) {
-                        endDriveButton.setEnabled(true);
+                        view.setEnabled(true);
                     }
                 }
             });
-            endDriveButton.setEnabled(false);
+            view.setEnabled(false);
         }
     }
 
