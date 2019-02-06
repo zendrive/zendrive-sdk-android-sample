@@ -17,6 +17,13 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin">
 
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/overlayPermissionButton"
+            android:text="Grant Overlay Permission"
+            android:onClick="@{clickHandler::onClick}"
+            />
 
         <EditText
             android:id="@+id/editText"
