@@ -34,6 +34,7 @@
     <string name="auto_off">AUTO_OFF</string>
     <string name="drive_tracking_key">drive_tracking</string>
     <string name="user_type_key">user_type_key</string>
+    <string name="zendrive_sdk_version_key">zendrive_sdk_version_key</string>
 
     <string-array name="list_preference_entry_values">
         <item>Free</item>

@@ -11,7 +11,9 @@ import com.zendrive.sdk.LocationPointWithTimestamp;
 import com.zendrive.sdk.PhonePosition;
 import com.zendrive.sdk.ZendriveAccidentConfidence;
 import com.zendrive.sdk.ZendriveDriveType;
+import com.zendrive.sdk.ZendriveEventRatings;
 import com.zendrive.sdk.ZendriveEventSeverity;
+import com.zendrive.sdk.ZendriveStarRating;
 import com.zendrive.sdk.ZendriveTurnDirection;
 import com.zendrive.sdk.ZendriveUserMode;
 import com.zendrive.sdk.testing.mockdrive.AggressiveAccelerationEventBuilder;
@@ -181,6 +183,13 @@ class MockDriveLayoutHandler implements LayoutHandler {
                 .setLocation(hardTurnStartLocation, hardTurnEndLocation)
                 .setSeverity(ZendriveEventSeverity.NOT_AVAILABLE);
 
+        ZendriveEventRatings eventRatings = new ZendriveEventRatings();
+        eventRatings.aggressiveAccelerationRating = ZendriveStarRating.FOUR;
+        eventRatings.hardBrakeRating = ZendriveStarRating.THREE;
+        eventRatings.speedingRating = ZendriveStarRating.TWO;
+        eventRatings.hardTurnRating = ZendriveStarRating.FOUR;
+        eventRatings.phoneHandlingRating = ZendriveStarRating.FOUR;
+
         MockDrive.Builder builder = MockDrive.Builder.newAutoDrive(driveStartTimestamp, driveEndTimestamp)
                 .setWayPoints(waypoints)
                 .setAverageSpeed(20)
@@ -189,6 +198,7 @@ class MockDriveLayoutHandler implements LayoutHandler {
                 .setDriveType(ZendriveDriveType.DRIVE)
                 .setPhonePosition(PhonePosition.UNKNOWN)
                 .setUserMode(ZendriveUserMode.DRIVER)
+                .setEventRatings(eventRatings)
                 .setScore(54)
                 .addEventBuilder(aggressiveAccelerationEventBuilder)
                 .addEventBuilder(collisionEventBuilder)

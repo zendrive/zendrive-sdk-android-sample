@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
@@ -16,6 +17,7 @@ import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
 
 public class SettingsActivity extends PreferenceActivity {
+    Preference zendriveSdkVersionPreference;
     SwitchPreference driveTrackingPreference;
     ListPreference userTypePreference;
 
@@ -25,9 +27,11 @@ public class SettingsActivity extends PreferenceActivity {
         addPreferencesFromResource(R.xml.preferences);
         PreferenceScreen preferenceScreen = getPreferenceScreen();
         Resources resources = getResources();
+        String zendriveSdkVersionKey = resources.getString(R.string.zendrive_sdk_version_key);
         String driveTrackingKey = resources.getString(R.string.drive_tracking_key);
         String userTypeKey = resources.getString(R.string.user_type_key);
 
+        zendriveSdkVersionPreference = preferenceScreen.findPreference(zendriveSdkVersionKey);
         driveTrackingPreference =
                 (SwitchPreference) preferenceScreen.findPreference(driveTrackingKey);
         userTypePreference = (ListPreference) preferenceScreen.findPreference(userTypeKey);
@@ -37,6 +41,7 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     private void setDefaultValues() {
+        zendriveSdkVersionPreference.setSummary(Zendrive.getBuildVersion());
         userTypePreference.setValue(
                 SharedPreferenceManager.getStringPreference(
                         this,

@@ -5,7 +5,6 @@ import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 
 import com.zendrive.sdk.Zendrive;
-import com.zendrive.sdk.ZendriveState;
 
 public class SdkState extends BaseObservable {
 
@@ -17,7 +16,7 @@ public class SdkState extends BaseObservable {
 
     @Bindable
     public boolean isSetup() {
-        return Zendrive.getZendriveState(context) != null;
+        return Zendrive.isSDKSetup(context);
     }
 
     public void update() {
@@ -27,7 +26,6 @@ public class SdkState extends BaseObservable {
 
     @Bindable
     public boolean isDriving() {
-        ZendriveState state = Zendrive.getZendriveState(context);
-        return state != null && state.isDriveInProgress;
+        return Zendrive.getActiveDriveInfo(context) != null;
     }
 }

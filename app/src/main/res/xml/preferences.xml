@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <Preference
+        android:key="@string/zendrive_sdk_version_key"
+        android:selectable="false"
+        android:persistent="false"
+        android:title="Zendrive SDK Version"
+        tools:summary="4.2.0"
+        />
+
     <SwitchPreference
         android:defaultValue="false"
         android:title="Drive Tracking"
