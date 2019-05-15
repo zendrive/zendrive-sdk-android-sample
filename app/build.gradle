@@ -44,7 +44,8 @@ android {
 
 dependencies {
     def supportLibVersion = '28.0.0'
-    implementation 'com.zendrive.sdk.android:ZendriveSDK:5.9.1'
+    def zendrive_sdk_version = '5.9.2'
+    implementation "com.zendrive.sdk.android:ZendriveSDK:$zendrive_sdk_version"
     implementation 'com.google.android.gms:play-services-location:11.8.0'
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
     implementation "com.android.support:support-v4:$supportLibVersion"
@@ -52,5 +53,5 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 
-    zendrivesdktestingImplementation 'com.zendrive.sdk.android:ZendriveSDK-testing:5.9.1'
+    zendrivesdktestingImplementation "com.zendrive.sdk.android:ZendriveSDK-testing:$zendrive_sdk_version"
 }
