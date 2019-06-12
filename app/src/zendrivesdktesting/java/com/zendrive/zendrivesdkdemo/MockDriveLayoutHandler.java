@@ -27,6 +27,7 @@ import com.zendrive.sdk.testing.mockdrive.PhoneHandlingEventBuilder;
 import com.zendrive.sdk.testing.mockdrive.PhoneScreenInteractionEventBuilder;
 import com.zendrive.sdk.testing.mockdrive.PresetTripType;
 import com.zendrive.sdk.testing.mockdrive.SpeedingEventBuilder;
+import com.zendrive.sdk.testing.mockdrive.StopSignViolationEventBuilder;
 import com.zendrive.zendrivesdkdemo.databinding.ActivityMainBinding;
 
 import java.util.ArrayList;
@@ -129,6 +130,7 @@ class MockDriveLayoutHandler implements LayoutHandler {
         LocationPoint phoneScreenInteractionStartLocation = new LocationPoint(27.429330,
                 -82.562356);
         LocationPoint phoneScreenInteractionEndLocation = new LocationPoint(27.429259, -82.560129);
+        LocationPoint stopSignViolationLocationPoint = new LocationPoint(27.429191, -82.540527);
 
         waypoints.add(new LocationPointWithTimestamp(startLocationPoint, driveStartTimestamp));
         waypoints.add(new LocationPointWithTimestamp(phoneScreenInteractionStartLocation,
@@ -140,6 +142,7 @@ class MockDriveLayoutHandler implements LayoutHandler {
         waypoints.add(new LocationPointWithTimestamp(hardBrakeLocation, 1543871082354L));
         waypoints.add(new LocationPointWithTimestamp(aggressiveAccelerationLocation,
                 1543871124370L));
+        waypoints.add(new LocationPointWithTimestamp(stopSignViolationLocationPoint, 1543871128383L));
         waypoints.add(new LocationPointWithTimestamp(hardTurnStartLocation, 1543871132397L));
         waypoints.add(new LocationPointWithTimestamp(hardTurnEndLocation, 1543871142367L));
         waypoints.add(new LocationPointWithTimestamp(phoneHandlingStartLocation, 1543871149359L));
@@ -183,6 +186,11 @@ class MockDriveLayoutHandler implements LayoutHandler {
                 .setLocation(hardTurnStartLocation, hardTurnEndLocation)
                 .setSeverity(ZendriveEventSeverity.NOT_AVAILABLE);
 
+        MockEventBuilder stopSignViolationEventBuilder =
+                new StopSignViolationEventBuilder(1543871128383L)
+                .setLocation(stopSignViolationLocationPoint)
+                .setSeverity(ZendriveEventSeverity.NOT_AVAILABLE);
+
         ZendriveEventRatings eventRatings = new ZendriveEventRatings();
         eventRatings.aggressiveAccelerationRating = ZendriveStarRating.FOUR;
         eventRatings.hardBrakeRating = ZendriveStarRating.THREE;
@@ -206,7 +214,8 @@ class MockDriveLayoutHandler implements LayoutHandler {
                 .addEventBuilder(speedingEventBuilder)
                 .addEventBuilder(phoneScreenInteractionEventBuilder)
                 .addEventBuilder(phoneHandlingEventBuilder)
-                .addEventBuilder(hardTurnEventBuilder);
+                .addEventBuilder(hardTurnEventBuilder)
+                .addEventBuilder(stopSignViolationEventBuilder);
 
         MockDrive customMockDrive = builder.build();
         return customMockDrive.simulate(context, 10);
