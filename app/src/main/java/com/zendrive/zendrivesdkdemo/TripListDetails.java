@@ -16,11 +16,7 @@ class TripListDetails {
         this.tripList = new ArrayList<>();
     }
 
-    void addTrip(DriveInfo driveInfo) {
-        tripList.add(driveInfo);
-    }
-
-    void updateTrip(DriveInfo driveInfo) {
+    void addOrUpdateTrip(DriveInfo driveInfo) {
         int matchingInfo = -1;
         for (int i = tripList.size() - 1; i >= 0; --i) {
             if (tripList.get(i).driveId.equals(driveInfo.driveId)) {
@@ -29,10 +25,10 @@ class TripListDetails {
             }
         }
         if (matchingInfo == -1) {
-            Log.e(Constants.LOG_TAG_DEBUG, "Updating trip which was not added earlier.");
-            return;
+            tripList.add(driveInfo);
+        } else {
+            tripList.set(matchingInfo, driveInfo);
         }
-        tripList.set(matchingInfo, driveInfo);
     }
 
     final List<DriveInfo> tripList;

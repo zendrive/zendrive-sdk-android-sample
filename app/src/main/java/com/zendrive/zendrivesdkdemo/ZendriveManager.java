@@ -111,7 +111,7 @@ public class ZendriveManager {
     public void onDriveEnd(DriveInfo driveInfo) {
         driveInProgress = false;
         TripListDetails tripListDetails = loadTripDetails();
-        tripListDetails.addTrip(driveInfo);
+        tripListDetails.addOrUpdateTrip(driveInfo);
         saveTripDetails(tripListDetails);
         Intent intent = new Intent(Constants.REFRESH_UI);
         intent.putExtra(Constants.DRIVE_DISTANCE, driveInfo.distanceMeters);
@@ -123,7 +123,7 @@ public class ZendriveManager {
      */
     public void onDriveAnalyzed(DriveInfo driveInfo) {
         TripListDetails tripListDetails = loadTripDetails();
-        tripListDetails.updateTrip(driveInfo);
+        tripListDetails.addOrUpdateTrip(driveInfo);
         saveTripDetails(tripListDetails);
         Intent intent = new Intent(Constants.REFRESH_UI);
         LocalBroadcastManager.getInstance(this.context).sendBroadcast(intent);
