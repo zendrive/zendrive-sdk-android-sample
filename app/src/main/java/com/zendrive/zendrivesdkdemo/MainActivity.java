@@ -1,5 +1,6 @@
 package com.zendrive.zendrivesdkdemo;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -8,12 +9,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +21,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.gson.Gson;
 import com.zendrive.sdk.DriveInfo;
@@ -37,7 +37,9 @@ import com.zendrive.zendrivesdkdemo.databinding.ActivityMainBinding;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import static com.zendrive.zendrivesdkdemo.Constants.*;
@@ -51,7 +53,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     private TextView titleTextView;
     private ActivityMainBinding binding;
-    private static final int kLocationPermissionRequest = 42;
+    private static final int kPermissionRequestCode = 42;
     private SdkState sdkState;
 
     @Override
@@ -118,6 +120,18 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             setIntent(null);
         } else if (action.equals(Constants.EVENT_LOCATION_PERMISSION_ERROR)) {
             requestLocationPermission(false);
+            setIntent(null);
+        } else if (action.equals(EVENT_ACTIVITY_PERMISSION_ERROR)) {
+            requestActivityPermission(false);
+            setIntent(null);
+        } else if (action.equals(EVENT_MULTIPLE_PERMISSIONS_ERROR)) {
+            List<String> missingPermissionList =
+                    intent.getStringArrayListExtra(MULTIPLE_PERMISSIONS_DENIED_LIST);
+            if (missingPermissionList == null || missingPermissionList.isEmpty()) {
+                throw new RuntimeException(
+                        "Cannot find missing permission list in the activity intent");
+            }
+            requestMultiplePermissions(missingPermissionList);
             setIntent(null);
         }
     }
@@ -292,29 +306,56 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     private void requestLocationPermission(boolean granted) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!granted) {
-                requestPermissions(
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        kLocationPermissionRequest);
+                List<String> permissionList = new ArrayList<>();
+                permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    permissionList.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+                }
+                requestPermissions(permissionList.toArray(new String[2]),
+                        kPermissionRequestCode);
             }
         } else {
-            throw new RuntimeException("Callback on non marshmallow sdk");
+            throw new RuntimeException("Requesting Location permission on non marshmallow sdk");
+        }
+    }
+
+    private void requestActivityPermission(boolean granted) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (!granted) {
+                requestPermissions(
+                        new String[]{Manifest.permission.ACTIVITY_RECOGNITION},
+                        kPermissionRequestCode);
+            }
+        } else {
+            throw new RuntimeException("Requesting Physical Activity permission on non Q sdk");
+        }
+    }
+
+    private void requestMultiplePermissions(List<String> permissionList) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(permissionList.toArray(new String[0]), kPermissionRequestCode);
+        } else {
+            throw new RuntimeException("Requesting run time permissions on non marshmallow sdk");
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grants) {
-        if (requestCode == kLocationPermissionRequest) {
-            if (grants.length > 0 && grants[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(LOG_TAG_DEBUG, "Permission granted for fine location");
-            } else {
-                new AlertDialog.Builder(this)
-                        .setTitle(getResources().getString(R.string.location_permission))
-                        .setMessage(getResources().getString(R.string.location_permission_denied))
-                        .setPositiveButton("Ok", null)
-                        .create()
-                        .show();
-                Log.d(LOG_TAG_DEBUG, "Permission denied for fine location");
+        if (requestCode == kPermissionRequestCode) {
+            StringBuilder msg = new StringBuilder();
+            for (int i = 0; i < permissions.length; i++) {
+                if (grants[i] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(LOG_TAG_DEBUG, "Permission granted for : " + permissions[i]);
+                } else {
+                    msg.append(permissions[i].replace("android.permission.", ""))
+                            .append("\n");
+                }
+            }
+            if (msg.length() > 0) {
+                new AlertDialog.Builder(this).setTitle("Permissions denied for:")
+                        .setMessage(msg.toString())
+                        .setPositiveButton("Ok", null).create().show();
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.zendrive.zendrivesdkdemo;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -8,8 +9,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.gson.Gson;
 import com.zendrive.sdk.AccidentInfo;
@@ -21,12 +22,17 @@ import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveDetectionMode;
 import com.zendrive.sdk.ZendriveDriverAttributes;
+import com.zendrive.sdk.ZendriveIssueType;
 import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
 import com.zendrive.sdk.ZendriveSettingError;
 import com.zendrive.sdk.ZendriveSettingWarning;
 import com.zendrive.sdk.ZendriveSettings;
 import com.zendrive.sdk.ZendriveSettingsCallback;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Wrapper class for the Zendrive SDK.
@@ -137,11 +143,8 @@ public class ZendriveManager {
      * An accident was detected by the Zendrive SDK.
      */
     public void onAccident(AccidentInfo accidentInfo) {
-        NotificationUtility.showCollisionNotification(context.getApplicationContext());
-        Intent intent = new Intent(context, CollisionDetectedActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(Constants.ACCIDENT_INFO, accidentInfo);
-        context.getApplicationContext().startActivity(intent);
+        NotificationUtility.showCollisionNotification(context.getApplicationContext(),
+                accidentInfo);
     }
 
     /**
@@ -178,6 +181,7 @@ public class ZendriveManager {
                     return;
                 }
 
+                List<ZendriveIssueType> deniedPermissions = new ArrayList<>();
                 for (ZendriveSettingError error : zendriveSettings.errors) {
                     switch (error.type) {
                         case POWER_SAVER_MODE_ENABLED: {
@@ -218,11 +222,7 @@ public class ZendriveManager {
                             break;
                         }
                         case LOCATION_PERMISSION_DENIED: {
-                            notificationManager.notify(NotificationUtility.
-                                            LOCATION_PERMISSION_DENIED_NOTIFICATION_ID,
-                                    NotificationUtility.
-                                            createLocationPermissionDeniedNotification(context));
-
+                            deniedPermissions.add(ZendriveIssueType.LOCATION_PERMISSION_DENIED);
                             break;
                         }
                         case LOCATION_SETTINGS_ERROR: {
@@ -235,6 +235,17 @@ public class ZendriveManager {
                             notificationManager.notify(NotificationUtility.
                                     WIFI_SCANNING_NOTIFICATION_ID, NotificationUtility.
                                     createWifiScanningDisabledNotification(context));
+                            break;
+                        }
+                        case ACTIVITY_RECOGNITION_PERMISSION_DENIED: {
+                            deniedPermissions.add(ZendriveIssueType.
+                                    ACTIVITY_RECOGNITION_PERMISSION_DENIED);
+                            break;
+                        }
+                        case OVERLAY_PERMISSION_DENIED: {
+                            notificationManager.notify(NotificationUtility.
+                                    OVERLAY_PERMISSION_DENIED_NOTIFICATION_ID, NotificationUtility.
+                                    createOverlayPermissionDeniedNotification(context));
                             break;
                         }
                     }
@@ -255,8 +266,60 @@ public class ZendriveManager {
                         }
                     }
                 }
+                if (!deniedPermissions.isEmpty()) {
+                    showPermissionDeniedNotification(context, notificationManager,
+                            deniedPermissions);
+                }
             }
         });
+    }
+
+    private void showPermissionDeniedNotification(Context context,
+                                                  NotificationManager notificationManager,
+                                                  List<ZendriveIssueType> deniedPermission) {
+
+        if (deniedPermission.size() == 1) {
+            ZendriveIssueType issueType = deniedPermission.get(0);
+            if (issueType == ZendriveIssueType.LOCATION_PERMISSION_DENIED) {
+                notificationManager.notify(
+                        NotificationUtility.LOCATION_PERMISSION_DENIED_NOTIFICATION_ID,
+                        NotificationUtility.createLocationPermissionDeniedNotification(context));
+            } else if (issueType == ZendriveIssueType.ACTIVITY_RECOGNITION_PERMISSION_DENIED) {
+                notificationManager.notify(
+                        NotificationUtility.ACTIVITY_PERMISSION_DENIED_NOTIFICATION_ID,
+                        NotificationUtility.createActivityPermissionDeniedNotification(context)
+                );
+            }
+        } else {
+            ArrayList<String> missingPermissions = new ArrayList<>();
+            for (ZendriveIssueType issueType: deniedPermission) {
+                if (issueType == ZendriveIssueType.LOCATION_PERMISSION_DENIED) {
+                    Collections.addAll(missingPermissions, Manifest.permission.ACCESS_FINE_LOCATION);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        Collections.addAll(missingPermissions,
+                                Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+                    }
+                }
+                if (issueType == ZendriveIssueType.ACTIVITY_RECOGNITION_PERMISSION_DENIED) {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                        // SDK should not flag this pre Q
+                        throw new RuntimeException("Activity permission " +
+                                "error on OS version < Q.");
+                    }
+                    missingPermissions.add(Manifest.permission.ACTIVITY_RECOGNITION);
+                }
+            }
+
+            notificationManager.cancel(
+                    NotificationUtility.LOCATION_PERMISSION_DENIED_NOTIFICATION_ID);
+            notificationManager.cancel(
+                    NotificationUtility.ACTIVITY_PERMISSION_DENIED_NOTIFICATION_ID);
+            notificationManager.notify(
+                    NotificationUtility.MULTIPLE_PERMISSION_DENIED_NOTIFICATION_ID,
+                    NotificationUtility.createMultiplePermissionsDeniedNotification(context,
+                            missingPermissions)
+            );
+        }
     }
 
     public ZendriveConfiguration getSavedConfiguration() {

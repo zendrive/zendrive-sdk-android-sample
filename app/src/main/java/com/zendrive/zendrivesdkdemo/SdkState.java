@@ -1,8 +1,8 @@
 package com.zendrive.zendrivesdkdemo;
 
 import android.content.Context;
-import android.databinding.BaseObservable;
-import android.databinding.Bindable;
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
 
 import com.zendrive.sdk.Zendrive;
 

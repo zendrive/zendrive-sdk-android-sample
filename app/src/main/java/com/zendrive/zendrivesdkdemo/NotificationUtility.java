@@ -9,11 +9,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.gms.location.LocationSettingsResult;
+import com.zendrive.sdk.AccidentInfo;
+
+import java.util.ArrayList;
 
 import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
 
@@ -33,6 +36,10 @@ public class NotificationUtility {
     public static final int COLLISION_DETECTED_NOTIFICATION_ID = 103;
     public static final int WIFI_SCANNING_NOTIFICATION_ID = 104;
     public static final int GOOGLE_PLAY_SETTINGS_NOTIFICATION_ID = 105;
+    public static final int ACTIVITY_PERMISSION_DENIED_NOTIFICATION_ID = 106;
+    public static final int OVERLAY_PERMISSION_DENIED_NOTIFICATION_ID = 107;
+
+    public static final int MULTIPLE_PERMISSION_DENIED_NOTIFICATION_ID = 199;
 
     private static final int psmEnabledRequestCode = 200;
     private static final int locationDisabledRequestCode = 201;
@@ -41,6 +48,9 @@ public class NotificationUtility {
     private static final int googlePlaySettingsRequestCode = 204;
     private static final int locationPermissionRequestCode = 205;
     private static final int collisionActivityRequestCode = 206;
+    private static final int activityPermissionRequestCode = 207;
+    private static final int overlayPermissionRequestCode = 208;
+    private static final int multiplePermissionRequestCode = 299;
 
     // channel keys (id) are used to sort the channels in the notification
     // settings page. Meaningful ids and descriptions tell the user
@@ -211,6 +221,87 @@ public class NotificationUtility {
     }
 
     /**
+     * Create a notification when physical activity permission is denied to the application.
+     *
+     * @param context App context
+     * @return the created notification.
+     */
+    public static Notification createActivityPermissionDeniedNotification(Context context) {
+        createNotificationChannels(context);
+        Intent actionIntent = new Intent(context, MainActivity.class);
+        actionIntent.setAction(Constants.EVENT_ACTIVITY_PERMISSION_ERROR);
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, activityPermissionRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT);
+
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Activity Permission Denied")
+                .setTicker("Activity Permission Denied")
+                .setContentText("Grant activity permission to Zendrive app.")
+                .setSmallIcon(R.drawable.ic_notification)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+                .build();
+    }
+
+    /**
+     * Create a notification when overlay permission is denied to the application.
+     *
+     * @param context App context
+     * @return the created notification.
+     */
+    @RequiresApi(Build.VERSION_CODES.M)
+    public static Notification createOverlayPermissionDeniedNotification(Context context) {
+        createNotificationChannels(context);
+        Intent actionIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:" + context.getPackageName()));
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, overlayPermissionRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT);
+
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Overlay Permission Denied")
+                .setTicker("Overlay Permission Denied")
+                .setContentText("Grant overlay permission to Zendrive app.")
+                .setSmallIcon(R.drawable.ic_notification)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+                .build();
+    }
+
+    /**
+     * Create a notification when multiple permissions are denied to the application.
+     *
+     * @param context App context
+     * @return the created notification.
+     */
+    public static Notification createMultiplePermissionsDeniedNotification(Context context,
+                                                                           ArrayList<String> missingPermissionList) {
+        createNotificationChannels(context);
+        Intent actionIntent = new Intent(context, MainActivity.class);
+        actionIntent.setAction(Constants.EVENT_MULTIPLE_PERMISSIONS_ERROR);
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        actionIntent.putExtra(Constants.MULTIPLE_PERMISSIONS_DENIED_LIST, missingPermissionList);
+        PendingIntent pi = PendingIntent.getActivity(context, multiplePermissionRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT);
+
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Multiple Permissions Denied")
+                .setTicker("Multiple Permissions Denied")
+                .setContentText("Grant permissions to Zendrive app.")
+                .setSmallIcon(R.drawable.ic_notification)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+                .build();
+    }
+
+    /**
      * Create a notification that is displayed when the Zendrive SDK
      * detects a possible drive.
      *
@@ -260,19 +351,25 @@ public class NotificationUtility {
         manager.cancel(BACKGROUND_RESTRICTION_NOTIFICATION_ID);
         manager.cancel(WIFI_SCANNING_NOTIFICATION_ID);
         manager.cancel(GOOGLE_PLAY_SETTINGS_NOTIFICATION_ID);
+        manager.cancel(ACTIVITY_PERMISSION_DENIED_NOTIFICATION_ID);
+        manager.cancel(OVERLAY_PERMISSION_DENIED_NOTIFICATION_ID);
+        manager.cancel(MULTIPLE_PERMISSION_DENIED_NOTIFICATION_ID);
     }
+
     /**
      * Create and show a notification when Zendrive SDK detects a collision.
      * @param context App context
+     * @param accidentInfo AccidentInfo associated with the collision
      */
-    public static void showCollisionNotification(Context context) {
+    public static void showCollisionNotification(Context context, AccidentInfo accidentInfo) {
         createNotificationChannels(context);
         Notification notification = new NotificationCompat.Builder(context, COLLISION_CHANNEL_KEY)
                 .setContentTitle("Zendrive")
                 .setContentText("Collision Detected.")
                 .setSmallIcon(R.drawable.ic_notification)
-                .setPriority(NotificationManagerCompat.IMPORTANCE_HIGH)
-                .setContentIntent(getActivityPendingIntentForCollision(context))
+                .setPriority(NotificationManagerCompat.IMPORTANCE_MAX)
+                .setFullScreenIntent(getActivityPendingIntentForCollision(context, accidentInfo),
+                        true)
                 .setAutoCancel(true)
                 .build();
 
@@ -314,9 +411,12 @@ public class NotificationUtility {
                 notificationIntent, 0);
     }
 
-    private static PendingIntent getActivityPendingIntentForCollision(Context context) {
-        return PendingIntent.getActivity(context, collisionActivityRequestCode,
-                new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+    private static PendingIntent getActivityPendingIntentForCollision(Context context,
+                                                                      AccidentInfo accidentInfo) {
+        Intent intent = new Intent(context, CollisionDetectedActivity.class);
+        intent.putExtra(Constants.ACCIDENT_INFO, accidentInfo);
+        return PendingIntent.getActivity(context, collisionActivityRequestCode, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private static NotificationManagerCompat getNotificationManager(Context context) {
