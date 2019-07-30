@@ -86,6 +86,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                     }
                 }
             }, true);
+        } else {
+            ZendriveManager.getSharedInstance(this).checkZendriveSettings(this);
         }
     }
 
