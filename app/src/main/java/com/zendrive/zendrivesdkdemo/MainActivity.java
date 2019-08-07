@@ -311,8 +311,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     permissionList.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
                 }
-                requestPermissions(permissionList.toArray(new String[2]),
-                        kPermissionRequestCode);
+                requestPermissions(permissionList.toArray(new String[0]), kPermissionRequestCode);
             }
         } else {
             throw new RuntimeException("Requesting Location permission on non marshmallow sdk");
