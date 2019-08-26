@@ -43,7 +43,7 @@ android {
 }
 
 dependencies {
-    def zendrive_sdk_version = '6.0.0-b1'
+    def zendrive_sdk_version = '6.0.0-sl'
     implementation "com.zendrive.sdk.android:ZendriveSDK:$zendrive_sdk_version"
     implementation 'com.google.android.gms:play-services-location:11.8.0'
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
