@@ -3,6 +3,7 @@ package com.zendrive.zendrivesdkdemo;
 import android.content.Context;
 import android.os.Build;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.zendrive.sdk.ZendriveNotificationContainer;
@@ -13,6 +14,12 @@ import com.zendrive.sdk.ZendriveNotificationProvider;
  * when the SDK goes into foreground mode.
  */
 public class ZendriveSdkNotificationProvider implements ZendriveNotificationProvider {
+
+    @Nullable
+    @Override
+    public ZendriveNotificationContainer getWaitingForDriveNotificationContainer(@NonNull Context context) {
+        return null;
+    }
 
     @NonNull
     @Override
