@@ -25,6 +25,7 @@ import com.zendrive.sdk.ZendriveDriverAttributes;
 import com.zendrive.sdk.ZendriveIssueType;
 import com.zendrive.sdk.ZendriveOperationCallback;
 import com.zendrive.sdk.ZendriveOperationResult;
+import com.zendrive.sdk.ZendriveResolvableError;
 import com.zendrive.sdk.ZendriveSettingError;
 import com.zendrive.sdk.ZendriveSettingWarning;
 import com.zendrive.sdk.ZendriveSettings;
@@ -223,6 +224,23 @@ public class ZendriveManager {
                         }
                         case LOCATION_PERMISSION_DENIED: {
                             deniedPermissions.add(ZendriveIssueType.LOCATION_PERMISSION_DENIED);
+                            break;
+                        }
+                        case BATTERY_OPTIMIZATION_ENABLED: {
+                            Notification batteryOptNotification = NotificationUtility.
+                                    getBatteryOptimizationEnabledNotification(context);
+                            notificationManager.notify(NotificationUtility.
+                                            BATTERY_OPTIMIZATION_NOTIFICATION_ID,
+                                    batteryOptNotification);
+                            break;
+                        }
+                        case ONE_PLUS_DEEP_OPTIMIZATION: {
+                            ZendriveResolvableError e = (ZendriveResolvableError) error;
+                            Notification onePlusOptNotification = NotificationUtility.
+                                    getOnePlusDeepOptimizationEnabledNotification(context,
+                                            e.navigableIntent);
+                            notificationManager.notify(NotificationUtility.
+                                    ONE_PLUS_DEEP_OPTIMIZATION_NOTIFICATION_ID, onePlusOptNotification);
                             break;
                         }
                         case LOCATION_SETTINGS_ERROR: {

@@ -38,6 +38,8 @@ public class NotificationUtility {
     public static final int GOOGLE_PLAY_SETTINGS_NOTIFICATION_ID = 105;
     public static final int ACTIVITY_PERMISSION_DENIED_NOTIFICATION_ID = 106;
     public static final int OVERLAY_PERMISSION_DENIED_NOTIFICATION_ID = 107;
+    public static final int BATTERY_OPTIMIZATION_NOTIFICATION_ID = 108;
+    public static final int ONE_PLUS_DEEP_OPTIMIZATION_NOTIFICATION_ID = 109;
 
     public static final int MULTIPLE_PERMISSION_DENIED_NOTIFICATION_ID = 199;
 
@@ -50,6 +52,8 @@ public class NotificationUtility {
     private static final int collisionActivityRequestCode = 206;
     private static final int activityPermissionRequestCode = 207;
     private static final int overlayPermissionRequestCode = 208;
+    private static final int batteryOptimizationRequestCode = 209;
+    private static final int onePlusDeepOptimizationRequestCode = 210;
     private static final int multiplePermissionRequestCode = 299;
 
     // channel keys (id) are used to sort the channels in the notification
@@ -169,6 +173,60 @@ public class NotificationUtility {
                 .build();
     }
 
+    /**
+     * Create a notification when Battery Optimization is enabled on the device for the application.
+     *
+     * For more details, see:
+     * <a href="https://developer.android.com/training/monitoring-device-state/doze-standby">
+     * Optimize for Doze and App Standby</a>
+     *
+     * @param context App context
+     * @return created notification
+     */
+    @RequiresApi(Build.VERSION_CODES.M)
+    public static Notification getBatteryOptimizationEnabledNotification(Context context) {
+        createNotificationChannels(context);
+        Intent actionIntent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                Uri.parse("package:" + context.getPackageName()));
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+        PendingIntent pi = PendingIntent.getActivity(context, batteryOptimizationRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT);
+
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Battery Optimization Enabled")
+                .setTicker("Battery Optimization Enabled")
+                .setContentText("Tap to disable Battery Optimization")
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_notification)
+                .build();
+    }
+
+    /**
+     * Create a notification when OnePlus Deep Optimization setting is enabled on the device.
+     *
+     * @param context App context
+     * @param intent Resolvable intent. See {@link com.zendrive.sdk.ZendriveResolvableError#navigableIntent}
+     * @return created notification
+     */
+    public static Notification getOnePlusDeepOptimizationEnabledNotification(Context context,
+                                                                             Intent intent) {
+        createNotificationChannels(context);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, onePlusDeepOptimizationRequestCode,
+                intent, FLAG_CANCEL_CURRENT);
+
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Deep Optimization Enabled")
+                .setTicker("Deep Optimization Enabled")
+                .setContentText("Tap to navigate to Deep Optimization setting screen")
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_notification)
+                .build();
+    }
 
     /**
      * Create a notification when Wifi scanning is disabled on device.
@@ -354,6 +412,8 @@ public class NotificationUtility {
         manager.cancel(ACTIVITY_PERMISSION_DENIED_NOTIFICATION_ID);
         manager.cancel(OVERLAY_PERMISSION_DENIED_NOTIFICATION_ID);
         manager.cancel(MULTIPLE_PERMISSION_DENIED_NOTIFICATION_ID);
+        manager.cancel(BATTERY_OPTIMIZATION_NOTIFICATION_ID);
+        manager.cancel(ONE_PLUS_DEEP_OPTIMIZATION_NOTIFICATION_ID);
     }
 
     /**
