@@ -45,7 +45,11 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 return;
             }
             SharedPreferenceManager.setDriverId(LoginActivity.this, driverId);
-            startActivity(new Intent(this, MainActivity.class));
+            if (OnBoardingHelper.isOnBoardingNeeded()) {
+                startActivity(new Intent(this, OnBoardingActivity.class));
+            } else {
+                startActivity(new Intent(this, MainActivity.class));
+            }
             finish();
         } else if (v == binding.overlayPermissionButton) {
             if (overlayPermissionNeeded()) {

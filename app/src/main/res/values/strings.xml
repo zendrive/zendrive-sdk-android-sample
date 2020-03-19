@@ -21,6 +21,8 @@
     <string name="start_drive">Start Drive</string>
     <string name="end_drive">End Drive</string>
     <string name="login_zendrive_sdk">Login</string>
+    <string name="onboarding_login_zendrive_sdk">I have done it</string>
+    <string name="navigate_to_settings">Go to App Settings</string>
     <string name="trigger_collision">Trigger Collision</string>
     <string name="driving_title">Driving</string>
     <string name="zendrive_setup_success">Ready to drive</string>
@@ -35,6 +37,22 @@
     <string name="drive_tracking_key">drive_tracking</string>
     <string name="user_type_key">user_type_key</string>
     <string name="zendrive_sdk_version_key">zendrive_sdk_version_key</string>
+    <string name="bulleted_onboarding_list_huawei">You are on a Huawei device. Some device settings
+        interfere with the functioning of the SDK. Please fix them according to the instructions below \n\n
+        <li> - Turn off manage automatically option for app</li>\n
+        <li> - Set Auto-Launch to true in manual mode</li>\n
+        <li> - Set Secondary Launch to true in manual mode</li>\n
+        <li> - Set run in background to true in manual mode</li>\n
+    </string>
+
+    <string name="bulleted_onboarding_list_xiaomi">You are on a Mi device. Some device settings
+        interfere with the functioning of the SDK. Please fix them according to the instructions below \n\n
+        <li> - Enable AutoStart for app</li>\n
+        <li> - Set Battery Saver setting to No restrictons</li>\n
+        <li> - Allow permission for Show on Lock screen</li>\n
+        <li> - Allow permission for Start in background</li>\n
+        <li> - Allow permission for display pop-up window</li>\n
+    </string>
 
     <string-array name="list_preference_entry_values">
         <item>Free</item>
