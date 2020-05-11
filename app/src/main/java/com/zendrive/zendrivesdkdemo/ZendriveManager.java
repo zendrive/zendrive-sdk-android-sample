@@ -243,18 +243,6 @@ public class ZendriveManager {
                                     ONE_PLUS_DEEP_OPTIMIZATION_NOTIFICATION_ID, onePlusOptNotification);
                             break;
                         }
-                        case LOCATION_SETTINGS_ERROR: {
-                            notificationManager.notify(NotificationUtility.
-                                    LOCATION_DISABLED_NOTIFICATION_ID, NotificationUtility.
-                                    createLocationSettingDisabledNotification(context));
-                            break;
-                        }
-                        case WIFI_SCANNING_DISABLED: {
-                            notificationManager.notify(NotificationUtility.
-                                    WIFI_SCANNING_NOTIFICATION_ID, NotificationUtility.
-                                    createWifiScanningDisabledNotification(context));
-                            break;
-                        }
                         case ACTIVITY_RECOGNITION_PERMISSION_DENIED: {
                             deniedPermissions.add(ZendriveIssueType.
                                     ACTIVITY_RECOGNITION_PERMISSION_DENIED);
@@ -264,6 +252,12 @@ public class ZendriveManager {
                             notificationManager.notify(NotificationUtility.
                                     OVERLAY_PERMISSION_DENIED_NOTIFICATION_ID, NotificationUtility.
                                     createOverlayPermissionDeniedNotification(context));
+                            break;
+                        }
+                        case AIRPLANE_MODE_ENABLED: {
+                            notificationManager.notify(NotificationUtility.
+                                    AIRPLANE_MODE_ENABLED_NOTIFICATION_ID,
+                                    NotificationUtility.createAirplaneModeNotification(context));
                             break;
                         }
                     }

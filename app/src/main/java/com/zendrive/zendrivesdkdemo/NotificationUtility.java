@@ -40,13 +40,12 @@ public class NotificationUtility {
     public static final int OVERLAY_PERMISSION_DENIED_NOTIFICATION_ID = 107;
     public static final int BATTERY_OPTIMIZATION_NOTIFICATION_ID = 108;
     public static final int ONE_PLUS_DEEP_OPTIMIZATION_NOTIFICATION_ID = 109;
+    public static final int AIRPLANE_MODE_ENABLED_NOTIFICATION_ID = 110;
 
     public static final int MULTIPLE_PERMISSION_DENIED_NOTIFICATION_ID = 199;
 
     private static final int psmEnabledRequestCode = 200;
-    private static final int locationDisabledRequestCode = 201;
     private static final int backgroundRestrictedRequestCode = 202;
-    private static final int wifiScanningRequestCode = 203;
     private static final int googlePlaySettingsRequestCode = 204;
     private static final int locationPermissionRequestCode = 205;
     private static final int collisionActivityRequestCode = 206;
@@ -54,6 +53,8 @@ public class NotificationUtility {
     private static final int overlayPermissionRequestCode = 208;
     private static final int batteryOptimizationRequestCode = 209;
     private static final int onePlusDeepOptimizationRequestCode = 210;
+    private static final int airplaneModeEnabledRequestCode = 211;
+
     private static final int multiplePermissionRequestCode = 299;
 
     // channel keys (id) are used to sort the channels in the notification
@@ -87,32 +88,6 @@ public class NotificationUtility {
                 .setContentIntent(pi)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
-                .build();
-    }
-
-    /**
-     * Create a notification when high accuracy location is disabled on the device.
-     *
-     * @param context App context
-     * @return the created notification.
-     */
-    public static Notification createLocationSettingDisabledNotification(Context context) {
-        createNotificationChannels(context);
-        // TODO: use the result from the callback and show appropriate message and intent
-        Intent callGPSSettingIntent = new Intent(
-                android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        callGPSSettingIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), locationDisabledRequestCode,
-                callGPSSettingIntent, 0);
-
-        return new NotificationCompat.Builder(context.getApplicationContext(), SETTINGS_CHANNEL_KEY)
-                .setContentTitle(context.getResources().getString(R.string.location_disabled))
-                .setTicker(context.getResources().getString(R.string.location_disabled))
-                .setContentText(context.getResources().getString(R.string.enable_location))
-                .setSmallIcon(R.drawable.ic_notification)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setContentIntent(pendingIntent)
-                .setCategory(NotificationCompat.CATEGORY_ERROR)
                 .build();
     }
 
@@ -229,30 +204,6 @@ public class NotificationUtility {
     }
 
     /**
-     * Create a notification when Wifi scanning is disabled on device.
-     *
-     * @param context App Context
-     * @return created notification
-     */
-    public static Notification createWifiScanningDisabledNotification(Context context) {
-        createNotificationChannels(context);
-        Intent actionIntent = new Intent(Settings.ACTION_WIFI_SETTINGS);
-        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pi = PendingIntent.getActivity(context, wifiScanningRequestCode,
-                actionIntent, FLAG_CANCEL_CURRENT);
-
-        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
-                .setContentTitle("Wifi Scanning Disabled")
-                .setTicker("Wifi Scanning Disabled")
-                .setContentText("Tap to enable wifi radio.")
-                .setOnlyAlertOnce(true)
-                .setContentIntent(pi)
-                .setAutoCancel(true)
-                .setSmallIcon(R.drawable.ic_notification)
-                .build();
-    }
-
-    /**
      * Create a notification when background restriction is enabled on the device.
      *
      * @param context App context
@@ -323,6 +274,32 @@ public class NotificationUtility {
                 .setContentTitle("Overlay Permission Denied")
                 .setTicker("Overlay Permission Denied")
                 .setContentText("Grant overlay permission to Zendrive app.")
+                .setSmallIcon(R.drawable.ic_notification)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+                .build();
+    }
+
+    /**
+     * Create a notification when airplane mode is enabled on the device.
+     *
+     * @param context App context
+     * @return the created notification.
+     */
+    @RequiresApi(Build.VERSION_CODES.M)
+    public static Notification createAirplaneModeNotification(Context context) {
+        createNotificationChannels(context);
+        Intent actionIntent = new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS);
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, airplaneModeEnabledRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT);
+
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Airplane Mode enabled")
+                .setTicker("Airplane Mode Denied")
+                .setContentText("Disable airplane mode.")
                 .setSmallIcon(R.drawable.ic_notification)
                 .setOnlyAlertOnce(true)
                 .setContentIntent(pi)
