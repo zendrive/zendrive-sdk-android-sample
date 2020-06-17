@@ -32,7 +32,6 @@ import com.zendrive.sdk.ZendriveAccidentConfidence;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveType;
 import com.zendrive.sdk.ZendriveOperationCallback;
-import com.zendrive.sdk.ZendriveOperationResult;
 import com.zendrive.zendrivesdkdemo.databinding.ActivityMainBinding;
 
 import java.text.DateFormat;
@@ -73,19 +72,18 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         // setup zendrive sdk if not already setup.
         if(!Zendrive.isSDKSetup(this)) {
             // setting UI components.
-            initializeZendriveSDK(this, new ZendriveOperationCallback() {
-                @Override
-                public void onCompletion(ZendriveOperationResult setupResult) {
-                    if (setupResult.isSuccess()) {
-                        refreshUI();
-                    } else {
-                        Log.d(Constants.LOG_TAG_DEBUG, "Setup Failed: " + setupResult.getErrorMessage());
-                        AlertDialog ad = new AlertDialog.Builder(MainActivity.this).setTitle(
-                                getResources().getString(R.string.zendrive_setup_failure) + " " +
-                                        setupResult.getErrorCode().toString())
-                                .setNegativeButton("Close", null).create();
-                        ad.show();
-                    }
+            initializeZendriveSDK(this, setupResult -> {
+                if (setupResult.isSuccess()) {
+                    refreshUI();
+                } else {
+                    Log.d(Constants.LOG_TAG_DEBUG, "Setup Failed: " + setupResult.getErrorMessage());
+                    String title = getResources().getString(R.string.zendrive_setup_failure) + " "
+                            + setupResult.getErrorCode().toString();
+                    new AlertDialog.Builder(this)
+                            .setTitle(title)
+                            .setNegativeButton("Close", null)
+                            .create()
+                            .show();
                 }
             }, true);
         } else {
@@ -112,27 +110,33 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             return;
         }
         String action = intent.getAction();
-        if (action.equals(Constants.EVENT_GOOGLE_PLAY_SETTING_ERROR)) {
-            LocationSettingsResult result = intent.getParcelableExtra(EVENT_GOOGLE_PLAY_SETTING_ERROR);
-            if (result != null && !result.getStatus().isSuccess()) {
-                LocationSettingsHelper.resolveLocationSettings(this, result);
-            }
-            setIntent(null);
-        } else if (action.equals(Constants.EVENT_LOCATION_PERMISSION_ERROR)) {
-            requestLocationPermission(false);
-            setIntent(null);
-        } else if (action.equals(EVENT_ACTIVITY_PERMISSION_ERROR)) {
-            requestActivityPermission(false);
-            setIntent(null);
-        } else if (action.equals(EVENT_MULTIPLE_PERMISSIONS_ERROR)) {
-            List<String> missingPermissionList =
-                    intent.getStringArrayListExtra(MULTIPLE_PERMISSIONS_DENIED_LIST);
-            if (missingPermissionList == null || missingPermissionList.isEmpty()) {
-                throw new RuntimeException(
-                        "Cannot find missing permission list in the activity intent");
-            }
-            requestMultiplePermissions(missingPermissionList);
-            setIntent(null);
+        switch (action) {
+            case Constants.EVENT_GOOGLE_PLAY_SETTING_ERROR:
+                LocationSettingsResult result =
+                        intent.getParcelableExtra(EVENT_GOOGLE_PLAY_SETTING_ERROR);
+                if (result != null && !result.getStatus().isSuccess()) {
+                    LocationSettingsHelper.resolveLocationSettings(this, result);
+                }
+                setIntent(null);
+                break;
+            case Constants.EVENT_LOCATION_PERMISSION_ERROR:
+                requestLocationPermission();
+                setIntent(null);
+                break;
+            case EVENT_ACTIVITY_PERMISSION_ERROR:
+                requestActivityPermission();
+                setIntent(null);
+                break;
+            case EVENT_MULTIPLE_PERMISSIONS_ERROR:
+                List<String> missingPermissionList =
+                        intent.getStringArrayListExtra(MULTIPLE_PERMISSIONS_DENIED_LIST);
+                if (missingPermissionList == null || missingPermissionList.isEmpty()) {
+                    throw new RuntimeException(
+                            "Cannot find missing permission list in the activity intent");
+                }
+                requestMultiplePermissions(missingPermissionList);
+                setIntent(null);
+                break;
         }
     }
 
@@ -177,33 +181,22 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         if (view == binding.triggerAccidentButton) {
             // Generate a mock accident.
             Zendrive.triggerMockAccident(context,
-                    ZendriveAccidentConfidence.HIGH, new ZendriveOperationCallback() {
-                        @Override
-                        public void onCompletion(ZendriveOperationResult result) {
-                            if (result.isSuccess()) {
-                                Log.d(LOG_TAG_DEBUG, "Accident trigger success");
-                            } else {
-                                String msg = "Accident trigger failed: " + result.getErrorMessage();
-                                Log.d(LOG_TAG_DEBUG, msg);
-                                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-                            }
+                    ZendriveAccidentConfidence.HIGH, result -> {
+                        if (result.isSuccess()) {
+                            Log.d(LOG_TAG_DEBUG, "Accident trigger success");
+                        } else {
+                            String msg = "Accident trigger failed: " + result.getErrorMessage();
+                            Log.d(LOG_TAG_DEBUG, msg);
+                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
                         }
                     });
         } else if (view == binding.startDriveButton) {
-            Zendrive.startDrive(context, TRIP_TRACKING_ID, new ZendriveOperationCallback() {
-                @Override
-                public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
-                    sdkState.update();
-                }
-            });
+            Zendrive.startDrive(context, TRIP_TRACKING_ID, result -> sdkState.update());
             view.setEnabled(false);
         } else if (view == binding.endDriveButton) {
-            Zendrive.stopManualDrive(context, new ZendriveOperationCallback() {
-                @Override
-                public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
-                    if (!zendriveOperationResult.isSuccess()) {
-                        view.setEnabled(true);
-                    }
+            Zendrive.stopManualDrive(context, result -> {
+                if (!result.isSuccess()) {
+                    view.setEnabled(true);
                 }
             });
             view.setEnabled(false);
@@ -302,28 +295,24 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         return builder.create();
     }
 
-    private void requestLocationPermission(boolean granted) {
+    private void requestLocationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!granted) {
-                List<String> permissionList = new ArrayList<>();
-                permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    permissionList.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
-                }
-                requestPermissions(permissionList.toArray(new String[0]), kPermissionRequestCode);
+            List<String> permissionList = new ArrayList<>();
+            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                permissionList.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
             }
+            requestPermissions(permissionList.toArray(new String[0]), kPermissionRequestCode);
         } else {
             throw new RuntimeException("Requesting Location permission on non marshmallow sdk");
         }
     }
 
-    private void requestActivityPermission(boolean granted) {
+    private void requestActivityPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (!granted) {
-                requestPermissions(
-                        new String[]{Manifest.permission.ACTIVITY_RECOGNITION},
-                        kPermissionRequestCode);
-            }
+            requestPermissions(
+                    new String[]{Manifest.permission.ACTIVITY_RECOGNITION},
+                    kPermissionRequestCode);
         } else {
             throw new RuntimeException("Requesting Physical Activity permission on non Q sdk");
         }
@@ -380,7 +369,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             values[j] = value;
             j++;
         }
-        ArrayAdapter adapter = new ArrayAdapter<>(this.getApplicationContext(),
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getApplicationContext(),
                 R.layout.activity_listview, values);
         tripListView.setAdapter(adapter);
     }

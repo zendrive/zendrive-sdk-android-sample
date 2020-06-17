@@ -53,13 +53,10 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             finish();
         } else if (v == binding.overlayPermissionButton) {
             if (overlayPermissionNeeded()) {
-                onOpChangedListener = new AppOpsManager.OnOpChangedListener() {
-                    @Override
-                    public void onOpChanged(String op, String packageName) {
-                        if (AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW.equals(op) &&
-                                getPackageName().equals(packageName)) {
-                            hasOverlayPermission = !hasOverlayPermission;
-                        }
+                onOpChangedListener = (op, packageName) -> {
+                    if (AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW.equals(op) &&
+                            getPackageName().equals(packageName)) {
+                        hasOverlayPermission = !hasOverlayPermission;
                     }
                 };
                 AppOpsManager appOpsManager = getSystemService(AppOpsManager.class);

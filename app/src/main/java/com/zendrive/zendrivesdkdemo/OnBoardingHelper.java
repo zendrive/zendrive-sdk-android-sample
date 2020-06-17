@@ -3,12 +3,10 @@ package com.zendrive.zendrivesdkdemo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 
-import java.util.List;
 import java.util.Locale;
 
 

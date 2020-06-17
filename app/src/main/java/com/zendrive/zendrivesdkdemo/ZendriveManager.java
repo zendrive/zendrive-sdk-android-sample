@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.gson.Gson;
@@ -28,8 +27,6 @@ import com.zendrive.sdk.ZendriveOperationResult;
 import com.zendrive.sdk.ZendriveResolvableError;
 import com.zendrive.sdk.ZendriveSettingError;
 import com.zendrive.sdk.ZendriveSettingWarning;
-import com.zendrive.sdk.ZendriveSettings;
-import com.zendrive.sdk.ZendriveSettingsCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,7 +105,6 @@ public class ZendriveManager {
      * A drive was started by the Zendrive SDK.
      */
     public void onDriveStart(DriveStartInfo driveStartInfo) {
-        driveInProgress = true;
         LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Constants.REFRESH_UI));
     }
 
@@ -116,7 +112,6 @@ public class ZendriveManager {
      * An ongoing drive ended. Save this drive into the trip list.
      */
     public void onDriveEnd(DriveInfo driveInfo) {
-        driveInProgress = false;
         TripListDetails tripListDetails = loadTripDetails();
         tripListDetails.addOrUpdateTrip(driveInfo);
         saveTripDetails(tripListDetails);
@@ -137,7 +132,7 @@ public class ZendriveManager {
     }
 
     public void onDriveResume(DriveResumeInfo driveInfo) {
-        driveInProgress = true;
+        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Constants.REFRESH_UI));
     }
 
     /**
@@ -162,126 +157,121 @@ public class ZendriveManager {
     /**
      * Query the Zendrive SDK for errors and warnings that affect its normal operation.
      */
-    @SuppressLint("newApi") // needed for background restriction. The wrap with
-    // Build.VERSION.SDK_INT >= Build.VERSION_CODES.P still spuriously fails lint.
     public void checkZendriveSettings(final Context context) {
         NotificationUtility.cancelErrorAndWarningNotifications(context);
-        Zendrive.getZendriveSettings(context, new ZendriveSettingsCallback() {
-            @Override
-            public void onComplete(@Nullable ZendriveSettings zendriveSettings) {
-                if (zendriveSettings == null) {
-                    // The callback returns NULL if SDK is not setup.
-                    return;
-                }
+        Zendrive.getZendriveSettings(context, zendriveSettings -> {
+            if (zendriveSettings == null) {
+                // The callback returns NULL if SDK is not setup.
+                return;
+            }
 
-                NotificationManager notificationManager =
-                        (NotificationManager) context.
-                                getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationManager notificationManager =
+                    (NotificationManager) context.
+                            getSystemService(Context.NOTIFICATION_SERVICE);
 
-                if (notificationManager == null) {
-                    return;
-                }
+            if (notificationManager == null) {
+                return;
+            }
 
-                List<ZendriveIssueType> deniedPermissions = new ArrayList<>();
-                for (ZendriveSettingError error : zendriveSettings.errors) {
-                    switch (error.type) {
-                        case POWER_SAVER_MODE_ENABLED: {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                                notificationManager.notify(NotificationUtility.
-                                                PSM_ENABLED_NOTIFICATION_ID,
-                                        NotificationUtility.
-                                                createPSMEnabledNotification(context, true));
-                            } else {
-                                throw new RuntimeException("Power saver mode " +
-                                        "error on OS version < Lollipop.");
-                            }
-                            break;
-                        }
-                        case BACKGROUND_RESTRICTION_ENABLED: {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                                notificationManager.notify(NotificationUtility.
-                                                BACKGROUND_RESTRICTION_NOTIFICATION_ID,
-                                        NotificationUtility.
-                                                createBackgroundRestrictedNotification(context));
-                            } else {
-                                throw new RuntimeException("Background restricted " +
-                                        "callback on OS version < P.");
-                            }
-                            break;
-                        }
-                        case GOOGLE_PLAY_SETTINGS_ERROR: {
-                            GooglePlaySettingsError e = (GooglePlaySettingsError) error;
-                            Notification notification =
+            List<ZendriveIssueType> deniedPermissions = new ArrayList<>();
+            for (ZendriveSettingError error : zendriveSettings.errors) {
+                switch (error.type) {
+                    case POWER_SAVER_MODE_ENABLED: {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            notificationManager.notify(NotificationUtility.
+                                            PSM_ENABLED_NOTIFICATION_ID,
                                     NotificationUtility.
-                                            createGooglePlaySettingsNotification(context,
-                                                    e.googlePlaySettingsResult);
-                            if (notification != null) {
-                                notificationManager.
-                                        notify(NotificationUtility.
-                                                GOOGLE_PLAY_SETTINGS_NOTIFICATION_ID, notification);
-                            }
-                            break;
+                                            createPSMEnabledNotification(context, true));
+                        } else {
+                            throw new RuntimeException("Power saver mode " +
+                                    "error on OS version < Lollipop.");
                         }
-                        case LOCATION_PERMISSION_DENIED: {
-                            deniedPermissions.add(ZendriveIssueType.LOCATION_PERMISSION_DENIED);
-                            break;
-                        }
-                        case BATTERY_OPTIMIZATION_ENABLED: {
-                            Notification batteryOptNotification = NotificationUtility.
-                                    getBatteryOptimizationEnabledNotification(context);
+                        break;
+                    }
+                    case BACKGROUND_RESTRICTION_ENABLED: {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                             notificationManager.notify(NotificationUtility.
-                                            BATTERY_OPTIMIZATION_NOTIFICATION_ID,
-                                    batteryOptNotification);
-                            break;
+                                            BACKGROUND_RESTRICTION_NOTIFICATION_ID,
+                                    NotificationUtility.
+                                            createBackgroundRestrictedNotification(context));
+                        } else {
+                            throw new RuntimeException("Background restricted " +
+                                    "callback on OS version < P.");
                         }
-                        case ONE_PLUS_DEEP_OPTIMIZATION: {
-                            ZendriveResolvableError e = (ZendriveResolvableError) error;
-                            Notification onePlusOptNotification = NotificationUtility.
-                                    getOnePlusDeepOptimizationEnabledNotification(context,
-                                            e.navigableIntent);
-                            notificationManager.notify(NotificationUtility.
-                                    ONE_PLUS_DEEP_OPTIMIZATION_NOTIFICATION_ID, onePlusOptNotification);
-                            break;
+                        break;
+                    }
+                    case GOOGLE_PLAY_SETTINGS_ERROR: {
+                        GooglePlaySettingsError e = (GooglePlaySettingsError) error;
+                        Notification notification =
+                                NotificationUtility.
+                                        createGooglePlaySettingsNotification(context,
+                                                e.googlePlaySettingsResult);
+                        if (notification != null) {
+                            notificationManager.
+                                    notify(NotificationUtility.
+                                            GOOGLE_PLAY_SETTINGS_NOTIFICATION_ID, notification);
                         }
-                        case ACTIVITY_RECOGNITION_PERMISSION_DENIED: {
-                            deniedPermissions.add(ZendriveIssueType.
-                                    ACTIVITY_RECOGNITION_PERMISSION_DENIED);
-                            break;
-                        }
-                        case OVERLAY_PERMISSION_DENIED: {
-                            notificationManager.notify(NotificationUtility.
-                                    OVERLAY_PERMISSION_DENIED_NOTIFICATION_ID, NotificationUtility.
-                                    createOverlayPermissionDeniedNotification(context));
-                            break;
-                        }
-                        case AIRPLANE_MODE_ENABLED: {
-                            notificationManager.notify(NotificationUtility.
-                                    AIRPLANE_MODE_ENABLED_NOTIFICATION_ID,
-                                    NotificationUtility.createAirplaneModeNotification(context));
-                            break;
-                        }
+                        break;
+                    }
+                    case LOCATION_PERMISSION_DENIED: {
+                        deniedPermissions.add(ZendriveIssueType.LOCATION_PERMISSION_DENIED);
+                        break;
+                    }
+                    case BATTERY_OPTIMIZATION_ENABLED: {
+                        Notification batteryOptNotification = NotificationUtility.
+                                getBatteryOptimizationEnabledNotification(context);
+                        notificationManager.notify(NotificationUtility.
+                                        BATTERY_OPTIMIZATION_NOTIFICATION_ID,
+                                batteryOptNotification);
+                        break;
+                    }
+                    case ONE_PLUS_DEEP_OPTIMIZATION: {
+                        ZendriveResolvableError e = (ZendriveResolvableError) error;
+                        Notification onePlusOptNotification = NotificationUtility.
+                                getOnePlusDeepOptimizationEnabledNotification(context,
+                                        e.navigableIntent);
+                        notificationManager.notify(NotificationUtility.
+                                ONE_PLUS_DEEP_OPTIMIZATION_NOTIFICATION_ID, onePlusOptNotification);
+                        break;
+                    }
+                    case ACTIVITY_RECOGNITION_PERMISSION_DENIED: {
+                        deniedPermissions.add(ZendriveIssueType.
+                                ACTIVITY_RECOGNITION_PERMISSION_DENIED);
+                        break;
+                    }
+                    case OVERLAY_PERMISSION_DENIED: {
+                        notificationManager.notify(NotificationUtility.
+                                OVERLAY_PERMISSION_DENIED_NOTIFICATION_ID, NotificationUtility.
+                                createOverlayPermissionDeniedNotification(context));
+                        break;
+                    }
+                    case AIRPLANE_MODE_ENABLED: {
+                        notificationManager.notify(NotificationUtility.
+                                AIRPLANE_MODE_ENABLED_NOTIFICATION_ID,
+                                NotificationUtility.createAirplaneModeNotification(context));
+                        break;
                     }
                 }
+            }
 
-                for (ZendriveSettingWarning warning : zendriveSettings.warnings) {
-                    switch (warning.type) {
-                        case POWER_SAVER_MODE_ENABLED: {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                                notificationManager.notify(NotificationUtility.
-                                                PSM_ENABLED_NOTIFICATION_ID,
-                                        NotificationUtility.createPSMEnabledNotification(context, false));
-                            } else {
-                                throw new RuntimeException("Power saver mode " +
-                                        "warning on OS version < Lollipop.");
-                            }
-                            break;
+            for (ZendriveSettingWarning warning : zendriveSettings.warnings) {
+                switch (warning.type) {
+                    case POWER_SAVER_MODE_ENABLED: {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            notificationManager.notify(NotificationUtility.
+                                            PSM_ENABLED_NOTIFICATION_ID,
+                                    NotificationUtility.createPSMEnabledNotification(context, false));
+                        } else {
+                            throw new RuntimeException("Power saver mode " +
+                                    "warning on OS version < Lollipop.");
                         }
+                        break;
                     }
                 }
-                if (!deniedPermissions.isEmpty()) {
-                    showPermissionDeniedNotification(context, notificationManager,
-                            deniedPermissions);
-                }
+            }
+            if (!deniedPermissions.isEmpty()) {
+                showPermissionDeniedNotification(context, notificationManager,
+                        deniedPermissions);
             }
         });
     }
@@ -358,10 +348,6 @@ public class ZendriveManager {
         return configuration;
     }
 
-    public boolean isDriveInProgress() {
-        return driveInProgress;
-    }
-
     private TripListDetails loadTripDetails() {
         String tripDetailsJsonString = SharedPreferenceManager.getStringPreference(this.context,
                 SharedPreferenceManager.TRIP_DETAILS_KEY, null);
@@ -378,5 +364,4 @@ public class ZendriveManager {
     }
 
     private final Context context;
-    private boolean driveInProgress = false;
 }

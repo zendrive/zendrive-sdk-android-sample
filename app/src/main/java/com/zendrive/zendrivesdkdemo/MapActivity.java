@@ -5,17 +5,16 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.zendrive.sdk.DriveInfo;
@@ -64,31 +63,28 @@ public class MapActivity extends FragmentActivity {
             builder.include(latLng);
         }
         final LatLngBounds bounds = builder.build();
-        supportmapfragment.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap gMap) {
-                PolylineOptions polylineOptions = new PolylineOptions();
-                // Setting the color of the polyline
-                polylineOptions.color(Color.RED);
-                // Setting the width of the polyline
-                polylineOptions.width(10);
-                polylineOptions.addAll(points);
-                gMap.addPolyline(polylineOptions);
-                int width = getResources().getDisplayMetrics().widthPixels;
-                int height = getResources().getDisplayMetrics().heightPixels;
-                int padding = (int) (0.13 * width); // offset from edges of the map 13% of screen
-                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
-                gMap.animateCamera(cu);
-                // mark trip start and trip end.
-                if (!points.isEmpty()) {
-                    LatLng tripStartLocation = points.get(0);
-                    LatLng tripEndLocation = points.get(points.size() - 1);
-                    markPoint(gMap, tripStartLocation, BitmapDescriptorFactory.HUE_GREEN, "Trip Start");
-                    markPoint(gMap, tripEndLocation, BitmapDescriptorFactory.HUE_GREEN, "Trip End");
-                }
-                // mark events.
-                markEvents(gMap, driveInfo.events);
+        supportmapfragment.getMapAsync(gMap -> {
+            PolylineOptions polylineOptions = new PolylineOptions();
+            // Setting the color of the polyline
+            polylineOptions.color(Color.RED);
+            // Setting the width of the polyline
+            polylineOptions.width(10);
+            polylineOptions.addAll(points);
+            gMap.addPolyline(polylineOptions);
+            int width = getResources().getDisplayMetrics().widthPixels;
+            int height = getResources().getDisplayMetrics().heightPixels;
+            int padding = (int) (0.13 * width); // offset from edges of the map 13% of screen
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+            gMap.animateCamera(cu);
+            // mark trip start and trip end.
+            if (!points.isEmpty()) {
+                LatLng tripStartLocation = points.get(0);
+                LatLng tripEndLocation = points.get(points.size() - 1);
+                markPoint(gMap, tripStartLocation, BitmapDescriptorFactory.HUE_GREEN, "Trip Start");
+                markPoint(gMap, tripEndLocation, BitmapDescriptorFactory.HUE_GREEN, "Trip End");
             }
+            // mark events.
+            markEvents(gMap, driveInfo.events);
         });
     }
 
@@ -108,12 +104,9 @@ public class MapActivity extends FragmentActivity {
         MarkerOptions markerOptions = new MarkerOptions().position(pointLocation).
                 icon(BitmapDescriptorFactory.defaultMarker(color)).alpha(0.7f).title(infoMsg);
         gMap.addMarker(markerOptions);
-        gMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                marker.showInfoWindow();
-                return true;
-            }
+        gMap.setOnMarkerClickListener(marker -> {
+            marker.showInfoWindow();
+            return true;
         });
     }
 

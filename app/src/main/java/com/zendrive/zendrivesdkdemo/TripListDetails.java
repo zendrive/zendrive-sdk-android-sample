@@ -1,7 +1,5 @@
 package com.zendrive.zendrivesdkdemo;
 
-import android.util.Log;
-
 import com.zendrive.sdk.DriveInfo;
 
 import java.util.ArrayList;

@@ -14,11 +14,7 @@ public class SaveButtonPreference extends Preference {
     @Override
     protected void onBindView(View view) {
         super.onBindView(view);
-        view.findViewById(R.id.save).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((SettingsActivity) v.getContext()).save();
-            }
-        });
+        view.findViewById(R.id.save).setOnClickListener(v ->
+                ((SettingsActivity) v.getContext()).save());
     }
 }

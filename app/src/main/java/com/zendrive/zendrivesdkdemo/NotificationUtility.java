@@ -346,8 +346,6 @@ public class NotificationUtility {
     public static Notification createMaybeInDriveNotification(Context context) {
         createNotificationChannels(context);
 
-        // suppresses deprecated warning for setPriority(PRIORITY_MIN)
-        //noinspection deprecation
         return new NotificationCompat.Builder(context, FOREGROUND_CHANNEL_KEY)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Zendrive")

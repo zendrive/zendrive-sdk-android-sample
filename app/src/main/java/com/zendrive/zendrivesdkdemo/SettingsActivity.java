@@ -14,7 +14,6 @@ import android.util.Log;
 import com.zendrive.sdk.Zendrive;
 import com.zendrive.sdk.ZendriveDriveDetectionMode;
 import com.zendrive.sdk.ZendriveOperationCallback;
-import com.zendrive.sdk.ZendriveOperationResult;
 
 public class SettingsActivity extends PreferenceActivity {
     Preference zendriveSdkVersionPreference;
@@ -61,29 +60,22 @@ public class SettingsActivity extends PreferenceActivity {
                                               SharedPreferenceManager.USER_TYPE,
                                               userTypePreference.getValue());
         // restart sdk with new settings.
-        Zendrive.teardown(this, new ZendriveOperationCallback() {
-            @Override
-            public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
-                if (zendriveOperationResult.isSuccess()) {
-                    ZendriveOperationCallback callback = new ZendriveOperationCallback() {
-                        @Override
-                        public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
-                            Log.d(Constants.LOG_TAG_DEBUG,
-                                  "(Settings) Zendrive setup complete: " +
-                                          zendriveOperationResult.isSuccess());
-                            Intent refresh_ui = new Intent(Constants.REFRESH_UI);
-                            if (!zendriveOperationResult.isSuccess()) {
-                                refresh_ui.putExtra(Constants.ERROR,
-                                                    zendriveOperationResult.getErrorMessage());
-                            }
-                            LocalBroadcastManager.getInstance(SettingsActivity.this)
-                                    .sendBroadcast(refresh_ui);
-                        }
-                    };
-                    MainActivity.initializeZendriveSDK(SettingsActivity.this, callback, true);
-                }
-                finish();
+        Zendrive.teardown(this, teardownResult -> {
+            if (teardownResult.isSuccess()) {
+                ZendriveOperationCallback callback = setupResult -> {
+                    Log.d(Constants.LOG_TAG_DEBUG, "(Settings) Zendrive setup complete: " +
+                            setupResult.isSuccess());
+                    Intent refresh_ui = new Intent(Constants.REFRESH_UI);
+                    if (!setupResult.isSuccess()) {
+                        refresh_ui.putExtra(Constants.ERROR,
+                                            setupResult.getErrorMessage());
+                    }
+                    LocalBroadcastManager.getInstance(SettingsActivity.this)
+                            .sendBroadcast(refresh_ui);
+                };
+                MainActivity.initializeZendriveSDK(SettingsActivity.this, callback, true);
             }
+            finish();
         });
     }
 }

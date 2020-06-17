@@ -4,4 +4,4 @@
 
 # Because Gson is used to serialize TripListDetails and DriveInfo which uses reflection
 -keepclassmembernames,includedescriptorclasses class com.zendrive.sdk.* { *; }
--keepclassmembernames,includedescriptorclasses class com.zendrive.sdkdemo.TripListDetails { *; }
+-keepclassmembernames,includedescriptorclasses class com.zendrive.zendrivesdkdemo.TripListDetails { *; }
