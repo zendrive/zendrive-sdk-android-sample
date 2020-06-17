@@ -173,7 +173,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     @Override
     public void onClick(final View view) {
-        Context context = this;
+        final Context context = this;
         if (view == binding.triggerAccidentButton) {
             // Generate a mock accident.
             Zendrive.triggerMockAccident(context,
@@ -183,8 +183,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                             if (result.isSuccess()) {
                                 Log.d(LOG_TAG_DEBUG, "Accident trigger success");
                             } else {
-                                Log.d(LOG_TAG_DEBUG, "Accident trigger failed: " +
-                                        result.getErrorMessage());
+                                String msg = "Accident trigger failed: " + result.getErrorMessage();
+                                Log.d(LOG_TAG_DEBUG, msg);
+                                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -192,9 +193,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             Zendrive.startDrive(context, TRIP_TRACKING_ID, new ZendriveOperationCallback() {
                 @Override
                 public void onCompletion(ZendriveOperationResult zendriveOperationResult) {
-                    if (!zendriveOperationResult.isSuccess()) {
-                        view.setEnabled(true);
-                    }
+                    sdkState.update();
                 }
             });
             view.setEnabled(false);
