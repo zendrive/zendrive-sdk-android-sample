@@ -41,6 +41,7 @@ public class NotificationUtility {
     public static final int BATTERY_OPTIMIZATION_NOTIFICATION_ID = 108;
     public static final int ONE_PLUS_DEEP_OPTIMIZATION_NOTIFICATION_ID = 109;
     public static final int AIRPLANE_MODE_ENABLED_NOTIFICATION_ID = 110;
+    public static final int POTENTIAL_COLLISION_DETECTED_NOTIFICATION_ID = 111;
 
     public static final int MULTIPLE_PERMISSION_DENIED_NOTIFICATION_ID = 199;
 
@@ -392,6 +393,26 @@ public class NotificationUtility {
     }
 
     /**
+     * Create and show a notification when Zendrive SDK detects a potential collision.
+     * @param context
+     * @param accidentInfo
+     */
+    public static void showPotentialCollisionNotification(Context context,
+                                                          AccidentInfo accidentInfo) {
+        createNotificationChannels(context);
+        Notification notification = new NotificationCompat.Builder(context, COLLISION_CHANNEL_KEY)
+                .setContentTitle("Zendrive")
+                .setContentText("Potential Collision Detected")
+                .setSmallIcon(R.drawable.ic_notification)
+                .setPriority(NotificationManagerCompat.IMPORTANCE_HIGH)
+                .setAutoCancel(true)
+                .build();
+
+        getNotificationManager(context).notify(POTENTIAL_COLLISION_DETECTED_NOTIFICATION_ID,
+                notification);
+    }
+
+    /**
      * Create and show a notification when Zendrive SDK detects a collision.
      * @param context App context
      * @param accidentInfo AccidentInfo associated with the collision
@@ -413,6 +434,10 @@ public class NotificationUtility {
 
     public static void removeCollisionNotification(Context context) {
        getNotificationManager(context).cancel(COLLISION_DETECTED_NOTIFICATION_ID);
+    }
+
+    public static void removePotentialCollisionNotification(Context context) {
+        getNotificationManager(context).cancel(POTENTIAL_COLLISION_DETECTED_NOTIFICATION_ID);
     }
 
     private static void createNotificationChannels(Context context) {

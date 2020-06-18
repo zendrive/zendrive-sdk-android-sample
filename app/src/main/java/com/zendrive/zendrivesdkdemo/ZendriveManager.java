@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.util.Log;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.gson.Gson;
@@ -18,6 +20,7 @@ import com.zendrive.sdk.DriveResumeInfo;
 import com.zendrive.sdk.DriveStartInfo;
 import com.zendrive.sdk.GooglePlaySettingsError;
 import com.zendrive.sdk.Zendrive;
+import com.zendrive.sdk.ZendriveAccidentConfidence;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveDetectionMode;
 import com.zendrive.sdk.ZendriveDriverAttributes;
@@ -136,11 +139,32 @@ public class ZendriveManager {
     }
 
     /**
+     * A potential accident was detected by the Zendrive SDK.
+     * @param accidentInfo
+     */
+    public void onPotentialAccident(AccidentInfo accidentInfo) {
+        NotificationUtility.showPotentialCollisionNotification(context.getApplicationContext(),
+                accidentInfo);
+    }
+
+    /**
      * An accident was detected by the Zendrive SDK.
      */
     public void onAccident(AccidentInfo accidentInfo) {
+        if (accidentInfo.confidence == ZendriveAccidentConfidence.INVALID) {
+            Log.d(Constants.LOG_TAG_DEBUG, "False Accident detected");
+            onFalseAccident();
+            return;
+        }
         NotificationUtility.showCollisionNotification(context.getApplicationContext(),
                 accidentInfo);
+    }
+
+    /**
+     * A false potential accident was detected by the SDK.
+     */
+    public void onFalseAccident() {
+        NotificationUtility.removePotentialCollisionNotification(context);
     }
 
     /**
@@ -345,6 +369,7 @@ public class ZendriveManager {
         final ZendriveConfiguration configuration = new ZendriveConfiguration(Constants.zendriveSDKKey,
                 driverId, driveDetectionMode);
         configuration.setDriverAttributes(userAttributes);
+        configuration.setImplementsMultipleAccidentCallbacks(true);
         return configuration;
     }
 

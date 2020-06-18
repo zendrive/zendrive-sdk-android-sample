@@ -10,6 +10,7 @@ import com.zendrive.sdk.DriveResumeInfo;
 import com.zendrive.sdk.DriveStartInfo;
 import com.zendrive.sdk.EstimatedDriveInfo;
 import com.zendrive.sdk.ZendriveBroadcastReceiver;
+import com.zendrive.sdk.ZendriveAccidentConfidence;
 
 /**
  * Broadcast receiver which receives Zendrive SDK callbacks and passes it to the ZendriveManager.
@@ -44,6 +45,11 @@ public class ZendriveSdkBroadcastReceiver extends ZendriveBroadcastReceiver {
     public void onAccident(Context context, AccidentInfo accidentInfo) {
         Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Accident Detected");
         ZendriveManager.getSharedInstance(context).onAccident(accidentInfo);
+    }
+
+    public void onPotentialAccident(Context context, AccidentInfo accidentInfo) {
+        Log.d(Constants.LOG_TAG_DEBUG, "CallBack From SDK: Potential Accident Detected");
+        ZendriveManager.getSharedInstance(context).onPotentialAccident(accidentInfo);
     }
 
     @Override

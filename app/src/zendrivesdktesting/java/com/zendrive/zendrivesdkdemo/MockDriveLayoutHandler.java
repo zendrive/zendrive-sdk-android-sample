@@ -157,7 +157,7 @@ class MockDriveLayoutHandler implements LayoutHandler {
 
         MockEventBuilder collisionEventBuilder =
                 new CollisionEventBuilder(1543871082354L, driveStartTimestamp, "accidentId",
-                        ZendriveAccidentConfidence.HIGH)
+                        ZendriveAccidentConfidence.HIGH, 70)
                 .setLocation(collisionLocation);
 
         MockEventBuilder hardBrakeEventBuilder =
