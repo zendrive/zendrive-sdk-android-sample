@@ -25,5 +25,12 @@
         android:summary="%s"
         android:persistent="false"
         />
+    <com.zendrive.zendrivesdkdemo.VehicleTypePreference
+        android:key="@string/vehicle_type_key"
+        android:selectable="true"
+        android:title="Vehicle Type"
+        android:summary="%s"
+        android:persistent="false"
+        />
     <com.zendrive.zendrivesdkdemo.SaveButtonPreference android:layout="@layout/buttons"/>
 </PreferenceScreen>

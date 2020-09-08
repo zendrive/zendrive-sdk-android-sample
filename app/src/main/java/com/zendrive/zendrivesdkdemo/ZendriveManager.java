@@ -30,6 +30,7 @@ import com.zendrive.sdk.ZendriveOperationResult;
 import com.zendrive.sdk.ZendriveResolvableError;
 import com.zendrive.sdk.ZendriveSettingError;
 import com.zendrive.sdk.ZendriveSettingWarning;
+import com.zendrive.sdk.ZendriveVehicleType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -321,10 +322,6 @@ public class ZendriveManager {
             for (ZendriveIssueType issueType: deniedPermission) {
                 if (issueType == ZendriveIssueType.LOCATION_PERMISSION_DENIED) {
                     Collections.addAll(missingPermissions, Manifest.permission.ACCESS_FINE_LOCATION);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        Collections.addAll(missingPermissions,
-                                Manifest.permission.ACCESS_BACKGROUND_LOCATION);
-                    }
                 }
                 if (issueType == ZendriveIssueType.ACTIVITY_RECOGNITION_PERMISSION_DENIED) {
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -356,13 +353,20 @@ public class ZendriveManager {
         }
 
         ZendriveDriverAttributes userAttributes = new ZendriveDriverAttributes();
-        String userType = SharedPreferenceManager.getStringPreference(context.getApplicationContext(),
+        Context context = this.context.getApplicationContext();
+        String userType = SharedPreferenceManager.getStringPreference(context,
                 SharedPreferenceManager.USER_TYPE, UserType.FREE.name());
         // for paid users zendrive provides special services, which is set here.
         if (userType.equals(UserType.PAID.name())) {
             userAttributes.setServiceLevel(ZendriveDriverAttributes.ServiceLevel.LEVEL_1);
         } else {
             userAttributes.setServiceLevel(ZendriveDriverAttributes.ServiceLevel.LEVEL_DEFAULT);
+        }
+        String vehicleType = SharedPreferenceManager.getStringPreference(context,
+                SharedPreferenceManager.VEHICLE_TYPE, Constants.NONE_VEHICLE_TYPE_OPTION_VALUE);
+        if (!vehicleType.equals(Constants.NONE_VEHICLE_TYPE_OPTION_VALUE)) {
+            userAttributes.setVehicleType(vehicleType.equals(ZendriveVehicleType.MOTORCYCLE.name())
+            ? ZendriveVehicleType.MOTORCYCLE : ZendriveVehicleType.CAR);
         }
         ZendriveDriveDetectionMode driveDetectionMode =
                 SharedPreferenceManager.getZendriveAutoDetectionMode(this.context);

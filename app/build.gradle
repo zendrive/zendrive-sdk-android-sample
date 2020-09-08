@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.zendrive.zendrivesdkdemo"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         resValue "bool", "isTestingMode", "false"
@@ -48,7 +48,7 @@ android {
 }
 
 dependencies {
-    def zendrive_sdk_version = '6.3.2'
+    def zendrive_sdk_version = '7.0.0'
     implementation "com.zendrive.sdk.android:ZendriveSDK:$zendrive_sdk_version"
     implementation 'com.google.android.gms:play-services-location:11.8.0'
     implementation 'com.google.android.gms:play-services-maps:11.8.0'

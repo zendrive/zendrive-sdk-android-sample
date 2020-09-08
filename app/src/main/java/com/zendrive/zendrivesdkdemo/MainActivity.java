@@ -5,13 +5,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +25,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.PermissionChecker;
 import androidx.databinding.DataBindingUtil;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.android.gms.location.LocationSettingsResult;
@@ -32,11 +37,14 @@ import com.zendrive.sdk.ZendriveAccidentConfidence;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveType;
 import com.zendrive.sdk.ZendriveOperationCallback;
+import com.zendrive.sdk.ZendriveVehicleType;
 import com.zendrive.zendrivesdkdemo.databinding.ActivityMainBinding;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -54,6 +62,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     private ActivityMainBinding binding;
     private static final int kPermissionRequestCode = 42;
     private SdkState sdkState;
+    private boolean pauseZendriveSettingsCheck = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,8 +95,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                             .show();
                 }
             }, true);
-        } else {
-            ZendriveManager.getSharedInstance(this).checkZendriveSettings(this);
         }
     }
 
@@ -95,21 +102,22 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     protected void onResume() {
         super.onResume();
         refreshUI();
-        maybeResolveErrors();
-        if(isZendriveSettingsCheckNeeded()) {
+        boolean skipZendriveSettingsCheck = maybeResolveErrors();
+        if(!skipZendriveSettingsCheck && !pauseZendriveSettingsCheck) {
             ZendriveManager.getSharedInstance(this).maybeCheckZendriveSettings(this);
         }
     }
 
-    private void maybeResolveErrors() {
+    private boolean maybeResolveErrors() {
         // The activity may have been launched by tapping on a notification
         // for a google play settings or location permission error.
         // Check and start resolution if that's the case.
         Intent intent = getIntent();
         if (intent == null || intent.getAction() == null) {
-            return;
+            return false;
         }
         String action = intent.getAction();
+        boolean skipZendriveSettingsCheck = false;
         switch (action) {
             case Constants.EVENT_GOOGLE_PLAY_SETTING_ERROR:
                 LocationSettingsResult result =
@@ -118,14 +126,17 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                     LocationSettingsHelper.resolveLocationSettings(this, result);
                 }
                 setIntent(null);
+                skipZendriveSettingsCheck = true;
                 break;
             case Constants.EVENT_LOCATION_PERMISSION_ERROR:
                 requestLocationPermission();
                 setIntent(null);
+                skipZendriveSettingsCheck = true;
                 break;
             case EVENT_ACTIVITY_PERMISSION_ERROR:
                 requestActivityPermission();
                 setIntent(null);
+                skipZendriveSettingsCheck = true;
                 break;
             case EVENT_MULTIPLE_PERMISSIONS_ERROR:
                 List<String> missingPermissionList =
@@ -136,22 +147,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 }
                 requestMultiplePermissions(missingPermissionList);
                 setIntent(null);
+                skipZendriveSettingsCheck = true;
                 break;
         }
-    }
-
-    private boolean isZendriveSettingsCheckNeeded() {
-        // If the activity is started for an error resolution, skip the error check.
-        Intent intent = getIntent();
-        if (intent == null || intent.getAction() == null) {
-            return true;
-        }
-        String action = intent.getAction();
-        if (action.equals(Constants.EVENT_GOOGLE_PLAY_SETTING_ERROR) ||
-                action.equals(Constants.EVENT_LOCATION_PERMISSION_ERROR)) {
-            return false;
-        }
-        return true;
+        return skipZendriveSettingsCheck;
     }
 
     /**
@@ -295,16 +294,67 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         return builder.create();
     }
 
-    private void requestLocationPermission() {
+    private Boolean checkPermissionGranted(String permission) {
+        return PermissionChecker.checkSelfPermission(this, permission)
+                == PermissionChecker.PERMISSION_GRANTED;
+    }
+
+    private Boolean isQ() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
+    }
+
+    private void requestFineLocationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            List<String> permissionList = new ArrayList<>();
-            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                permissionList.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+            String permission = Manifest.permission.ACCESS_FINE_LOCATION;
+            if (!checkPermissionGranted(permission)) {
+                requestPermissions(Collections.singletonList(permission).toArray(new String[0]),
+                        kPermissionRequestCode);
             }
-            requestPermissions(permissionList.toArray(new String[0]), kPermissionRequestCode);
         } else {
             throw new RuntimeException("Requesting Location permission on non marshmallow sdk");
+        }
+    }
+
+    private void requestBackgroundLocationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            String backgroundLocationPermission = Manifest.permission.ACCESS_BACKGROUND_LOCATION;
+            if (!checkPermissionGranted(backgroundLocationPermission)) {
+                pauseZendriveSettingsCheck = true;
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        backgroundLocationPermission)) {
+                    String rationaleMessage =
+                            "The background location permission is needed for trip detection.\n" +
+                            "Please choose the \"Allow all the time\" option to grant this permission.";
+                    new AlertDialog.Builder(this)
+                            .setMessage(rationaleMessage)
+                            .setPositiveButton("OK", (dialogInterface, i) -> {
+                                //Prompt the user once explanation has been shown
+                                requestPermissions(Collections.singletonList(
+                                        backgroundLocationPermission).toArray(new String[0]),
+                                        kPermissionRequestCode);
+                            })
+                            .setNegativeButton("Cancel",
+                                    (dialogInterface, i) -> dialogInterface.cancel())
+                            .setOnCancelListener(dialogInterface ->
+                                    pauseZendriveSettingsCheck = false)
+                            .create()
+                            .show();
+                } else {
+                    requestPermissions(Collections.singletonList(
+                            backgroundLocationPermission).toArray(new String[0]),
+                            kPermissionRequestCode);
+                }
+            }
+        } else {
+            throw new RuntimeException("Requesting Background Location permission on pre-Android 10 OS");
+        }
+    }
+
+    private void requestLocationPermission() {
+        if (!checkPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            requestFineLocationPermission();
+        } else if (!checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION) && isQ()) {
+            requestBackgroundLocationPermission();
         }
     }
 
@@ -326,6 +376,24 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         }
     }
 
+    private void showDialogForDeniedLocationPermission() {
+        new AlertDialog.Builder(this)
+                .setMessage("The background location permission was denied and is needed for trip detection.\n" +
+                        "Please select the \"Allow all the time\" option for location in the application settings.")
+                .setPositiveButton("OK", (dialogInterface, i) -> {
+                    pauseZendriveSettingsCheck = false;
+                    Intent intent = new Intent();
+                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(Uri.fromParts("package", BuildConfig.APPLICATION_ID,
+                            null));
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.cancel())
+                .setOnCancelListener(dialogInterface -> pauseZendriveSettingsCheck = false)
+                .show();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grants) {
@@ -334,15 +402,25 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             for (int i = 0; i < permissions.length; i++) {
                 if (grants[i] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(LOG_TAG_DEBUG, "Permission granted for : " + permissions[i]);
+                    if (permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        if (isQ()) {
+                            requestBackgroundLocationPermission();
+                        }
+                    }
                 } else {
+                    if (permissions[i].equals(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                        pauseZendriveSettingsCheck = true;
+                        showDialogForDeniedLocationPermission();
+                        if (checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                            continue;
+                        }
+                    }
                     msg.append(permissions[i].replace("android.permission.", ""))
                             .append("\n");
                 }
             }
             if (msg.length() > 0) {
-                new AlertDialog.Builder(this).setTitle("Permissions denied for:")
-                        .setMessage(msg.toString())
-                        .setPositiveButton("Ok", null).create().show();
+                Log.d(LOG_TAG_DEBUG, "Permissions denied for: " + msg.toString());
             }
         }
     }
@@ -360,12 +438,15 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             String distance = String.format(Locale.US, "%.2f", distanceValue);
             ZendriveDriveType driveType = info.driveType;
             String type = info.userMode != null ? info.userMode.name() : driveType.name();
+            String vehicleType = info.vehicleType != null ? info.vehicleType.name() :
+                    NONE_VEHICLE_TYPE_OPTION_VALUE;
             String value = String.format(
                     "Trip Start: %s\n" +
-                    "Trip End: %s\n" +
-                    "Distance: %smiles\n" +
-                    "%s\n",
-                    startTime, endTime, distance, type);
+                            "Trip End: %s\n" +
+                            "Distance: %smiles\n" +
+                            "Vehicle Type: %s\n" +
+                            "%s\n",
+                    startTime, endTime, distance, vehicleType, type);
             values[j] = value;
             j++;
         }

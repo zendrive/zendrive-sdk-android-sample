@@ -8,6 +8,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -19,6 +20,7 @@ public class SettingsActivity extends PreferenceActivity {
     Preference zendriveSdkVersionPreference;
     SwitchPreference driveTrackingPreference;
     ListPreference userTypePreference;
+    ListPreference vehicleType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,11 +31,13 @@ public class SettingsActivity extends PreferenceActivity {
         String zendriveSdkVersionKey = resources.getString(R.string.zendrive_sdk_version_key);
         String driveTrackingKey = resources.getString(R.string.drive_tracking_key);
         String userTypeKey = resources.getString(R.string.user_type_key);
+        String vehicleTypeKey = resources.getString(R.string.vehicle_type_key);
 
         zendriveSdkVersionPreference = preferenceScreen.findPreference(zendriveSdkVersionKey);
         driveTrackingPreference =
                 (SwitchPreference) preferenceScreen.findPreference(driveTrackingKey);
         userTypePreference = (ListPreference) preferenceScreen.findPreference(userTypeKey);
+        vehicleType = (ListPreference) preferenceScreen.findPreference(vehicleTypeKey);
         if (savedInstanceState == null) {
             setDefaultValues();
         }
@@ -49,6 +53,8 @@ public class SettingsActivity extends PreferenceActivity {
         driveTrackingPreference.setChecked(
                 SharedPreferenceManager.getZendriveAutoDetectionMode(this) ==
                         ZendriveDriveDetectionMode.AUTO_ON);
+        vehicleType.setValue(SharedPreferenceManager.getStringPreference(this,
+                SharedPreferenceManager.VEHICLE_TYPE, Constants.NONE_VEHICLE_TYPE_OPTION_VALUE));
     }
 
     void save() {
@@ -59,6 +65,8 @@ public class SettingsActivity extends PreferenceActivity {
         SharedPreferenceManager.setPreference(this,
                                               SharedPreferenceManager.USER_TYPE,
                                               userTypePreference.getValue());
+        SharedPreferenceManager.setPreference(this, SharedPreferenceManager.VEHICLE_TYPE,
+                vehicleType.getValue());
         // restart sdk with new settings.
         Zendrive.teardown(this, teardownResult -> {
             if (teardownResult.isSuccess()) {

@@ -36,6 +36,7 @@
     <string name="auto_off">AUTO_OFF</string>
     <string name="drive_tracking_key">drive_tracking</string>
     <string name="user_type_key">user_type_key</string>
+    <string name="vehicle_type_key">vehicle_type_key</string>
     <string name="zendrive_sdk_version_key">zendrive_sdk_version_key</string>
     <string name="bulleted_onboarding_list_huawei">You are on a Huawei device. Some device settings
         interfere with the functioning of the SDK. Please fix them according to the instructions below \n\n

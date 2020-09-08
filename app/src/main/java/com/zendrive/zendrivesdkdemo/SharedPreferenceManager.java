@@ -16,6 +16,7 @@ public class SharedPreferenceManager {
     public static final String DRIVER_ID_KEY = "driver_id";
     public static final String TRIP_DETAILS_KEY = "trip_details";
     public static final String KEY_DETECTION_MODE_PREFERENCE = "kKeyDetectionModePreference";
+    public static final String VEHICLE_TYPE = "vehicle_type";
 
     public static void setPreference(Context context, String key, String value){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -41,6 +42,7 @@ public class SharedPreferenceManager {
         removeZendriveAutoDetectionMode(context);
         removePreference(context, USER_TYPE);
         removePreference(context, TRIP_DETAILS_KEY);
+        removePreference(context, VEHICLE_TYPE);
     }
 
     public static ZendriveDriveDetectionMode getZendriveAutoDetectionMode(Context context){
