@@ -37,8 +37,15 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
-    dataBinding {
-        enabled true
+    buildFeatures {
+        dataBinding = true
+        aidl = false
+        renderScript = false
+        shaders = false
+    }
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     compileOptions {
