@@ -4,6 +4,7 @@ android {
     compileSdkVersion 30
     defaultConfig {
         applicationId "com.zendrive.zendrivesdkdemo"
+        ndkVersion "22.0.7026061"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
@@ -55,13 +56,15 @@ android {
 }
 
 dependencies {
-    def zendrive_sdk_version = '7.1.0'
+    def zendrive_sdk_version = '7.2.0-dev1'
     implementation "com.zendrive.sdk.android:ZendriveSDK:$zendrive_sdk_version"
     implementation 'com.google.android.gms:play-services-location:11.8.0'
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    // Required until ZendriveSDK upgrades the Relinker dependency
+    implementation 'com.getkeepsafe.relinker:relinker:1.4.3'
 
     zendrivesdktestingImplementation "com.zendrive.sdk.android:ZendriveSDK-testing:$zendrive_sdk_version"
 }
