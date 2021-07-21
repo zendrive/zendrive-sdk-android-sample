@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="4dp" >
+
+        <TextView
+            android:id="@+id/associated_vehicle_list_description"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/associated_vehicles_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:backgroundTint="#FFFFFF"
+            android:backgroundTintMode="add"
+            android:clickable="true"
+            android:focusable="true"
+            app:layoutManager="LinearLayoutManager"
+            tools:listitem="@layout/associated_vehicle_list_item" />
+
+        <Button
+            android:id="@+id/register_beacon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/register_beacon" />
+
+    </LinearLayout>
+
+</layout>

@@ -7,4 +7,7 @@
     <item android:title="@string/logout_button" android:icon="@android:drawable/btn_minus"
           app:showAsAction="never" android:id="@+id/logout"
         />
+    <item android:title="@string/associate_vehicles" android:icon="@android:drawable/btn_minus"
+        app:showAsAction="never" android:id="@+id/vehicle"
+        />
 </menu>

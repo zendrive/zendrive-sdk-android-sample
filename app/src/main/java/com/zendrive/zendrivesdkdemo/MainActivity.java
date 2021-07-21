@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -37,13 +36,10 @@ import com.zendrive.sdk.ZendriveAccidentConfidence;
 import com.zendrive.sdk.ZendriveConfiguration;
 import com.zendrive.sdk.ZendriveDriveType;
 import com.zendrive.sdk.ZendriveOperationCallback;
-import com.zendrive.sdk.ZendriveVehicleType;
 import com.zendrive.zendrivesdkdemo.databinding.ActivityMainBinding;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -489,6 +485,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             SharedPreferenceManager.clear(this);
             startActivity(new Intent(this, LoginActivity.class));
             finish();
+        } else if (item.getItemId() == R.id.vehicle) {
+            startActivity(new Intent(this, VehicleTaggingActivity.class));
+            return true;
         }
         return false;
     }

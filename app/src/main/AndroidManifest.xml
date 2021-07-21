@@ -51,6 +51,16 @@
             android:showOnLockScreen="true"
             android:theme="@style/AppTheme.Collision" />
 
+        <activity android:name=".VehicleTaggingActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:parentActivityName=".MainActivity"/>
+
+        <activity android:name=".AssociateBeaconActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:parentActivityName=".VehicleTaggingActivity"/>
+
         <uses-library
             android:name="com.google.android.maps"
             android:required="true"
