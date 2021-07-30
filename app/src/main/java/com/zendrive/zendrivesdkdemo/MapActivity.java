@@ -18,8 +18,10 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.zendrive.sdk.DriveInfo;
+import com.zendrive.sdk.LocationPoint;
 import com.zendrive.sdk.LocationPointWithTimestamp;
 import com.zendrive.sdk.ZendriveEvent;
+import com.zendrive.sdk.ZendriveExtrapolationDetails;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +64,12 @@ public class MapActivity extends FragmentActivity {
             points.add(latLng);
             builder.include(latLng);
         }
+
+        final List<LatLng> extrapolatedWaypoints = getExtrapolatedLatLngPoints(driveInfo);
+        for (LatLng point: extrapolatedWaypoints) {
+            builder.include(point);
+        }
+
         final LatLngBounds bounds = builder.build();
         supportmapfragment.getMapAsync(gMap -> {
             PolylineOptions polylineOptions = new PolylineOptions();
@@ -71,6 +79,15 @@ public class MapActivity extends FragmentActivity {
             polylineOptions.width(10);
             polylineOptions.addAll(points);
             gMap.addPolyline(polylineOptions);
+
+            if (!extrapolatedWaypoints.isEmpty()) {
+                PolylineOptions extrapolatedPolylineOptions = new PolylineOptions();
+                extrapolatedPolylineOptions.color(Color.GRAY);
+                extrapolatedPolylineOptions.width(5);
+                extrapolatedPolylineOptions.addAll(extrapolatedWaypoints);
+                gMap.addPolyline(extrapolatedPolylineOptions);
+            }
+
             int width = getResources().getDisplayMetrics().widthPixels;
             int height = getResources().getDisplayMetrics().heightPixels;
             int padding = (int) (0.13 * width); // offset from edges of the map 13% of screen
@@ -82,6 +99,11 @@ public class MapActivity extends FragmentActivity {
                 LatLng tripEndLocation = points.get(points.size() - 1);
                 markPoint(gMap, tripStartLocation, BitmapDescriptorFactory.HUE_GREEN, "Trip Start");
                 markPoint(gMap, tripEndLocation, BitmapDescriptorFactory.HUE_GREEN, "Trip End");
+            }
+            // mark the estimated trip start location
+            if (!extrapolatedWaypoints.isEmpty()) {
+                markPoint(gMap, extrapolatedWaypoints.get(0), BitmapDescriptorFactory.HUE_GREEN,
+                        "Estimated Trip Start");
             }
             // mark events.
             markEvents(gMap, driveInfo.events);
@@ -108,6 +130,23 @@ public class MapActivity extends FragmentActivity {
             marker.showInfoWindow();
             return true;
         });
+    }
+
+    private List<LatLng> getExtrapolatedLatLngPoints(DriveInfo driveInfo) {
+        List<LatLng> extrapolatedWaypoints = new ArrayList<>();
+        ZendriveExtrapolationDetails extrapolationDetails = driveInfo.extrapolationDetails;
+        if (extrapolationDetails != null && extrapolationDetails.estimatedStartLocation != null) {
+            LocationPoint estimatedStartLocation = extrapolationDetails.estimatedStartLocation;
+            LatLng estimatedStartLatLng = new LatLng(
+                    estimatedStartLocation.latitude, estimatedStartLocation.longitude);
+            extrapolatedWaypoints.add(estimatedStartLatLng);
+
+            LocationPoint actualStartLocation = driveInfo.waypoints.get(0).location;
+            LatLng actualStartLocationLatLng = new LatLng(
+                    actualStartLocation.latitude, actualStartLocation.longitude);
+            extrapolatedWaypoints.add(actualStartLocationLatLng);
+        }
+        return extrapolatedWaypoints;
     }
 
     private SupportMapFragment supportmapfragment;
