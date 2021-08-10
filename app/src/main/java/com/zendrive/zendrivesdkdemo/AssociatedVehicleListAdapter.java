@@ -3,6 +3,7 @@ package com.zendrive.zendrivesdkdemo;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.zendrive.zendrivesdkdemo.databinding.AssociatedVehicleListItemBinding;
@@ -31,8 +32,17 @@ public class AssociatedVehicleListAdapter extends
     public void onBindViewHolder(VehicleInfoViewHolder holder, int position) {
         VehicleInfo vehicleInfo = vehicleInfoList.get(position);
         holder.binding.vehicleId.setText(vehicleInfo.vehicleId);
-        String connectionDetails = String.format("UUID: %s\nMajor: %d Minor: %d",
-                vehicleInfo.uuid.toString(), vehicleInfo.major, vehicleInfo.minor);
+        holder.binding.associationType.setText(vehicleInfo.vehicleAssociationType.name());
+        String connectionDetails = "";
+        switch (vehicleInfo.vehicleAssociationType) {
+            case BLUETOOTH_STEREO:
+                connectionDetails = vehicleInfo.bluetoothAddress;
+                break;
+            case BEACON:
+                connectionDetails = String.format("UUID: %s\nMajor: %d Minor: %d",
+                        vehicleInfo.uuid.toString(), vehicleInfo.major, vehicleInfo.minor);
+        }
+
         holder.binding.connectionDetails.setText(connectionDetails);
         holder.binding.delete.setOnClickListener(
                 view -> dissociateVehicleListener.onDissociateClick(vehicleInfo));
@@ -55,5 +65,5 @@ public class AssociatedVehicleListAdapter extends
 }
 
 interface DissociateVehicleListener {
-    void onDissociateClick(VehicleInfo vehicleInfo);
+    void onDissociateClick(@NonNull VehicleInfo vehicleInfo);
 }

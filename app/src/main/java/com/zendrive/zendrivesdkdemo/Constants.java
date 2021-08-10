@@ -31,4 +31,5 @@ public interface Constants {
 
     String MULTIPLE_PERMISSIONS_DENIED_LIST = "multiple_permissions_denied_list";
     String NONE_VEHICLE_TYPE_OPTION_VALUE = "None";
+    String UUID = "uuid";
 }

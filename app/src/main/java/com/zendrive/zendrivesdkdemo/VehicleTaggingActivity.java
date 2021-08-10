@@ -16,6 +16,7 @@ import androidx.core.app.NavUtils;
 import androidx.databinding.DataBindingUtil;
 
 import com.zendrive.sdk.ZendriveVehicleBeacon;
+import com.zendrive.sdk.ZendriveVehicleInfo;
 import com.zendrive.sdk.ZendriveVehicleTagging;
 import com.zendrive.zendrivesdkdemo.databinding.ActivityVehicleTaggingBinding;
 
@@ -24,7 +25,8 @@ import java.util.List;
 
 public class VehicleTaggingActivity extends AppCompatActivity implements DissociateVehicleListener {
 
-    private static final int ASSOCIATE_BEACON_REQUEST_CODE = 1;
+    private static final int ASSOCIATE_VEHICLE_REQUEST_CODE = 1;
+    private static final int ASSOCIATE_BEACON_REQUEST_CODE = 2;
 
     ActivityVehicleTaggingBinding binding;
 
@@ -49,7 +51,8 @@ public class VehicleTaggingActivity extends AppCompatActivity implements Dissoci
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ASSOCIATE_BEACON_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        if ((requestCode == ASSOCIATE_VEHICLE_REQUEST_CODE ||
+                requestCode == ASSOCIATE_BEACON_REQUEST_CODE) && resultCode == Activity.RESULT_OK) {
             loadVehicleList();
         }
     }
@@ -64,14 +67,23 @@ public class VehicleTaggingActivity extends AppCompatActivity implements Dissoci
     }
 
     @Override
-    public void onDissociateClick(VehicleInfo vehicleInfo) {
+    public void onDissociateClick(@NonNull VehicleInfo vehicleInfo) {
         new AlertDialog.Builder(this)
                 .setTitle("Dissociate Vehicle")
                 .setMessage("Do you want to dissociate this vehicle?")
                 .setCancelable(true)
                 .setPositiveButton("YES", (dialog, which) -> {
                     String vehicleId = vehicleInfo.vehicleId;
-                    ZendriveVehicleTagging.dissociateBeacon(this.getApplicationContext(), vehicleId);
+                    switch (vehicleInfo.vehicleAssociationType) {
+                        case BLUETOOTH_STEREO:
+                            ZendriveVehicleTagging.dissociateVehicle(this.getApplicationContext(),
+                                    vehicleId);
+                            break;
+                        case BEACON:
+                            ZendriveVehicleTagging.dissociateBeacon(this.getApplicationContext(),
+                                    vehicleId);
+                            break;
+                    }
                     loadVehicleList();
                     dialog.dismiss();
                 })
@@ -89,6 +101,14 @@ public class VehicleTaggingActivity extends AppCompatActivity implements Dissoci
             }
         }
 
+        List<ZendriveVehicleInfo> vehicleList =
+                ZendriveVehicleTagging.getAssociatedVehicles(this.getApplicationContext());
+        if (vehicleList != null) {
+            for (ZendriveVehicleInfo zendriveVehicleInfo: vehicleList) {
+                vehicleInfoList.add(VehicleInfo.fromZendriveVehicleInfo(zendriveVehicleInfo));
+            }
+        }
+
         TextView listDescriptionTextView = binding.associatedVehicleListDescription;
         if (vehicleInfoList.isEmpty()) {
             listDescriptionTextView.setText("No Vehicles associated");
@@ -101,6 +121,9 @@ public class VehicleTaggingActivity extends AppCompatActivity implements Dissoci
         AssociatedVehicleListAdapter adapter = new AssociatedVehicleListAdapter(this,
                 vehicleInfoList);
         binding.associatedVehiclesListView.setAdapter(adapter);
+        binding.registerVehicle.setOnClickListener(v ->
+                startActivityForResult(new Intent(getApplicationContext(),
+                        AssociateVehicleActivity.class), ASSOCIATE_VEHICLE_REQUEST_CODE));
         binding.registerBeacon.setOnClickListener(v ->
                 startActivityForResult(new Intent(getApplicationContext(),
                         AssociateBeaconActivity.class), ASSOCIATE_BEACON_REQUEST_CODE));

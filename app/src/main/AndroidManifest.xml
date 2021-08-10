@@ -56,6 +56,11 @@
             android:theme="@style/Theme.AppCompat.Light"
             android:parentActivityName=".MainActivity"/>
 
+        <activity android:name=".AssociateVehicleActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:parentActivityName=".VehicleTaggingActivity"/>
+
         <activity android:name=".AssociateBeaconActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light"

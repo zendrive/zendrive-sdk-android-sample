@@ -372,6 +372,7 @@ public class ZendriveManager {
                 SharedPreferenceManager.getZendriveAutoDetectionMode(this.context);
         final ZendriveConfiguration configuration = new ZendriveConfiguration(Constants.zendriveSDKKey,
                 driverId, driveDetectionMode);
+        configuration.setEnabledBluetoothDriveStart(true);
         configuration.setDriverAttributes(userAttributes);
         configuration.setImplementsMultipleAccidentCallbacks(true);
         return configuration;
