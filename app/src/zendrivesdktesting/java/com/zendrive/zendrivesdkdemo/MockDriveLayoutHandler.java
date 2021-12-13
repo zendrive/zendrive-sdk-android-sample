@@ -10,12 +10,14 @@ import com.zendrive.sdk.LocationPoint;
 import com.zendrive.sdk.LocationPointWithTimestamp;
 import com.zendrive.sdk.PhonePosition;
 import com.zendrive.sdk.ZendriveAccidentConfidence;
+import com.zendrive.sdk.ZendriveCollisionSeverity;
 import com.zendrive.sdk.ZendriveDriveType;
 import com.zendrive.sdk.ZendriveEventRatings;
 import com.zendrive.sdk.ZendriveEventSeverity;
 import com.zendrive.sdk.ZendriveStarRating;
 import com.zendrive.sdk.ZendriveTurnDirection;
 import com.zendrive.sdk.ZendriveUserMode;
+import com.zendrive.sdk.ZendriveVehicleType;
 import com.zendrive.sdk.testing.mockdrive.AggressiveAccelerationEventBuilder;
 import com.zendrive.sdk.testing.mockdrive.CollisionEventBuilder;
 import com.zendrive.sdk.testing.mockdrive.HardBrakeEventBuilder;
@@ -157,7 +159,8 @@ class MockDriveLayoutHandler implements LayoutHandler {
 
         MockEventBuilder collisionEventBuilder =
                 new CollisionEventBuilder(1543871082354L, driveStartTimestamp, "accidentId",
-                        ZendriveAccidentConfidence.HIGH, 70)
+                        ZendriveAccidentConfidence.HIGH, 70, ZendriveVehicleType.CAR,
+                        ZendriveCollisionSeverity.HIGH)
                 .setLocation(collisionLocation);
 
         MockEventBuilder hardBrakeEventBuilder =
