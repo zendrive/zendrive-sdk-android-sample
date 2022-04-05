@@ -10,7 +10,6 @@ import com.zendrive.sdk.DriveResumeInfo;
 import com.zendrive.sdk.DriveStartInfo;
 import com.zendrive.sdk.EstimatedDriveInfo;
 import com.zendrive.sdk.ZendriveBroadcastReceiver;
-import com.zendrive.sdk.ZendriveAccidentConfidence;
 
 /**
  * Broadcast receiver which receives Zendrive SDK callbacks and passes it to the ZendriveManager.

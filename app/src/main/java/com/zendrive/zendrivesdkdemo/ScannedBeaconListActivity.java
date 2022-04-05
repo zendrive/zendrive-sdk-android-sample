@@ -1,8 +1,12 @@
 package com.zendrive.zendrivesdkdemo;
 
+import android.Manifest;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,6 +37,7 @@ import java.util.UUID;
 public class ScannedBeaconListActivity extends AppCompatActivity {
 
     private static final int BLUETOOTH_ENABLE_REQUEST_CODE = 1;
+    private static final int BLUETOOTH_PERMISSION_REQUEST_CODE = 2;
     private ActivityScannedBeaconsListBinding binding;
     private ScannedBeaconListAdapter beaconListAdapter;
     private ZendriveBeaconScanCallback beaconScanCallback;
@@ -39,12 +45,68 @@ public class ScannedBeaconListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (isBluetoothPermissionEnabled()) {
+            initializeBluetooth();
+        } else {
+            String[] permissions = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT};
+            requestPermissions(permissions, BLUETOOTH_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == BLUETOOTH_PERMISSION_REQUEST_CODE) {
+            for (Integer result: grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+            }
+            initializeBluetooth();
+        }
+    }
+
+    private void initializeBluetooth() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, BLUETOOTH_ENABLE_REQUEST_CODE);
         } else {
             loadScannedBeacons();
+        }
+    }
+
+    private boolean isBluetoothPermissionEnabled() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
+        }
+        return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == BLUETOOTH_ENABLE_REQUEST_CODE) {
+            switch (resultCode) {
+                case Activity.RESULT_OK : {
+                    loadScannedBeacons();
+                    break;
+                }
+                case Activity.RESULT_CANCELED : {
+                    new AlertDialog.Builder(this)
+                            .setTitle("Please enable bluetooth")
+                            .setMessage("Bluetooth is required to get paired devices")
+                            .setPositiveButton("YES", (dialog, which) -> {})
+                            .show();
+                    break;
+                }
+                default:
+                    finish();
+            }
         }
     }
 

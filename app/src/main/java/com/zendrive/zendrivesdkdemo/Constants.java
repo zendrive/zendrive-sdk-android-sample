@@ -18,6 +18,7 @@ public interface Constants {
     String EVENT_LOCATION_PERMISSION_ERROR = "location_permission_denied";
     String EVENT_LOCATION_SETTING_ERROR = "location_setting_error";
     String EVENT_ACTIVITY_PERMISSION_ERROR = "activity_permission_error";
+    String EVENT_BLUETOOTH_PERMISSION_ERROR = "bluetooth_permission_error";
     String EVENT_MULTIPLE_PERMISSIONS_ERROR = "multiple_permissions_error";
     // data field names used in local broadcast messages.
     String DRIVE_DISTANCE = "drive_distance";

@@ -292,6 +292,13 @@ public class ZendriveManager {
                         }
                         break;
                     }
+                    case BLE_PERMISSION_DENIED:
+                        deniedPermissions.add(ZendriveIssueType.BLE_PERMISSION_DENIED);
+                        break;
+                    case BLUETOOTH_PERMISSION_DENIED: {
+                        deniedPermissions.add(ZendriveIssueType.BLUETOOTH_PERMISSION_DENIED);
+                        break;
+                    }
                 }
             }
             if (!deniedPermissions.isEmpty()) {
@@ -316,6 +323,12 @@ public class ZendriveManager {
                         NotificationUtility.ACTIVITY_PERMISSION_DENIED_NOTIFICATION_ID,
                         NotificationUtility.createActivityPermissionDeniedNotification(context)
                 );
+            } else if (issueType == ZendriveIssueType.BLUETOOTH_PERMISSION_DENIED ||
+                    issueType == ZendriveIssueType.BLE_PERMISSION_DENIED) {
+                notificationManager.notify(
+                        NotificationUtility.BLUETOOTH_PERMISSION_DENIED_NOTIFICATION_ID,
+                        NotificationUtility.createBluetoothPermissionDeniedNotification(context)
+                );
             }
         } else {
             ArrayList<String> missingPermissions = new ArrayList<>();
@@ -331,12 +344,19 @@ public class ZendriveManager {
                     }
                     missingPermissions.add(Manifest.permission.ACTIVITY_RECOGNITION);
                 }
+                if (issueType == ZendriveIssueType.BLE_PERMISSION_DENIED &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    missingPermissions.add(Manifest.permission.BLUETOOTH_CONNECT);
+                    missingPermissions.add(Manifest.permission.BLUETOOTH_SCAN);
+                }
             }
 
             notificationManager.cancel(
                     NotificationUtility.LOCATION_PERMISSION_DENIED_NOTIFICATION_ID);
             notificationManager.cancel(
                     NotificationUtility.ACTIVITY_PERMISSION_DENIED_NOTIFICATION_ID);
+            notificationManager.cancel(
+                    NotificationUtility.BLUETOOTH_PERMISSION_DENIED_NOTIFICATION_ID);
             notificationManager.notify(
                     NotificationUtility.MULTIPLE_PERMISSION_DENIED_NOTIFICATION_ID,
                     NotificationUtility.createMultiplePermissionsDeniedNotification(context,

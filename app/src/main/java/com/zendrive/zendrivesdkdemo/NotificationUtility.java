@@ -1,5 +1,6 @@
 package com.zendrive.zendrivesdkdemo;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -19,12 +20,14 @@ import com.zendrive.sdk.AccidentInfo;
 import java.util.ArrayList;
 
 import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
+import static android.app.PendingIntent.FLAG_MUTABLE;
 
 
 /**
  * Utility to create notifications to show to the user when the Zendrive SDK has something
  * interesting to report.
  */
+@SuppressLint("InlinedApi")
 public class NotificationUtility {
     // Notification related constants
     public static final int FOREGROUND_MODE_NOTIFICATION_ID = 98;
@@ -42,6 +45,7 @@ public class NotificationUtility {
     public static final int ONE_PLUS_DEEP_OPTIMIZATION_NOTIFICATION_ID = 109;
     public static final int AIRPLANE_MODE_ENABLED_NOTIFICATION_ID = 110;
     public static final int POTENTIAL_COLLISION_DETECTED_NOTIFICATION_ID = 111;
+    public static final int BLUETOOTH_PERMISSION_DENIED_NOTIFICATION_ID = 112;
 
     public static final int MULTIPLE_PERMISSION_DENIED_NOTIFICATION_ID = 199;
 
@@ -55,6 +59,7 @@ public class NotificationUtility {
     private static final int batteryOptimizationRequestCode = 209;
     private static final int onePlusDeepOptimizationRequestCode = 210;
     private static final int airplaneModeEnabledRequestCode = 211;
+    private static final int bluetoothPermissionRequestCode = 212;
 
     private static final int multiplePermissionRequestCode = 299;
 
@@ -64,6 +69,7 @@ public class NotificationUtility {
     private static final String FOREGROUND_CHANNEL_KEY = "Foreground";
     private static final String SETTINGS_CHANNEL_KEY = "Settings";
     private static final String COLLISION_CHANNEL_KEY = "Collision";
+    @SuppressLint("StaticFieldLeak")
     private static NotificationManagerCompat notificationManager;
 
     /**
@@ -78,7 +84,7 @@ public class NotificationUtility {
         actionIntent.setAction(Constants.EVENT_LOCATION_PERMISSION_ERROR);
         actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pi = PendingIntent.getActivity(context, locationPermissionRequestCode,
-                actionIntent, FLAG_CANCEL_CURRENT);
+                actionIntent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
 
         return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
                 .setContentTitle("Location Permission Denied")
@@ -109,7 +115,7 @@ public class NotificationUtility {
         actionIntent.putExtra(Constants.EVENT_GOOGLE_PLAY_SETTING_ERROR, result);
         actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pi = PendingIntent.getActivity(context, googlePlaySettingsRequestCode,
-                actionIntent, FLAG_CANCEL_CURRENT);
+                actionIntent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
 
         return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
                 .setContentTitle("Location Settings Error")
@@ -134,7 +140,7 @@ public class NotificationUtility {
         Intent actionIntent = new Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS);
         actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pi = PendingIntent.getActivity(context, psmEnabledRequestCode,
-                actionIntent, FLAG_CANCEL_CURRENT);
+                actionIntent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
 
         String errorWarningPrefix = isError ? "Error: " : "Warning: ";
 
@@ -160,13 +166,14 @@ public class NotificationUtility {
      * @return created notification
      */
     @RequiresApi(Build.VERSION_CODES.M)
+    @SuppressLint("BatteryLife")
     public static Notification getBatteryOptimizationEnabledNotification(Context context) {
         createNotificationChannels(context);
         Intent actionIntent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
                 Uri.parse("package:" + context.getPackageName()));
         actionIntent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         PendingIntent pi = PendingIntent.getActivity(context, batteryOptimizationRequestCode,
-                actionIntent, FLAG_CANCEL_CURRENT);
+                actionIntent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
 
         return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
                 .setContentTitle("Battery Optimization Enabled")
@@ -191,7 +198,7 @@ public class NotificationUtility {
         createNotificationChannels(context);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pi = PendingIntent.getActivity(context, onePlusDeepOptimizationRequestCode,
-                intent, FLAG_CANCEL_CURRENT);
+                intent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
 
         return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
                 .setContentTitle("Deep Optimization Enabled")
@@ -217,7 +224,7 @@ public class NotificationUtility {
                 Uri.parse("package:" + context.getPackageName()));
         actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pi = PendingIntent.getActivity(context, backgroundRestrictedRequestCode,
-                actionIntent, FLAG_CANCEL_CURRENT);
+                actionIntent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
 
         return new Notification.Builder(context, SETTINGS_CHANNEL_KEY)
                 .setContentTitle("Background Restricted")
@@ -242,12 +249,38 @@ public class NotificationUtility {
         actionIntent.setAction(Constants.EVENT_ACTIVITY_PERMISSION_ERROR);
         actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pi = PendingIntent.getActivity(context, activityPermissionRequestCode,
-                actionIntent, FLAG_CANCEL_CURRENT);
+                actionIntent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
 
         return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
                 .setContentTitle("Activity Permission Denied")
                 .setTicker("Activity Permission Denied")
                 .setContentText("Grant activity permission to Zendrive app.")
+                .setSmallIcon(R.drawable.ic_notification)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+                .build();
+    }
+
+    /**
+     * Create a notification when Bluetooth permission is denied to the application.
+     *
+     * @param context App context
+     * @return the created notification.
+     */
+    public static Notification createBluetoothPermissionDeniedNotification(Context context) {
+        createNotificationChannels(context);
+        Intent actionIntent = new Intent(context, MainActivity.class);
+        actionIntent.setAction(Constants.EVENT_BLUETOOTH_PERMISSION_ERROR);
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, bluetoothPermissionRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
+
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Bluetooth Permission Denied")
+                .setTicker("Bluetooth Permission Denied")
+                .setContentText("Grant bluetooth permission to Zendrive app.")
                 .setSmallIcon(R.drawable.ic_notification)
                 .setOnlyAlertOnce(true)
                 .setContentIntent(pi)
@@ -269,7 +302,7 @@ public class NotificationUtility {
                 Uri.parse("package:" + context.getPackageName()));
         actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pi = PendingIntent.getActivity(context, overlayPermissionRequestCode,
-                actionIntent, FLAG_CANCEL_CURRENT);
+                actionIntent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
 
         return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
                 .setContentTitle("Overlay Permission Denied")
@@ -295,7 +328,7 @@ public class NotificationUtility {
         Intent actionIntent = new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS);
         actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pi = PendingIntent.getActivity(context, airplaneModeEnabledRequestCode,
-                actionIntent, FLAG_CANCEL_CURRENT);
+                actionIntent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
 
         return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
                 .setContentTitle("Airplane Mode enabled")
@@ -323,7 +356,7 @@ public class NotificationUtility {
         actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         actionIntent.putExtra(Constants.MULTIPLE_PERMISSIONS_DENIED_LIST, missingPermissionList);
         PendingIntent pi = PendingIntent.getActivity(context, multiplePermissionRequestCode,
-                actionIntent, FLAG_CANCEL_CURRENT);
+                actionIntent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
 
         return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
                 .setContentTitle("Multiple Permissions Denied")
@@ -468,7 +501,7 @@ public class NotificationUtility {
         Intent notificationIntent = new Intent(context.getApplicationContext(), SplashActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return PendingIntent.getActivity(context.getApplicationContext(), 0,
-                notificationIntent, 0);
+                notificationIntent, FLAG_MUTABLE);
     }
 
     private static PendingIntent getActivityPendingIntentForCollision(Context context,
@@ -476,7 +509,7 @@ public class NotificationUtility {
         Intent intent = new Intent(context, CollisionDetectedActivity.class);
         intent.putExtra(Constants.ACCIDENT_INFO, accidentInfo);
         return PendingIntent.getActivity(context, collisionActivityRequestCode, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | FLAG_MUTABLE);
     }
 
     private static NotificationManagerCompat getNotificationManager(Context context) {

@@ -81,7 +81,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 if (setupResult.isSuccess()) {
                     refreshUI();
                 } else {
-                    Log.d(Constants.LOG_TAG_DEBUG, "Setup Failed: " + setupResult.getErrorMessage());
+                    Log.d(Constants.LOG_TAG_DEBUG, "Setup Failed: " +
+                            setupResult.getErrorMessage());
                     String title = getResources().getString(R.string.zendrive_setup_failure) + " "
                             + setupResult.getErrorCode().toString();
                     new AlertDialog.Builder(this)
@@ -142,6 +143,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                             "Cannot find missing permission list in the activity intent");
                 }
                 requestMultiplePermissions(missingPermissionList);
+                setIntent(null);
+                skipZendriveSettingsCheck = true;
+                break;
+            case EVENT_BLUETOOTH_PERMISSION_ERROR:
+                requestBluetoothPermission();
                 setIntent(null);
                 skipZendriveSettingsCheck = true;
                 break;
@@ -208,7 +214,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         // fetch corresponding drive info (trip details).
         DriveInfo driveInfo = tripDetails.tripList.get(size - (position + 1));
         if (driveInfo.waypoints.isEmpty()) {
-            Toast.makeText(this, "No Location available for the trip.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No Location available for the trip.",
+                    Toast.LENGTH_SHORT).show();
         } else {
             displayMap(driveInfo);
         }
@@ -259,7 +266,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     public static void initializeZendriveSDK(Context context,
             ZendriveOperationCallback setupCallback, boolean showAlertDialog) {
-        ZendriveManager zendriveManager = ZendriveManager.getSharedInstance(context.getApplicationContext());
+        ZendriveManager zendriveManager = ZendriveManager
+                .getSharedInstance(context.getApplicationContext());
         if (zendriveManager.isSdkInitialized()) {
             return;
         }
@@ -356,11 +364,17 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     private void requestActivityPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            requestPermissions(
-                    new String[]{Manifest.permission.ACTIVITY_RECOGNITION},
+            requestPermissions(new String[]{Manifest.permission.ACTIVITY_RECOGNITION},
                     kPermissionRequestCode);
         } else {
             throw new RuntimeException("Requesting Physical Activity permission on non Q sdk");
+        }
+    }
+
+    private void requestBluetoothPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            requestPermissions(new String[]{Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_CONNECT}, kPermissionRequestCode);
         }
     }
 
@@ -461,7 +475,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
         SharedPreferences sharedPreferences = PreferenceManager.
                 getDefaultSharedPreferences(this.getApplicationContext());
-        String tripDetailsJsonString = sharedPreferences.getString(SharedPreferenceManager.TRIP_DETAILS_KEY, null);
+        String tripDetailsJsonString = sharedPreferences.getString(
+                SharedPreferenceManager.TRIP_DETAILS_KEY, null);
         if (null == tripDetailsJsonString) {
             return new TripListDetails();
         }
