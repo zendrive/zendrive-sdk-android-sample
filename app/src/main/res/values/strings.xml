@@ -63,8 +63,7 @@
     <string name="collision_detected">Collision Detected</string>
 
     <string name="associate_vehicles">Associate Vehicles</string>
-    <string name="scan_for_beacons">Scan for Beacons</string>
-    <string name="register_beacon">Register Beacon</string>
+    <string name="nearby_beacons">Nearby Beacons</string>
     <string name="register_bluetooth_stereo">Register Bluetooth Stereo</string>
 
 </resources>

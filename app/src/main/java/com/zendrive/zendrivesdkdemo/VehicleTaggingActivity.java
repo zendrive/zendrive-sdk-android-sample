@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.databinding.DataBindingUtil;
 
-import com.zendrive.sdk.ZendriveVehicleBeacon;
 import com.zendrive.sdk.ZendriveVehicleInfo;
 import com.zendrive.sdk.ZendriveVehicleTagging;
 import com.zendrive.zendrivesdkdemo.databinding.ActivityVehicleTaggingBinding;
@@ -26,16 +25,15 @@ import java.util.List;
 public class VehicleTaggingActivity extends AppCompatActivity implements DissociateVehicleListener {
 
     private static final int ASSOCIATE_VEHICLE_REQUEST_CODE = 1;
-    private static final int ASSOCIATE_BEACON_REQUEST_CODE = 2;
 
-    ActivityVehicleTaggingBinding binding;
+    private ActivityVehicleTaggingBinding binding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_vehicle_tagging);
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             new AlertDialog.Builder(this)
                     .setTitle("Bluetooth not available")
@@ -51,8 +49,7 @@ public class VehicleTaggingActivity extends AppCompatActivity implements Dissoci
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if ((requestCode == ASSOCIATE_VEHICLE_REQUEST_CODE ||
-                requestCode == ASSOCIATE_BEACON_REQUEST_CODE) && resultCode == Activity.RESULT_OK) {
+        if ((requestCode == ASSOCIATE_VEHICLE_REQUEST_CODE) && resultCode == Activity.RESULT_OK) {
             loadVehicleList();
         }
     }
@@ -73,17 +70,8 @@ public class VehicleTaggingActivity extends AppCompatActivity implements Dissoci
                 .setMessage("Do you want to dissociate this vehicle?")
                 .setCancelable(true)
                 .setPositiveButton("YES", (dialog, which) -> {
-                    String vehicleId = vehicleInfo.vehicleId;
-                    switch (vehicleInfo.vehicleAssociationType) {
-                        case BLUETOOTH_STEREO:
-                            ZendriveVehicleTagging.dissociateVehicle(this.getApplicationContext(),
-                                    vehicleId);
-                            break;
-                        case BEACON:
-                            ZendriveVehicleTagging.dissociateBeacon(this.getApplicationContext(),
-                                    vehicleId);
-                            break;
-                    }
+                    ZendriveVehicleTagging.dissociateVehicle(this.getApplicationContext(),
+                            vehicleInfo.vehicleId);
                     loadVehicleList();
                     dialog.dismiss();
                 })
@@ -93,14 +81,6 @@ public class VehicleTaggingActivity extends AppCompatActivity implements Dissoci
 
     private void loadVehicleList() {
         List<VehicleInfo> vehicleInfoList = new ArrayList<>();
-        List<ZendriveVehicleBeacon> beaconList =
-                ZendriveVehicleTagging.getAssociatedBeacons(this.getApplicationContext());
-        if (beaconList != null) {
-            for (ZendriveVehicleBeacon zendriveVehicleBeacon: beaconList) {
-                vehicleInfoList.add(VehicleInfo.fromZendriveVehicleBeacon(zendriveVehicleBeacon));
-            }
-        }
-
         List<ZendriveVehicleInfo> vehicleList =
                 ZendriveVehicleTagging.getAssociatedVehicles(this.getApplicationContext());
         if (vehicleList != null) {
@@ -124,8 +104,5 @@ public class VehicleTaggingActivity extends AppCompatActivity implements Dissoci
         binding.registerVehicle.setOnClickListener(v ->
                 startActivityForResult(new Intent(getApplicationContext(),
                         AssociateVehicleActivity.class), ASSOCIATE_VEHICLE_REQUEST_CODE));
-        binding.registerBeacon.setOnClickListener(v ->
-                startActivityForResult(new Intent(getApplicationContext(),
-                        AssociateBeaconActivity.class), ASSOCIATE_BEACON_REQUEST_CODE));
     }
 }

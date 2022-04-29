@@ -23,7 +23,8 @@ public class AssociatedVehicleListAdapter extends
     }
 
     @Override
-    public VehicleInfoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    @NonNull
+    public VehicleInfoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new VehicleInfoViewHolder(AssociatedVehicleListItemBinding
                 .inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
@@ -32,18 +33,7 @@ public class AssociatedVehicleListAdapter extends
     public void onBindViewHolder(VehicleInfoViewHolder holder, int position) {
         VehicleInfo vehicleInfo = vehicleInfoList.get(position);
         holder.binding.vehicleId.setText(vehicleInfo.vehicleId);
-        holder.binding.associationType.setText(vehicleInfo.vehicleAssociationType.name());
-        String connectionDetails = "";
-        switch (vehicleInfo.vehicleAssociationType) {
-            case BLUETOOTH_STEREO:
-                connectionDetails = vehicleInfo.bluetoothAddress;
-                break;
-            case BEACON:
-                connectionDetails = String.format("UUID: %s\nMajor: %d Minor: %d",
-                        vehicleInfo.uuid.toString(), vehicleInfo.major, vehicleInfo.minor);
-        }
-
-        holder.binding.connectionDetails.setText(connectionDetails);
+        holder.binding.connectionDetails.setText(vehicleInfo.bluetoothAddress);
         holder.binding.delete.setOnClickListener(
                 view -> dissociateVehicleListener.onDissociateClick(vehicleInfo));
     }

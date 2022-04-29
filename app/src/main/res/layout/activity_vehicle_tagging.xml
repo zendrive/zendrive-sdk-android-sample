@@ -34,12 +34,6 @@
             android:layout_height="wrap_content"
             android:text="@string/register_bluetooth_stereo" />
 
-        <Button
-            android:id="@+id/register_beacon"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/register_beacon" />
-
     </LinearLayout>
 
 </layout>

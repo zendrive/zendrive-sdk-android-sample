@@ -61,10 +61,10 @@
             android:theme="@style/Theme.AppCompat.Light"
             android:parentActivityName=".VehicleTaggingActivity"/>
 
-        <activity android:name=".AssociateBeaconActivity"
+        <activity android:name=".ScannedBeaconListActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light"
-            android:parentActivityName=".VehicleTaggingActivity"/>
+            android:parentActivityName=".MainActivity"/>
 
         <uses-library
             android:name="com.google.android.maps"

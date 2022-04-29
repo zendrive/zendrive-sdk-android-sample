@@ -10,4 +10,7 @@
     <item android:title="@string/associate_vehicles" android:icon="@android:drawable/btn_minus"
         app:showAsAction="never" android:id="@+id/vehicle"
         />
+    <item android:title="@string/nearby_beacons" android:icon="@android:drawable/btn_minus"
+        app:showAsAction="never" android:id="@+id/beacons"
+        />
 </menu>

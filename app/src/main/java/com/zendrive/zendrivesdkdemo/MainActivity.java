@@ -488,6 +488,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         } else if (item.getItemId() == R.id.vehicle) {
             startActivity(new Intent(this, VehicleTaggingActivity.class));
             return true;
+        } else if (item.getItemId() == R.id.beacons) {
+            startActivity(new Intent(this, ScannedBeaconListActivity.class));
+            return true;
         }
         return false;
     }

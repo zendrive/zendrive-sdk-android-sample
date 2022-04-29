@@ -6,7 +6,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".AssociateBeaconActivity">
+        tools:context=".ScannedBeaconListActivity">
+
+        <TextView
+            android:id="@+id/beacon_list_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/scanned_beacon_list"
@@ -14,16 +21,8 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             app:layoutManager="LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@+id/scan_beacons"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/beacon_list_description"
             tools:listitem="@layout/scanned_beacon_list_item" />
-
-        <Button
-            android:id="@+id/scan_beacons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/scan_for_beacons"
-            app:layout_constraintBottom_toBottomOf="parent" />
 
         <ProgressBar
             android:id="@+id/beacon_scan_progress_bar"
@@ -33,11 +32,10 @@
             android:minHeight="50dp"
             android:minWidth="50dp"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/scan_beacons"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
