@@ -57,6 +57,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     private TextView titleTextView;
     private ActivityMainBinding binding;
     private static final int kPermissionRequestCode = 42;
+    private static final int kNotificationPermissionRequestCode = 43;
     private SdkState sdkState;
     private boolean pauseZendriveSettingsCheck = false;
 
@@ -74,6 +75,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         localBroadcastManager.registerReceiver(receiver, getIntentFilterForLocalBroadcast());
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         setupUI();
+        requestNotificationPermission();
         // setup zendrive sdk if not already setup.
         if(!Zendrive.isSDKSetup(this)) {
             // setting UI components.
@@ -102,6 +104,14 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         boolean skipZendriveSettingsCheck = maybeResolveErrors();
         if(!skipZendriveSettingsCheck && !pauseZendriveSettingsCheck) {
             ZendriveManager.getSharedInstance(this).maybeCheckZendriveSettings(this);
+        }
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            String[] permissions = {Manifest.permission.POST_NOTIFICATIONS};
+            ActivityCompat.requestPermissions(this, permissions,
+                    kNotificationPermissionRequestCode);
         }
     }
 
