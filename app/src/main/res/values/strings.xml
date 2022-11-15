@@ -45,6 +45,23 @@
         <li> - Set Secondary Launch to true in manual mode</li>\n
         <li> - Set run in background to true in manual mode</li>\n
     </string>
+    <string name="bulleted_onboarding_list_huawei_11">You are on a Huawei device. Some device settings
+        interfere with the functioning of the SDK. Please fix them according to the instructions below \n\n
+        <li> - Click on the battery icon</li>\n
+        <li> - Choose the App launch option</li>\n
+        <li> - Turn off manage automatically option for app</li>\n
+        <li> - Set Auto-Launch to true in manual mode</li>\n
+        <li> - Set Secondary Launch to true in manual mode</li>\n
+        <li> - Set run in background to true in manual mode</li>\n
+    </string>
+    <string name="bulleted_onboarding_list_huawei_harmony">You are on a Huawei device. Some device settings
+        interfere with the functioning of the SDK. Please fix them according to the instructions below \n\n
+        <li> - Choose the App launch option</li>\n
+        <li> - Turn off manage automatically option for app</li>\n
+        <li> - Set Auto-Launch to true in manual mode</li>\n
+        <li> - Set Secondary Launch to true in manual mode</li>\n
+        <li> - Set run in background to true in manual mode</li>\n
+    </string>
 
     <string name="bulleted_onboarding_list_xiaomi">You are on a Mi device. Some device settings
         interfere with the functioning of the SDK. Please fix them according to the instructions below \n\n

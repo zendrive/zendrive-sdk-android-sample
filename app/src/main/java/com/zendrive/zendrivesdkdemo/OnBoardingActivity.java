@@ -1,5 +1,8 @@
 package com.zendrive.zendrivesdkdemo;
 
+import static com.zendrive.zendrivesdkdemo.OnBoardingHelper.isEmui11;
+import static com.zendrive.zendrivesdkdemo.OnBoardingHelper.isHarmony;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
@@ -37,8 +40,16 @@ public class OnBoardingActivity extends Activity implements View.OnClickListener
     private void populateOnBoardingText () {
         String phoneBrand = Build.BRAND.toLowerCase(Locale.ROOT);
         if (phoneBrand.equals(OnBoardingHelper.BRAND_HUAWEI)) {
-            binding.settingsText.setText(getResources().getString
-                    (R.string.bulleted_onboarding_list_huawei));
+            if (isHarmony(this)) {
+                binding.settingsText.setText(getResources().getString
+                        (R.string.bulleted_onboarding_list_huawei_harmony));
+            } else if (isEmui11()) {
+                binding.settingsText.setText(getResources().getString
+                        (R.string.bulleted_onboarding_list_huawei_11));
+            } else {
+                binding.settingsText.setText(getResources().getString
+                        (R.string.bulleted_onboarding_list_huawei));
+            }
         } else if (phoneBrand.equals(OnBoardingHelper.BRAND_XIAOMI) ||
                 phoneBrand.equals(OnBoardingHelper.BRAND_XIAOMI_REDMI)) {
             binding.settingsText.setText(getResources().getString
