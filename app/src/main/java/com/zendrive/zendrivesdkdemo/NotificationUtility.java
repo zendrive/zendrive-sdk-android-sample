@@ -33,7 +33,6 @@ public class NotificationUtility {
     public static final int FOREGROUND_MODE_NOTIFICATION_ID = 98;
     public static final int LOCATION_DISABLED_NOTIFICATION_ID = 99;
     public static final int LOCATION_PERMISSION_DENIED_NOTIFICATION_ID = 100;
-
     public static final int PSM_ENABLED_NOTIFICATION_ID = 101;
     public static final int BACKGROUND_RESTRICTION_NOTIFICATION_ID = 102;
     public static final int COLLISION_DETECTED_NOTIFICATION_ID = 103;
@@ -46,6 +45,7 @@ public class NotificationUtility {
     public static final int AIRPLANE_MODE_ENABLED_NOTIFICATION_ID = 110;
     public static final int POTENTIAL_COLLISION_DETECTED_NOTIFICATION_ID = 111;
     public static final int BLUETOOTH_PERMISSION_DENIED_NOTIFICATION_ID = 112;
+    public static final int PRECISE_LOCATION_DENIED_NOTIFICATION_ID = 113;
 
     public static final int MULTIPLE_PERMISSION_DENIED_NOTIFICATION_ID = 199;
 
@@ -90,6 +90,25 @@ public class NotificationUtility {
                 .setContentTitle("Location Permission Denied")
                 .setTicker("Location Permission Denied")
                 .setContentText("Grant location permission to Zendrive app.")
+                .setSmallIcon(R.drawable.ic_notification)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+                .build();
+    }
+
+    public static Notification createPreciseLocationDeniedNotification(Context context) {
+        createNotificationChannels(context);
+        Intent actionIntent = new Intent(context, MainActivity.class);
+        actionIntent.setAction(Constants.EVENT_LOCATION_PERMISSION_ERROR);
+        actionIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, locationPermissionRequestCode,
+                actionIntent, FLAG_CANCEL_CURRENT | FLAG_MUTABLE);
+        return new NotificationCompat.Builder(context, SETTINGS_CHANNEL_KEY)
+                .setContentTitle("Precise Location Denied")
+                .setTicker("Precise Location Denied")
+                .setContentText("Tap to grant precise location.")
                 .setSmallIcon(R.drawable.ic_notification)
                 .setOnlyAlertOnce(true)
                 .setContentIntent(pi)

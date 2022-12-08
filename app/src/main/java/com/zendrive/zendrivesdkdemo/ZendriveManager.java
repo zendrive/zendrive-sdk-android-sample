@@ -238,6 +238,9 @@ public class ZendriveManager {
                         }
                         break;
                     }
+                    case PRECISE_LOCATION_DENIED:
+                        deniedPermissions.add(ZendriveIssueType.PRECISE_LOCATION_DENIED);
+                        break;
                     case LOCATION_PERMISSION_DENIED: {
                         deniedPermissions.add(ZendriveIssueType.LOCATION_PERMISSION_DENIED);
                         break;
@@ -318,6 +321,10 @@ public class ZendriveManager {
                 notificationManager.notify(
                         NotificationUtility.LOCATION_PERMISSION_DENIED_NOTIFICATION_ID,
                         NotificationUtility.createLocationPermissionDeniedNotification(context));
+            } else if (issueType == ZendriveIssueType.PRECISE_LOCATION_DENIED) {
+                notificationManager.notify(
+                        NotificationUtility.PRECISE_LOCATION_DENIED_NOTIFICATION_ID,
+                        NotificationUtility.createPreciseLocationDeniedNotification(context));
             } else if (issueType == ZendriveIssueType.ACTIVITY_RECOGNITION_PERMISSION_DENIED) {
                 notificationManager.notify(
                         NotificationUtility.ACTIVITY_PERMISSION_DENIED_NOTIFICATION_ID,
