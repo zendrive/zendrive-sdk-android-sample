@@ -55,10 +55,11 @@ android {
 }
 
 dependencies {
-    def zendrive_sdk_version = '9.2.0'
+    def zendrive_sdk_version = '10.0.0'
     implementation "com.zendrive.sdk.android:ZendriveSDK:$zendrive_sdk_version"
-    implementation 'com.google.android.gms:play-services-location:12.0.0'
-    implementation 'com.google.android.gms:play-services-maps:12.0.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
