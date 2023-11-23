@@ -14,5 +14,15 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url 's3://android.zendrive.com/maven-internal/'
+            authentication {
+                awsIm(AwsImAuthentication)
+            }
+            content {
+                includeGroup "com.zendrive.sdk.android"
+            }
+        }
+        maven { url 'https://developer.huawei.com/repo/'}
     }
 }
