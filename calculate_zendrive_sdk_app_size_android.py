@@ -4,15 +4,13 @@ import re
 import subprocess
 import os
 
-git_root = os.environ.get("GIT_ROOT")
-sdk_android_sample_project_path = os.path.join(git_root, "../sdk-android-sample/")
-
 
 # Check Java version is set as 11
 def check_java_version():
     # Run the 'java -version' command and capture the output
     try:
-        java_version_output = subprocess.check_output(['java', '-version'], stderr=subprocess.STDOUT, universal_newlines=True)
+        java_version_output = subprocess.check_output(['java', '-version'], stderr=subprocess.STDOUT,
+                                                      universal_newlines=True)
     except subprocess.CalledProcessError as e:
         java_version_output = e.output
 
@@ -43,19 +41,18 @@ def build_and_bundle_android_project():
     print("\tBundle successful")
 
 
-def get_min_max_sample_app_size(release_type):
+def get_min_max_sample_app_size(sdk_android_sample_project_path, release_type):
     os.chdir(sdk_android_sample_project_path)
     os.chdir(f"app/build/outputs/bundle/{release_type}")
-    home_directory = os.path.expanduser("~")
 
     print("\tBuild apk using bundle tool")
     # Build the project
-    build_command = f"java -jar {home_directory}/bundletool-all-1.15.4.jar build-apks --bundle=app-{release_type}.aab --output=my_app.apks"
+    build_command = f"java -jar {sdk_android_sample_project_path}/bundletool-all-1.15.4.jar build-apks --bundle=app-{release_type}.aab --output=my_app.apks"
     subprocess.run(build_command.split())
     print("\tApk builded successfully")
 
     # Build the project
-    build_command = f"java -jar {home_directory}/bundletool-all-1.15.4.jar get-size total --apks=my_app.apks"
+    build_command = f"java -jar {sdk_android_sample_project_path}/bundletool-all-1.15.4.jar get-size total --apks=my_app.apks"
     completed_process = subprocess.run(build_command.split(), stdout=subprocess.PIPE)
     process_output = completed_process.stdout.decode('utf-8')
     # Split the lines of the output
@@ -66,10 +63,10 @@ def get_min_max_sample_app_size(release_type):
 
 
 # Get sample app size
-def get_release_debug_min_max_sample_app_size():
+def get_release_debug_min_max_sample_app_size(sdk_android_sample_project_path):
     build_and_bundle_android_project()
-    release_min_app_size, release_max_app_size = get_min_max_sample_app_size("release")
-    debug_min_app_size, debug_max_app_size = get_min_max_sample_app_size("debug")
+    release_min_app_size, release_max_app_size = get_min_max_sample_app_size(sdk_android_sample_project_path, "release")
+    debug_min_app_size, debug_max_app_size = get_min_max_sample_app_size(sdk_android_sample_project_path, "debug")
     app_size = {
         "release_min": int(release_min_app_size)/1000000,
         "release_max": int(release_max_app_size)/1000000,
@@ -79,7 +76,7 @@ def get_release_debug_min_max_sample_app_size():
     return app_size
 
 
-def update_build_gradle_variable(file_path, variable_name, new_value):
+def update_build_gradle_variable(sdk_android_sample_project_path, file_path, variable_name, new_value):
     # Change the working directory to the root directory of your Android project
     os.chdir(sdk_android_sample_project_path)
     updated = False
@@ -103,7 +100,7 @@ def update_build_gradle_variable(file_path, variable_name, new_value):
         print(f"Variable '{variable_name}' not found in {file_path}")
 
 
-def update_dependency_name(file_path, old_dependency_name, new_dependency_name):
+def update_dependency_name(sdk_android_sample_project_path, file_path, old_dependency_name, new_dependency_name):
     os.chdir(sdk_android_sample_project_path)
     updated = False
     # Regular expression pattern to match the dependency with the specified name
@@ -136,14 +133,26 @@ def main(args):
 
     check_java_version()
     build_file = 'app/build.gradle'
+    sdk_android_sample_project_absolute_path = os.path.abspath(args.sdk_android_sample_project_path)
 
     # GMS Build
-    update_build_gradle_variable(build_file, "zendrive_sdk_version", args.zendrive_sdk_version)
-    sample_app_with_zendrive_sdk_gms = get_release_debug_min_max_sample_app_size()
+    update_build_gradle_variable(sdk_android_sample_project_absolute_path, build_file, "zendrive_sdk_version", args.zendrive_sdk_version)
+    sample_app_with_zendrive_sdk_gms = get_release_debug_min_max_sample_app_size(sdk_android_sample_project_absolute_path)
 
     # HMS Build
-    update_dependency_name(build_file, "ZendriveSDK", "ZendriveSDK-HMS")
-    sample_app_with_zendrive_sdk_hms = get_release_debug_min_max_sample_app_size()
+    update_dependency_name(sdk_android_sample_project_absolute_path, build_file, "ZendriveSDK", "ZendriveSDK-HMS")
+    sample_app_with_zendrive_sdk_hms = get_release_debug_min_max_sample_app_size(sdk_android_sample_project_absolute_path)
+
+    # To verify the build version
+    file_path = f"{sdk_android_sample_project_absolute_path}/app/build.gradle"
+
+    # Open the file
+    with open(file_path, 'r') as file:
+        for line in file:
+            if line.lstrip().startswith('def zendrive_sdk_version'):
+                build_number = line.split("'")[1]
+                print("Build number for Zendrive SDK Android : ", build_number)
+                break
 
     print("\n")
     for key, value in sample_app_with_zendrive_sdk_gms.items():
@@ -165,4 +174,5 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--zendrive_sdk_version', dest='zendrive_sdk_version', required=True, help="""Version of zendrive_sdk""")
+    parser.add_argument('-p', '--sdk_android_sample_project_path', dest='sdk_android_sample_project_path', required=True, help="""Path for sample app project""")
     main(args=parser.parse_args())
