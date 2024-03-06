@@ -1,0 +1,1 @@
+This repository is owned and created by Zendrive, Inc. ("Zendrive").  It is intended for use by Zendrive's customers and is subject to Zendrive's terms of service located [here](https://www.zendrive.com/terms).
